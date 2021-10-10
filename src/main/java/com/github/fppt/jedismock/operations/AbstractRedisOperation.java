@@ -1,5 +1,6 @@
 package com.github.fppt.jedismock.operations;
 
+import com.github.fppt.jedismock.server.RMLinkedList;
 import com.github.fppt.jedismock.server.Slice;
 import com.github.fppt.jedismock.storage.RedisBase;
 
@@ -28,6 +29,11 @@ abstract class AbstractRedisOperation implements RedisOperation {
 
     List<Slice> params(){
         return params;
+    }
+
+    public RMLinkedList getLinkedListFromBase(Slice key) {
+        Slice data = base().getValue(key);
+        return new RMLinkedList(data);
     }
 
     <V> V getDataFromBase(Slice key, V defaultResponse){

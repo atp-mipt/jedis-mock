@@ -9,7 +9,7 @@ import java.util.Arrays;
  * Created by Xiaolu on 2015/4/23.
  */
 @AutoValue
-public abstract class Slice implements Comparable<Slice>, Serializable {
+public abstract class Slice implements Comparable<Slice>, Serializable, RMDataStructure {
     private static final String RESERVED_SLICE_NAME = "Reserved String In Jedis Mock";
     private static final byte[] RESERVED_SLICE_BYTES = RESERVED_SLICE_NAME.getBytes();
     private static Slice RESERVED_SLICE = null;
