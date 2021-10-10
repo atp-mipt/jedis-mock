@@ -1,5 +1,6 @@
 package com.github.fppt.jedismock.operations;
 
+import com.github.fppt.jedismock.server.RMMap;
 import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.server.Slice;
 import com.github.fppt.jedismock.storage.RedisBase;
@@ -22,7 +23,9 @@ class RO_zadd extends AbstractRedisOperation {
     @Override
     Slice response() {
         Slice key = params().get(0);
-        LinkedHashMap<Slice, Double> map = getDataFromBase(key, new LinkedHashMap<>());
+
+        final RMMap mapDBObj = getMapFromBase(key);
+        final Map<Slice, Double> map = mapDBObj.getStoredMap();
 
         int count = 0;
         for (int i = 1; i < params().size(); i += 2) {
