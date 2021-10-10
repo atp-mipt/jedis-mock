@@ -1,5 +1,6 @@
 package com.github.fppt.jedismock.operations;
 
+import com.github.fppt.jedismock.server.RMMap;
 import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.server.Slice;
 import com.github.fppt.jedismock.storage.RedisBase;
@@ -22,7 +23,8 @@ public class RO_zremrangebyscore extends AbstractByScoreOperation {
     @Override
     Slice response() {
         final Slice key = params().get(0);
-        final LinkedHashMap<Slice, Double> map = getDataFromBase(key, new LinkedHashMap<>());
+        final RMMap mapDBObj = getMapFromBase(key);
+        final Map<Slice, Double> map = mapDBObj.getStoredMap();
 
         if (map == null || map.isEmpty()) return Response.integer(0);
 

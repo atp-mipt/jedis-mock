@@ -1,5 +1,6 @@
 package com.github.fppt.jedismock.operations;
 
+import com.github.fppt.jedismock.server.RMMap;
 import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.server.Slice;
 import com.github.fppt.jedismock.storage.RedisBase;
@@ -17,8 +18,9 @@ class RO_zscore extends AbstractRedisOperation {
     Slice response() {
         Slice key = params().get(0);
         Slice val = params().get(1);
-        
-        Map<Slice, Double> map = getDataFromBase(key, new LinkedHashMap<>());
+
+        final RMMap mapDBObj = getMapFromBase(key);
+        final Map<Slice, Double> map = mapDBObj.getStoredMap();
         
         if(val == null || val.toString().isEmpty()) {
             return Response.error("Valid parameter must be provided");
