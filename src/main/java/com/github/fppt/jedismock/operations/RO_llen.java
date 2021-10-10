@@ -1,5 +1,6 @@
 package com.github.fppt.jedismock.operations;
 
+import com.github.fppt.jedismock.server.RMLinkedList;
 import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.server.Slice;
 import com.github.fppt.jedismock.storage.RedisBase;
@@ -15,7 +16,8 @@ class RO_llen extends AbstractRedisOperation {
 
     Slice response() {
         Slice key = params().get(0);
-        LinkedList<Slice> list = getDataFromBase(key, Lists.newLinkedList());
+        RMLinkedList listDBObj = getLinkedListFromBase(key);
+        LinkedList<Slice> list = listDBObj.getStoredList();
         return Response.integer(list.size());
     }
 }
