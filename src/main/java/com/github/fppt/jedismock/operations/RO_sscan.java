@@ -1,5 +1,6 @@
 package com.github.fppt.jedismock.operations;
 
+import com.github.fppt.jedismock.server.RMSet;
 import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.server.Slice;
 import com.github.fppt.jedismock.storage.RedisBase;
@@ -25,7 +26,8 @@ class RO_sscan extends RO_scan {
 
     @Override
     protected List<Slice> getMatchingValues(String regex, long cursor, long count) {
-        Set<Slice> set = getDataFromBase(keySlice, new HashSet<>());
+        RMSet setDBObj = getSetFromBase(keySlice);
+        Set<Slice> set = setDBObj.getStoredSet();
         this.size = set.size();
         return set.stream().skip(cursor)
                 .limit(count)

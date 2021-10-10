@@ -1,10 +1,10 @@
 package com.github.fppt.jedismock.operations;
 
+import com.github.fppt.jedismock.server.RMSet;
 import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.storage.RedisBase;
 import com.github.fppt.jedismock.server.Slice;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -18,7 +18,8 @@ class RO_sadd extends AbstractRedisOperation {
     @Override
     Slice response() {
         Slice key = params().get(0);
-        Set<Slice> set = getDataFromBase(key, new HashSet<>());
+        RMSet setDBObj = getSetFromBase(key);
+        Set<Slice> set = setDBObj.getStoredSet();
 
         int count = 0;
         for (int i = 1; i < params().size(); i++) {
