@@ -7,19 +7,13 @@ import com.google.common.collect.Lists;
 import java.util.LinkedList;
 import java.util.List;
 
-class RO_lpush extends RO_add<LinkedList<Slice>> {
+class RO_lpush extends RO_add {
     RO_lpush(RedisBase base, List<Slice> params) {
         super(base, params);
     }
 
     @Override
-    void addSliceToCollection(LinkedList<Slice> list, Slice slice) {
-        list.addFirst(slice);
+    void addSliceToList(List<Slice> list, Slice slice) {
+        list.add(0, slice);
     }
-
-    @Override
-    LinkedList<Slice> getDefaultResponse() {
-        return Lists.newLinkedList();
-    }
-
 }

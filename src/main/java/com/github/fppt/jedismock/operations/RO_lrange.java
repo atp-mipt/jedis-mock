@@ -1,13 +1,11 @@
 package com.github.fppt.jedismock.operations;
 
-import com.github.fppt.jedismock.server.RMLinkedList;
+import com.github.fppt.jedismock.server.RMList;
 import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.server.Slice;
 import com.github.fppt.jedismock.storage.RedisBase;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import static com.github.fppt.jedismock.Utils.convertToInteger;
@@ -19,8 +17,8 @@ class RO_lrange extends AbstractRedisOperation {
 
     Slice response() {
         Slice key = params().get(0);
-        RMLinkedList listDBObj = getLinkedListFromBase(key);
-        LinkedList<Slice> list = listDBObj.getStoredList();
+        RMList listDBObj = getListFromBase(key);
+        List<Slice> list = listDBObj.getStoredList();
 
         int start = convertToInteger(params().get(1).toString());
         int end = convertToInteger(params().get(2).toString());
