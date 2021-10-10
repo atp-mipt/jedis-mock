@@ -1,5 +1,6 @@
 package com.github.fppt.jedismock.operations;
 
+import com.github.fppt.jedismock.server.RMSet;
 import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.server.Slice;
 import com.github.fppt.jedismock.storage.RedisBase;
@@ -15,7 +16,8 @@ class RO_scard extends AbstractRedisOperation {
 
     Slice response() {
         Slice key = params().get(0);
-        Set<Slice> set = getDataFromBase(key, null);
+        RMSet setDBObj = getSetFromBase(key);
+        Set<Slice> set = setDBObj.getStoredSet();
         if(set == null || set.isEmpty()) return Response.integer(0);
         return Response.integer(set.size());
     }
