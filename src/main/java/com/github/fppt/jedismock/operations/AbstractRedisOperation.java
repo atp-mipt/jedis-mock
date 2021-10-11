@@ -1,9 +1,9 @@
 package com.github.fppt.jedismock.operations;
 
-import com.github.fppt.jedismock.server.RMList;
-import com.github.fppt.jedismock.server.RMMap;
-import com.github.fppt.jedismock.server.RMSet;
-import com.github.fppt.jedismock.server.Slice;
+import com.github.fppt.jedismock.datastructures.RMList;
+import com.github.fppt.jedismock.datastructures.RMMap;
+import com.github.fppt.jedismock.datastructures.RMSet;
+import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.storage.RedisBase;
 
 import java.util.List;

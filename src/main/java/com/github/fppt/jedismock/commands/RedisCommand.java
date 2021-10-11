@@ -1,6 +1,6 @@
 package com.github.fppt.jedismock.commands;
 
-import com.github.fppt.jedismock.server.Slice;
+import com.github.fppt.jedismock.datastructures.Slice;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.Lists;
 

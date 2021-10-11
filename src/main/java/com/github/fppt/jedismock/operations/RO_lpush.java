@@ -1,10 +1,8 @@
 package com.github.fppt.jedismock.operations;
 
 import com.github.fppt.jedismock.storage.RedisBase;
-import com.github.fppt.jedismock.server.Slice;
-import com.google.common.collect.Lists;
+import com.github.fppt.jedismock.datastructures.Slice;
 
-import java.util.LinkedList;
 import java.util.List;
 
 class RO_lpush extends RO_add {
