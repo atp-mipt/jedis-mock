@@ -16,12 +16,14 @@ abstract class RO_pop<V extends Collection<Slice>> extends AbstractRedisOperatio
 
     abstract Slice popper(V list);
 
+    abstract V getDataFromBase(Slice key);
+
     Slice response() {
         Slice key = params().get(0);
-        V list = getDataFromBase(key, null);
-        if(list == null || list.isEmpty()) return Response.NULL;
-        Slice v = popper(list);
-        base().putValue(key, serializeObject(list));
+        V collection = getDataFromBase(key);
+        if(collection == null || collection.isEmpty()) return Response.NULL;
+        Slice v = popper(collection);
+        base().putValue(key, serializeObject(collection));
         return Response.bulkString(v);
     }
 }

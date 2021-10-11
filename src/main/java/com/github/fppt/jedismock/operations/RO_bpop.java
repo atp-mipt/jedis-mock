@@ -21,6 +21,8 @@ abstract class RO_bpop extends AbstractRedisOperation {
 
     abstract RO_pop popper(List<Slice> params);
 
+    abstract List<Slice> getDataFromBase(Slice key);
+
     void doOptionalWork() {
         source = null;
         int size = params().size();
