@@ -8,7 +8,6 @@ import com.github.fppt.jedismock.storage.RedisBase;
 
 import java.util.List;
 
-import static com.github.fppt.jedismock.Utils.deserializeObject;
 
 abstract class AbstractRedisOperation implements RedisOperation {
     private final RedisBase base;
@@ -46,15 +45,6 @@ abstract class AbstractRedisOperation implements RedisOperation {
     public RMMap getMapFromBase(Slice key) {
         Slice data = base.getValue(key);
         return new RMMap(data);
-    }
-
-    <V> V getDataFromBase(Slice key, V defaultResponse){
-        Slice data = base().getValue(key);
-        if (data != null) {
-            return deserializeObject(data);
-        } else {
-            return defaultResponse;
-        }
     }
 
     @Override
