@@ -1,27 +1,23 @@
-package com.github.fppt.jedismock.server;
+package com.github.fppt.jedismock.datastructures;
 
 import com.github.fppt.jedismock.exception.WrongValueTypeException;
+
 import static com.github.fppt.jedismock.Utils.deserializeObject;
 
 import java.util.LinkedList;
 import java.util.List;
 
-public class RMList implements RMDataStructure {
-    private final List<Slice> storedList;
+public class RMList extends RMDataStructure<List<Slice>> {
 
     public RMList(Slice data) {
         if (data == null) {
-            storedList = new LinkedList<>();
+            storedData = new LinkedList<>();
             return;
         }
         try {
-            storedList = deserializeObject(data);
+            storedData = deserializeObject(data);
         } catch (WrongValueTypeException e) {
             throw new WrongValueTypeException("WRONGTYPE Failed to deserialize LinkedList<Slice> value");
         }
-    }
-
-    public List<Slice> getStoredList() {
-        return storedList;
     }
 }

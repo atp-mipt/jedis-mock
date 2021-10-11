@@ -1,8 +1,8 @@
 package com.github.fppt.jedismock.operations;
 
-import com.github.fppt.jedismock.server.RMList;
+import com.github.fppt.jedismock.datastructures.RMList;
 import com.github.fppt.jedismock.server.Response;
-import com.github.fppt.jedismock.server.Slice;
+import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.storage.RedisBase;
 
 import java.util.List;
@@ -19,7 +19,7 @@ abstract class RO_add extends AbstractRedisOperation {
     Slice response() {
         Slice key = params().get(0);
         final RMList listDBObj = getListFromBase(key);
-        final List<Slice> list = listDBObj.getStoredList();
+        final List<Slice> list = listDBObj.getStoredData();
 
         for (int i = 1; i < params().size(); i++) {
             addSliceToList(list, params().get(i));

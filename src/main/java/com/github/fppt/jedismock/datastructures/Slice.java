@@ -1,4 +1,4 @@
-package com.github.fppt.jedismock.server;
+package com.github.fppt.jedismock.datastructures;
 
 import com.google.auto.value.AutoValue;
 
@@ -9,7 +9,7 @@ import java.util.Arrays;
  * Created by Xiaolu on 2015/4/23.
  */
 @AutoValue
-public abstract class Slice implements Comparable<Slice>, Serializable, RMDataStructure {
+public abstract class Slice extends RMDataStructure<Slice> implements Comparable<Slice>, Serializable {
     private static final String RESERVED_SLICE_NAME = "Reserved String In Jedis Mock";
     private static final byte[] RESERVED_SLICE_BYTES = RESERVED_SLICE_NAME.getBytes();
     private static Slice RESERVED_SLICE = null;

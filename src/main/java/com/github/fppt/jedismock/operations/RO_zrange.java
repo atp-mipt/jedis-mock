@@ -1,12 +1,11 @@
 package com.github.fppt.jedismock.operations;
 
-import com.github.fppt.jedismock.server.RMMap;
+import com.github.fppt.jedismock.datastructures.RMMap;
 import com.github.fppt.jedismock.server.Response;
-import com.github.fppt.jedismock.server.Slice;
+import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.storage.RedisBase;
 import com.google.common.collect.Lists;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -25,7 +24,7 @@ class RO_zrange extends AbstractRedisOperation {
     Slice response() {
         Slice key = params().get(0);
         final RMMap mapDBObj = getMapFromBase(key);
-        final Map<Slice, Double> map = mapDBObj.getStoredMap();
+        final Map<Slice, Double> map = mapDBObj.getStoredData();
 
         int start = convertToInteger(params().get(1).toString());
         int end = convertToInteger(params().get(2).toString());
