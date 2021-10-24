@@ -1,6 +1,6 @@
 package com.github.fppt.jedismock.operations;
 
-import com.github.fppt.jedismock.datastructures.RMMap;
+import com.github.fppt.jedismock.datastructures.RMHMap;
 import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.storage.RedisBase;
@@ -18,7 +18,7 @@ class RO_zrem extends AbstractRedisOperation {
 
     Slice response() {
         Slice key = params().get(0);
-        final RMMap mapDBObj = getMapFromBase(key);
+        final RMHMap mapDBObj = getHMapFromBase(key);
         final Map<Slice, Double> map = mapDBObj.getStoredData();
         if(map == null || map.isEmpty()) return Response.integer(0);
         int count = 0;

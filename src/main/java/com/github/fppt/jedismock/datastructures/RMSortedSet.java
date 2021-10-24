@@ -2,27 +2,26 @@ package com.github.fppt.jedismock.datastructures;
 
 import com.github.fppt.jedismock.exception.WrongValueTypeException;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.LinkedHashMap;
 
 import static com.github.fppt.jedismock.Utils.deserializeObject;
 
-public class RMSet implements RMDataStructure {
-    protected Set<Slice> storedData;
+public class RMSortedSet implements RMDataStructure {
+    protected LinkedHashMap<Slice, Double> storedData;
 
-    public Set<Slice> getStoredData() {
+    public LinkedHashMap<Slice, Double> getStoredData() {
         return storedData;
     }
 
-    public RMSet(Slice data) {
+    public RMSortedSet(Slice data) {
         if (data == null) {
-            storedData = new HashSet<>();
+            storedData = new LinkedHashMap<>();
             return;
         }
         try {
             storedData = deserializeObject(data);
         } catch (WrongValueTypeException e) {
-            throw new WrongValueTypeException("WRONGTYPE Failed to deserialize HashSet<Slice> value");
+            throw new WrongValueTypeException("WRONGTYPE Failed to deserialize LinkedHashMap<Slice, Double> value");
         }
     }
 }

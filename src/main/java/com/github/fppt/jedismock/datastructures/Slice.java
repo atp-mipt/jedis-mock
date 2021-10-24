@@ -4,7 +4,7 @@ package com.github.fppt.jedismock.datastructures;
 import java.io.Serializable;
 import java.util.Arrays;
 
-public class Slice extends RMDataStructure<Slice> implements Comparable<Slice>, Serializable {
+public class Slice implements RMDataStructure, Comparable<Slice>, Serializable {
     private static final String RESERVED_SLICE_NAME = "Reserved String In Jedis Mock";
     private static final byte[] RESERVED_SLICE_BYTES = RESERVED_SLICE_NAME.getBytes();
     private static Slice RESERVED_SLICE = null;

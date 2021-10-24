@@ -7,8 +7,14 @@ import java.util.Map;
 
 import static com.github.fppt.jedismock.Utils.deserializeObject;
 
-public class RMMap extends RMDataStructure<Map<Slice, Double>> {
-    public RMMap(Slice data) {
+public class RMHMap implements RMDataStructure {
+    protected Map<Slice, Double> storedData;
+
+    public Map<Slice, Double> getStoredData() {
+        return storedData;
+    }
+
+    public RMHMap(Slice data) {
         if (data == null) {
             storedData = new LinkedHashMap<>();
             return;

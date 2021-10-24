@@ -1,6 +1,6 @@
 package com.github.fppt.jedismock.operations;
 
-import com.github.fppt.jedismock.datastructures.RMMap;
+import com.github.fppt.jedismock.datastructures.RMHMap;
 import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.storage.RedisBase;
@@ -19,7 +19,7 @@ class RO_zscore extends AbstractRedisOperation {
         Slice key = params().get(0);
         Slice val = params().get(1);
 
-        final RMMap mapDBObj = getMapFromBase(key);
+        final RMHMap mapDBObj = getHMapFromBase(key);
         final Map<Slice, Double> map = mapDBObj.getStoredData();
         
         if(val == null || val.toString().isEmpty()) {

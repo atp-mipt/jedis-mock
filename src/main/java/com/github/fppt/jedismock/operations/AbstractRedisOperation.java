@@ -1,7 +1,7 @@
 package com.github.fppt.jedismock.operations;
 
 import com.github.fppt.jedismock.datastructures.RMList;
-import com.github.fppt.jedismock.datastructures.RMMap;
+import com.github.fppt.jedismock.datastructures.RMHMap;
 import com.github.fppt.jedismock.datastructures.RMSet;
 import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.storage.RedisBase;
@@ -42,9 +42,9 @@ abstract class AbstractRedisOperation implements RedisOperation {
         return new RMSet(data);
     }
 
-    public RMMap getMapFromBase(Slice key) {
+    public RMHMap getHMapFromBase(Slice key) {
         Slice data = base.getValue(key);
-        return new RMMap(data);
+        return new RMHMap(data);
     }
 
     @Override

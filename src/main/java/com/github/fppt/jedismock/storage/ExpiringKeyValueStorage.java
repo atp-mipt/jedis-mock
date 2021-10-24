@@ -2,7 +2,6 @@ package com.github.fppt.jedismock.storage;
 
 import com.github.fppt.jedismock.Utils;
 import com.github.fppt.jedismock.datastructures.Slice;
-import com.google.auto.value.AutoValue;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Maps;
@@ -12,18 +11,32 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+public class ExpiringKeyValueStorage {
+    private final Table<Slice, Slice, Slice> values;
+    private final Map<Slice, Long> ttls;
 
-/**
- * Used to represent an expiring storage layer.
- */
-@AutoValue
-public abstract class ExpiringKeyValueStorage {
-    public abstract Table<Slice, Slice, Slice> values();
+    public Table<Slice, Slice, Slice> values() {
+        return values;
+    }
 
-    public abstract Map<Slice, Long> ttls();
+    public Map<Slice, Long> ttls()  {
+        return ttls;
+    }
+
+    private ExpiringKeyValueStorage(Table<Slice, Slice, Slice> values,
+                                    Map<Slice, Long> ttls) {
+        if (values == null) {
+            throw new NullPointerException("Null values");
+        }
+        this.values = values;
+        if (ttls == null) {
+            throw new NullPointerException("Null ttls");
+        }
+        this.ttls = ttls;
+    }
 
     public static ExpiringKeyValueStorage create() {
-        return new AutoValue_ExpiringKeyValueStorage(HashBasedTable.create(), Maps.newHashMap());
+        return new ExpiringKeyValueStorage(HashBasedTable.create(), Maps.newHashMap());
     }
 
     public void delete(Slice key) {

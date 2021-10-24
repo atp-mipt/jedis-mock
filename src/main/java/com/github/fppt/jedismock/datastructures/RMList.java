@@ -7,7 +7,12 @@ import static com.github.fppt.jedismock.Utils.deserializeObject;
 import java.util.LinkedList;
 import java.util.List;
 
-public class RMList extends RMDataStructure<List<Slice>> {
+public class RMList implements RMDataStructure {
+    protected List<Slice> storedData;
+
+    public List<Slice> getStoredData() {
+        return storedData;
+    }
 
     public RMList(Slice data) {
         if (data == null) {
