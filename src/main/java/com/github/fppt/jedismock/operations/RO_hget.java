@@ -12,6 +12,6 @@ class RO_hget extends AbstractRedisOperation {
     }
 
     Slice response() {
-        return Response.bulkString(base().getValue(params().get(0), params().get(1)));
+        return Response.bulkString(base().getSlice(params().get(0), params().get(1)));
     }
 }

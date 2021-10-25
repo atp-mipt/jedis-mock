@@ -25,4 +25,9 @@ public class RMList implements RMDataStructure {
             throw new WrongValueTypeException("WRONGTYPE Failed to deserialize LinkedList<Slice> value");
         }
     }
+
+    @Override
+    public void raiseTypeCastException() {
+        throw new WrongValueTypeException("WRONGTYPE RMList value is used in the wrong place");
+    }
 }

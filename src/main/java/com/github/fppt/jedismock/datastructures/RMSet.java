@@ -25,4 +25,9 @@ public class RMSet implements RMDataStructure {
             throw new WrongValueTypeException("WRONGTYPE Failed to deserialize HashSet<Slice> value");
         }
     }
+
+    @Override
+    public void raiseTypeCastException() {
+        throw new WrongValueTypeException("WRONGTYPE RMSet value is used in the wrong place");
+    }
 }

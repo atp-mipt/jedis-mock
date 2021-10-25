@@ -19,7 +19,7 @@ public class RO_hmget extends AbstractRedisOperation {
 
         for(int i = 1; i < params().size(); i ++){
             Slice field = params().get(i);
-            Slice value = base().getValue(hash, field);
+            Slice value = base().getSlice(hash, field);
 
             if(value == null){
                 result.add(Response.NULL);

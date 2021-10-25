@@ -45,7 +45,7 @@ public class RO_zremrangebyscore extends AbstractByScoreOperation {
                         }, LinkedHashMap::new));
 
         try {
-            base().putValue(key, serializeObject(result));
+            base().putSlice(key, serializeObject(result));
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }

@@ -18,7 +18,7 @@ class RO_setex extends RO_set {
     }
 
     Slice response() {
-        base().putValue(params().get(0), params().get(2), valueToSet(params()));
+        base().putSlice(params().get(0), params().get(2), valueToSet(params()));
         return Response.OK;
     }
 }

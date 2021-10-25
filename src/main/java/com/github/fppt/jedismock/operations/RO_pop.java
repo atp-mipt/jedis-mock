@@ -23,7 +23,7 @@ abstract class RO_pop<V extends Collection<Slice>> extends AbstractRedisOperatio
         V collection = getDataFromBase(key);
         if(collection == null || collection.isEmpty()) return Response.NULL;
         Slice v = popper(collection);
-        base().putValue(key, serializeObject(collection));
+        base().putSlice(key, serializeObject(collection));
         return Response.bulkString(v);
     }
 }

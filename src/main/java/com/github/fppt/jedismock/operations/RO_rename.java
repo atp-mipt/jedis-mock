@@ -1,5 +1,6 @@
 package com.github.fppt.jedismock.operations;
 
+import com.github.fppt.jedismock.datastructures.RMDataStructure;
 import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.storage.RedisBase;
@@ -14,16 +15,13 @@ class RO_rename extends AbstractRedisOperation {
     }
 
     private boolean rename(Slice key, Slice newKey) {
-        Map<Slice, Slice> value = base().getFieldsAndValues(key);
+        RMDataStructure value = base().getValue(key);
         final Long ttl = base().getTTL(key);
-        if (ttl == null) {
+        if (ttl == null || value == null) {
             return false;
         }
-
         base().deleteValue(newKey);
-        for (Map.Entry<Slice, Slice> entry : value.entrySet()) {
-            base().putValue(newKey, entry.getKey(), entry.getValue(), ttl);
-        }
+        base().putValue(newKey, value, ttl);
         base().deleteValue(key);
         return true;
     }

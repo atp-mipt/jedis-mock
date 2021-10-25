@@ -48,7 +48,7 @@ class RO_zadd extends AbstractRedisOperation {
                 toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2, LinkedHashMap::new));
 
         try {
-            base().putValue(key, serializeObject(sortedMap));
+            base().putSlice(key, serializeObject(sortedMap));
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }

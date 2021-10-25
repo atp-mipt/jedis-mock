@@ -35,7 +35,7 @@ class RO_sinter extends AbstractRedisOperation {
 
     private Set<Slice> getSet(Slice key){
         Set<Slice> set;
-        Slice data = base().getValue(key);
+        Slice data = base().getSlice(key);
         if (data != null) {
             set = new HashSet<>(deserializeObject(data));
         } else {

@@ -25,4 +25,9 @@ public class RMHMap implements RMDataStructure {
             throw new WrongValueTypeException("WRONGTYPE Failed to deserialize LinkedHashMap<Slice, Double> value");
         }
     }
+
+    @Override
+    public void raiseTypeCastException() {
+        throw new WrongValueTypeException("WRONGTYPE RMHMap value is used in the wrong place");
+    }
 }

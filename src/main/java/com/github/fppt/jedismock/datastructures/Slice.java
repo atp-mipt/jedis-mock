@@ -1,14 +1,12 @@
 package com.github.fppt.jedismock.datastructures;
 
 
+import com.github.fppt.jedismock.exception.WrongValueTypeException;
+
 import java.io.Serializable;
 import java.util.Arrays;
 
 public class Slice implements RMDataStructure, Comparable<Slice>, Serializable {
-    private static final String RESERVED_SLICE_NAME = "Reserved String In Jedis Mock";
-    private static final byte[] RESERVED_SLICE_BYTES = RESERVED_SLICE_NAME.getBytes();
-    private static Slice RESERVED_SLICE = null;
-
     private static final long serialVersionUID = 247772234876073528L;
     private final byte[] data;
 
@@ -20,9 +18,6 @@ public class Slice implements RMDataStructure, Comparable<Slice>, Serializable {
     }
 
     public static Slice create(byte[] data){
-        if(Arrays.equals(data, RESERVED_SLICE_BYTES)){
-           throw new RuntimeException("Cannot create key/value in mock due to [" + RESERVED_SLICE_NAME + "] being reserved");
-        }
         return new Slice(data);
     }
 
@@ -32,14 +27,6 @@ public class Slice implements RMDataStructure, Comparable<Slice>, Serializable {
 
     public byte[] data() {
         return data;
-    }
-
-    public static synchronized Slice reserved(){
-        if (RESERVED_SLICE == null){
-            RESERVED_SLICE = new Slice(RESERVED_SLICE_BYTES) {
-            };
-        }
-        return RESERVED_SLICE;
     }
 
     public int length(){
@@ -59,6 +46,11 @@ public class Slice implements RMDataStructure, Comparable<Slice>, Serializable {
     @Override
     public int hashCode() {
         return Arrays.hashCode(data());
+    }
+
+    @Override
+    public void raiseTypeCastException() {
+        throw new WrongValueTypeException("WRONGTYPE Slice value is used in the wrong place");
     }
 
     public int compareTo(Slice b) {

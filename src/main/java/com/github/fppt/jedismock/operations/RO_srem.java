@@ -29,7 +29,7 @@ class RO_srem extends AbstractRedisOperation {
             }
         }
         try {
-            base().putValue(key, serializeObject(set));
+            base().putSlice(key, serializeObject(set));
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }

@@ -12,6 +12,6 @@ class RO_get extends AbstractRedisOperation {
     }
 
     Slice response() {
-        return Response.bulkString(base().getValue(params().get(0)));
+        return Response.bulkString(base().getSlice(params().get(0)));
     }
 }

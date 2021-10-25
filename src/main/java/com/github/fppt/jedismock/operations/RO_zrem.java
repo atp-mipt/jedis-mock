@@ -28,7 +28,7 @@ class RO_zrem extends AbstractRedisOperation {
             }
         }
         try {
-            base().putValue(key, serializeObject(map));
+            base().putSlice(key, serializeObject(map));
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
