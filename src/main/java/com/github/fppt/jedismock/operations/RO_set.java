@@ -13,8 +13,8 @@ class RO_set extends AbstractRedisOperation {
     }
 
     Slice response() {
-        Slice key = params(0);
-        Slice value = params(1);
+        Slice key = params().get(0);
+        Slice value = params().get(1);
 
         if (nx()) {
             Slice old = base().getValue(key);
@@ -44,37 +44,24 @@ class RO_set extends AbstractRedisOperation {
     private static final Slice PX = Slice.create("px");
 
     private boolean nx() {
-        int size = params().size();
-        for (int i = 0; i < size; i++) {
-            if (params(i).equals(NX))
-                return true;
-        }
-        return false;
+        return params().contains(NX);
     }
 
     private boolean xx() {
-        int size = params().size();
-        for (int i = 0; i < size; i++) {
-            if (params(i).equals(XX))
-                return true;
-        }
-        return false;
+        return params().contains(XX);
     }
 
     private Long ttl() {
-        int size = params().size();
-        for (int i = 0; i < size; i++) {
-            if (params(i).equals(EX)) {
-                return 1000 * Utils.convertToLong(new String(params(i + 1).data()));
-            } else if (params(i).equals(PX)) {
-                return Utils.convertToLong(new String(params(i + 1).data()));
+        Slice previous = null;
+        for (Slice param : params()) {
+            if (EX.equals(previous)) {
+                return 1000 * Utils.convertToLong(new String(param.data()));
+            } else if (PX.equals(previous)) {
+                return Utils.convertToLong(new String(param.data()));
             }
+            previous = param;
         }
         return null;
-    }
-
-    private Slice params(int i) {
-        return params().get(i);
     }
 
 }
