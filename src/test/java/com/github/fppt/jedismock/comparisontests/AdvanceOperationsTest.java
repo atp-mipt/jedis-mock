@@ -64,7 +64,7 @@ public class AdvanceOperationsTest {
         });
         subscribeLatch.await();
         //Give some time to subscribe
-        Thread.sleep(100);
+        Thread.sleep(1000);
 
         //publish message
         jedis.publish(channel, message);

@@ -38,28 +38,23 @@ class RO_set extends AbstractRedisOperation {
         }
     }
 
-    private static final Slice NX = Slice.create("nx");
-    private static final Slice XX = Slice.create("xx");
-    private static final Slice EX = Slice.create("ex");
-    private static final Slice PX = Slice.create("px");
-
     private boolean nx() {
-        return params().contains(NX);
+        return params().stream().map(Slice::toString).anyMatch("nx"::equalsIgnoreCase);
     }
 
     private boolean xx() {
-        return params().contains(XX);
+        return params().stream().map(Slice::toString).anyMatch("xx"::equalsIgnoreCase);
     }
 
     private Long ttl() {
-        Slice previous = null;
+        String previous = null;
         for (Slice param : params()) {
-            if (EX.equals(previous)) {
-                return 1000 * Utils.convertToLong(new String(param.data()));
-            } else if (PX.equals(previous)) {
-                return Utils.convertToLong(new String(param.data()));
+            if ("ex".equalsIgnoreCase(previous)) {
+                return 1000 * Utils.convertToLong(param.toString());
+            } else if ("px".equalsIgnoreCase(previous)) {
+                return Utils.convertToLong(param.toString());
             }
-            previous = param;
+            previous = param.toString();
         }
         return null;
     }
