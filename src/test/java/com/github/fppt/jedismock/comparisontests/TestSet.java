@@ -1,20 +1,13 @@
 package com.github.fppt.jedismock.comparisontests;
 
-import com.github.fppt.jedismock.commands.RedisCommandParser;
-import com.github.fppt.jedismock.exception.ParseErrorException;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.exceptions.JedisDataException;
 import redis.clients.jedis.params.SetParams;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 @ExtendWith(ComparisonBase.class)
 public class TestSet {
@@ -101,7 +94,7 @@ public class TestSet {
     private void testSetValueExpires(Jedis jedis, SetParams setParams) throws InterruptedException {
         assertEquals("OK", jedis.set(SET_KEY, SET_VALUE, setParams));
         assertEquals(SET_VALUE, jedis.get(SET_KEY));
-        Thread.sleep(1000);
+        Thread.sleep(1100);
         assertNull(jedis.get(SET_KEY));
     }
 
