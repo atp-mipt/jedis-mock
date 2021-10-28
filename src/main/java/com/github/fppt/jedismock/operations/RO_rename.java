@@ -6,7 +6,6 @@ import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.storage.RedisBase;
 
 import java.util.List;
-import java.util.Map;
 
 class RO_rename extends AbstractRedisOperation {
 

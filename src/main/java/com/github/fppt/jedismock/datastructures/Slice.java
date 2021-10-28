@@ -26,7 +26,7 @@ public class Slice implements RMDataStructure, Comparable<Slice>, Serializable {
     }
 
     public byte[] data() {
-        return data;
+        return Arrays.copyOf(data, data.length);
     }
 
     public int length(){

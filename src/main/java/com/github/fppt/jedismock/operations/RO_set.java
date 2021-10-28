@@ -22,7 +22,7 @@ class RO_set extends AbstractRedisOperation {
         Slice value = params().get(1);
 
         if (nx()) {
-            Slice old = base().getValue(key);
+            Slice old = base().getSlice(key);
             if (old == null) {
                 base().putValue(key, value, ttl());
                 return Response.OK;
@@ -30,7 +30,7 @@ class RO_set extends AbstractRedisOperation {
                 return Response.NULL;
             }
         } else if (xx()) {
-            Slice old = base().getValue(key);
+            Slice old = base().getSlice(key);
             if (old == null) {
                 return Response.NULL;
             } else {
