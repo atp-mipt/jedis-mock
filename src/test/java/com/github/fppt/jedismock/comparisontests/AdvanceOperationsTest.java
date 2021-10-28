@@ -45,6 +45,7 @@ public class AdvanceOperationsTest {
                         jedis.get("oobity-oobity-boo")).getMessage());
     }
 
+    @Disabled("fix multithreading")
     @TestTemplate
     public void whenSubscribingToAChannel_EnsurePublishedMessagesAreReceived(Jedis jedis) throws InterruptedException, ExecutionException {
         String channel = "normalbob";

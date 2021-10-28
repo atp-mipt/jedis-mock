@@ -6,10 +6,15 @@ import com.github.fppt.jedismock.server.Slice;
 import com.github.fppt.jedismock.storage.RedisBase;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 class RO_set extends AbstractRedisOperation {
+    private final List<String> additionalParams;
+
     RO_set(RedisBase base, List<Slice> params) {
         super(base, params);
+        additionalParams = params()
+                .stream().skip(2).map(Slice::toString).collect(Collectors.toList());
     }
 
     Slice response() {
@@ -39,22 +44,22 @@ class RO_set extends AbstractRedisOperation {
     }
 
     private boolean nx() {
-        return params().stream().map(Slice::toString).anyMatch("nx"::equalsIgnoreCase);
+        return additionalParams.stream().anyMatch("nx"::equalsIgnoreCase);
     }
 
     private boolean xx() {
-        return params().stream().map(Slice::toString).anyMatch("xx"::equalsIgnoreCase);
+        return additionalParams.stream().anyMatch("xx"::equalsIgnoreCase);
     }
 
     private Long ttl() {
         String previous = null;
-        for (Slice param : params()) {
+        for (String param : additionalParams) {
             if ("ex".equalsIgnoreCase(previous)) {
-                return 1000 * Utils.convertToLong(param.toString());
+                return 1000 * Utils.convertToLong(param);
             } else if ("px".equalsIgnoreCase(previous)) {
-                return Utils.convertToLong(param.toString());
+                return Utils.convertToLong(param);
             }
-            previous = param.toString();
+            previous = param;
         }
         return null;
     }

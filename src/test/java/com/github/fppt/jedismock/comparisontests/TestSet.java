@@ -33,6 +33,12 @@ public class TestSet {
         testSetXXWithParams(jedis, new SetParams().xx());
     }
 
+    @TestTemplate
+    void testSetXXKey(Jedis jedis){
+        jedis.set("xx", "foo");
+        assertEquals("foo", jedis.get("xx"));
+    }
+
     // SET key value EX s
     @TestTemplate
     public void testSetEX(Jedis jedis) throws InterruptedException {
