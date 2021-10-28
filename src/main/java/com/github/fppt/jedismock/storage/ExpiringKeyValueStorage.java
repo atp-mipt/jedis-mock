@@ -154,7 +154,7 @@ public class ExpiringKeyValueStorage {
         return setDeadline(key, ttl + System.currentTimeMillis());
     }
 
-    public void put(Slice key, RMDataStructure value, long ttl) {
+    public void put(Slice key, RMDataStructure value, Long ttl) {
         values().put(key, value);
         configureTTL(key, ttl);
     }
