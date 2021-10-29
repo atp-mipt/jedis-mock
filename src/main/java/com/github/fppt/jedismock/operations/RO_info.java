@@ -3,6 +3,7 @@ package com.github.fppt.jedismock.operations;
 import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.datastructures.Slice;
 
+@MetaOperation("info")
 class RO_info implements RedisOperation {
     @Override
     public Slice execute() {

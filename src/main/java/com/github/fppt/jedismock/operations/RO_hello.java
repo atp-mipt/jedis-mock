@@ -5,6 +5,7 @@ import com.github.fppt.jedismock.datastructures.Slice;
 
 import java.util.Arrays;
 
+@MetaOperation("hello")
 public class RO_hello implements RedisOperation {
 
     @Override
