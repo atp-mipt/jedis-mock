@@ -19,9 +19,8 @@ import java.util.stream.Collectors;
 public class RedisOperationExecutor {
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(RedisOperationExecutor.class);
     private static final Object lock = new Object();
+    private static final CombinedOperationFactory operationFactory = new CombinedOperationFactory();
     private final OperationExecutorState state;
-    private final CombinedOperationFactory operationFactory = new CombinedOperationFactory();
-
     public RedisOperationExecutor(OperationExecutorState state) {
         this.state = state;
     }
