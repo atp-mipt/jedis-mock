@@ -25,12 +25,14 @@ public class RedisOperationExecutor {
     }
 
 
-    public synchronized Slice execCommand(RedisCommand command) {
+    public Slice execCommand(RedisCommand command) {
         Preconditions.checkArgument(command.parameters().size() > 0);
         List<Slice> params = command.parameters();
         List<Slice> commandParams = params.subList(1, params.size());
         String name = new String(params.get(0).data()).toLowerCase();
 
+        //No parallel execution
+        state.getLock().lock();
         try {
             //Checking if we are affecting the server or client state.
             //This is done outside the context of a transaction which is why it's a separate check
@@ -49,6 +51,8 @@ public class RedisOperationExecutor {
         } catch (UnsupportedOperationException | WrongValueTypeException | IllegalArgumentException e) {
             LOG.error("Malformed request", e);
             return Response.error(e.getMessage());
+        } finally {
+            state.getLock().unlock();
         }
     }
 }

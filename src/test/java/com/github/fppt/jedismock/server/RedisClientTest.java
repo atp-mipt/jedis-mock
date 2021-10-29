@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.Collections;
+import java.util.concurrent.locks.ReentrantLock;
 
 class RedisClientTest {
     Socket s;
@@ -19,7 +20,7 @@ class RedisClientTest {
         s = Mockito.mock(Socket.class);
         Mockito.when(s.getInputStream()).thenReturn(Mockito.mock(InputStream.class));
         Mockito.when(s.getOutputStream()).thenReturn(Mockito.mock(OutputStream.class));
-        redisClient = new RedisClient(Collections.emptyMap(), s, ServiceOptions.defaultOptions());
+        redisClient = new RedisClient(new ReentrantLock(), Collections.emptyMap(), s, ServiceOptions.defaultOptions());
     }
 
     @Test

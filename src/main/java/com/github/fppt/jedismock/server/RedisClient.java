@@ -17,6 +17,7 @@ import java.net.Socket;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by Xiaolu on 2015/4/18.
@@ -30,12 +31,12 @@ public class RedisClient implements Runnable {
     private final InputStream in;
     private final OutputStream out;
 
-    RedisClient(Map<Integer, RedisBase> redisBases, Socket socket, ServiceOptions options) throws IOException {
+    RedisClient(ReentrantLock globalLock, Map<Integer, RedisBase> redisBases, Socket socket, ServiceOptions options) throws IOException {
         Preconditions.checkNotNull(redisBases);
         Preconditions.checkNotNull(socket);
         Preconditions.checkNotNull(options);
-
-        OperationExecutorState state = new OperationExecutorState(this, redisBases);
+        Preconditions.checkNotNull(globalLock);
+        OperationExecutorState state = new OperationExecutorState(this, globalLock, redisBases);
         this.executor = new RedisOperationExecutor(state);
         this.socket = socket;
         this.options = options;
