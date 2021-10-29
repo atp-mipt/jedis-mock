@@ -14,6 +14,7 @@ import static com.github.fppt.jedismock.Utils.convertToDouble;
 import static com.github.fppt.jedismock.Utils.serializeObject;
 import static java.util.stream.Collectors.toMap;
 
+@TxOperation("zadd")
 class RO_zadd extends AbstractRedisOperation {
 
     RO_zadd(RedisBase base, List<Slice> params) {
