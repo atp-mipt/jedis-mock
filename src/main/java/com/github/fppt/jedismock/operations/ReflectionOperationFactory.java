@@ -1,6 +1,6 @@
 package com.github.fppt.jedismock.operations;
 
-import com.github.fppt.jedismock.server.Slice;
+import com.github.fppt.jedismock.datastructures.Slice;
 import org.reflections.Reflections;
 
 import java.lang.annotation.Annotation;
@@ -29,7 +29,7 @@ public class ReflectionOperationFactory<T> implements RedisOperationFactory<T> {
             try {
                 String operationName = (String) method.invoke(annotation);
                 operations.put(operationName, aClass);
-            } catch (Exception e) {
+            } catch (ReflectiveOperationException e) {
                 throw new IllegalStateException(e);
             }
         }
