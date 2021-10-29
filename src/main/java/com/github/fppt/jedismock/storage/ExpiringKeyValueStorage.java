@@ -5,7 +5,6 @@ import com.github.fppt.jedismock.datastructures.RMDataStructure;
 import com.github.fppt.jedismock.datastructures.RMSortedSet;
 import com.github.fppt.jedismock.datastructures.Slice;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
 
 import java.util.HashMap;
 import java.util.List;
@@ -13,8 +12,8 @@ import java.util.Map;
 import java.util.Set;
 
 public class ExpiringKeyValueStorage {
-    private final Map<Slice, RMDataStructure> values;
-    private final Map<Slice, Long> ttls;
+    private final Map<Slice, RMDataStructure> values = new HashMap<>();
+    private final Map<Slice, Long> ttls = new HashMap<>();
 
     public Map<Slice, RMDataStructure> values() {
         return values;
@@ -22,22 +21,6 @@ public class ExpiringKeyValueStorage {
 
     public Map<Slice, Long> ttls()  {
         return ttls;
-    }
-
-    private ExpiringKeyValueStorage(Map<Slice, RMDataStructure> values,
-                                    Map<Slice, Long> ttls) {
-        if (values == null) {
-            throw new NullPointerException("Null values");
-        }
-        this.values = values;
-        if (ttls == null) {
-            throw new NullPointerException("Null ttls");
-        }
-        this.ttls = ttls;
-    }
-
-    public static ExpiringKeyValueStorage create() {
-        return new ExpiringKeyValueStorage(Maps.newHashMap(), Maps.newHashMap());
     }
 
     public void delete(Slice key) {

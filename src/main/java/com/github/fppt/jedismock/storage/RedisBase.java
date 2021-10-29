@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Created by Xiaolu on 2015/4/20.
  */
 public class RedisBase {
-    private final ExpiringKeyValueStorage keyValueStorage = ExpiringKeyValueStorage.create();
+    private final ExpiringKeyValueStorage keyValueStorage = new ExpiringKeyValueStorage();
     private final Map<Slice, Set<RedisClient>> subscribers = new ConcurrentHashMap<>();
 
     public RedisBase() {}
