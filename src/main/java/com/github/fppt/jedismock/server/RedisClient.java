@@ -18,8 +18,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-;
-
 /**
  * Created by Xiaolu on 2015/4/18.
  */
@@ -53,15 +51,13 @@ public class RedisClient implements Runnable {
             if (command.isPresent()) {
                 Slice response = executor.execCommand(command.get());
                 sendResponse(response, command.toString());
-
                 count++;
-                if (options.autoCloseOn() != 0 && options.autoCloseOn() == count) {
+                if (options.autoCloseOn() != 0 && options.autoCloseOn() <= count) {
                     break;
                 }
             }
         }
-
-        LOG.debug("Mock redis connection shutting down.");
+        LOG.debug("Mock redis connection shut down.");
     }
 
     /**
