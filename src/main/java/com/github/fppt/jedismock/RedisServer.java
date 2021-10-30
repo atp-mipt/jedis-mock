@@ -1,5 +1,6 @@
 package com.github.fppt.jedismock;
 
+import com.github.fppt.jedismock.operations.CommandFactory;
 import com.github.fppt.jedismock.server.RedisService;
 import com.github.fppt.jedismock.server.ServiceOptions;
 import com.github.fppt.jedismock.storage.RedisBase;
@@ -33,6 +34,7 @@ public class RedisServer {
         this.bindPort = port;
         this.redisBases = new HashMap<>();
         this.threadPool = Executors.newSingleThreadExecutor();
+        CommandFactory.initialize();
     }
 
     static public RedisServer newRedisServer() throws IOException {
