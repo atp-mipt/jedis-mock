@@ -21,7 +21,6 @@ public class RedisOperationExecutor {
         this.state = state;
     }
 
-
     public Slice execCommand(RedisCommand command) {
         Preconditions.checkArgument(command.parameters().size() > 0);
         List<Slice> params = command.parameters();
