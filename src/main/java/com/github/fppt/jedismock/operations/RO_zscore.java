@@ -8,7 +8,7 @@ import com.github.fppt.jedismock.storage.RedisBase;
 import java.util.List;
 import java.util.Map;
 
-@TxOperation("zscore")
+@RedisCommand("zscore")
 class RO_zscore extends AbstractRedisOperation {
     
     RO_zscore(RedisBase base, List<Slice> params) {

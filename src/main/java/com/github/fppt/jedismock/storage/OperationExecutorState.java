@@ -7,19 +7,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class OperationExecutorState {
     private final RedisClient owner;
     private final Map<Integer, RedisBase> redisBases;
-    private final ReentrantLock globalLock;
-    private AtomicBoolean isTransactionModeOn = new AtomicBoolean(false);
-    private List<RedisOperation> tx = new ArrayList<>();
+    private final AtomicBoolean isTransactionModeOn = new AtomicBoolean(false);
+    private final List<RedisOperation> tx = new ArrayList<>();
     private int selectedRedisBase = 0;
 
-    public OperationExecutorState(RedisClient owner, ReentrantLock globalLock, Map<Integer, RedisBase> redisBases){
+    public OperationExecutorState(RedisClient owner, Map<Integer, RedisBase> redisBases){
         this.owner = owner;
-        this.globalLock = globalLock;
         this.redisBases = redisBases;
     }
 
@@ -58,7 +55,7 @@ public class OperationExecutorState {
         }
     }
 
-    public ReentrantLock getLock() {
-        return globalLock;
+    public Object lock() {
+        return redisBases;
     }
 }

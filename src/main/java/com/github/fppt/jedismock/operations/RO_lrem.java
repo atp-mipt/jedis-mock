@@ -12,7 +12,7 @@ import static com.github.fppt.jedismock.Utils.convertToInteger;
 import static com.github.fppt.jedismock.Utils.deserializeObject;
 import static com.github.fppt.jedismock.Utils.serializeObject;
 
-@TxOperation("lrem")
+@RedisCommand("lrem")
 class RO_lrem extends AbstractRedisOperation {
     RO_lrem(RedisBase base, List<Slice> params) {
         super(base, params);

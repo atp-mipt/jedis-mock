@@ -8,7 +8,7 @@ import java.util.List;
 
 import static com.github.fppt.jedismock.Utils.convertToLong;
 
-@TxOperation("hincrby")
+@RedisCommand("hincrby")
 class RO_hincrby extends AbstractRedisOperation {
     RO_hincrby(RedisBase base, List<Slice> params) {
         super(base, params);

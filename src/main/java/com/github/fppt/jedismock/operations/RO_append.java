@@ -6,7 +6,7 @@ import com.github.fppt.jedismock.storage.RedisBase;
 
 import java.util.List;
 
-@TxOperation("append")
+@RedisCommand("append")
 class RO_append extends AbstractRedisOperation {
     RO_append(RedisBase base, List<Slice> params) {
         super(base, params);

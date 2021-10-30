@@ -6,7 +6,7 @@ import com.github.fppt.jedismock.storage.RedisBase;
 
 import java.util.List;
 
-@TxOperation("brpop")
+@RedisCommand("brpop")
 class RO_brpop extends RO_bpop {
 
     RO_brpop(RedisBase base, List<Slice> params) {

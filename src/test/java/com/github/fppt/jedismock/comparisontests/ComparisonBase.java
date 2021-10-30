@@ -82,6 +82,7 @@ public class ComparisonBase implements TestTemplateInvocationContextProvider,
                 }
             }, (AfterEachCallback) context ->
             {
+                jedis.resetState();
                 jedis.quit();
                 jedis.close();
             });

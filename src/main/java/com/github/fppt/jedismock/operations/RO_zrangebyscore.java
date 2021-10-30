@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 
 import static com.github.fppt.jedismock.Utils.convertToLong;
 
-@TxOperation("zrangebyscore")
+@RedisCommand("zrangebyscore")
 public class RO_zrangebyscore extends AbstractByScoreOperation {
     public RO_zrangebyscore(RedisBase base, List<Slice> params) {
         super(base, params);

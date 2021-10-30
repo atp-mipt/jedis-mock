@@ -6,7 +6,7 @@ import com.github.fppt.jedismock.datastructures.Slice;
 
 import java.util.List;
 
-@TxOperation("lpushx")
+@RedisCommand("lpushx")
 class RO_lpushx extends RO_lpush {
     RO_lpushx(RedisBase base, List<Slice> params) {
         super(base, params);

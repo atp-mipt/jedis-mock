@@ -10,7 +10,7 @@ import java.util.Set;
 
 import static com.github.fppt.jedismock.Utils.serializeObject;
 
-@TxOperation("sadd")
+@RedisCommand("sadd")
 class RO_sadd extends AbstractRedisOperation {
     RO_sadd(RedisBase base, List<Slice> params) {
         super(base, params);

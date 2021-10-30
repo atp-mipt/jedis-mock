@@ -7,7 +7,7 @@ import com.github.fppt.jedismock.storage.RedisBase;
 import java.util.Arrays;
 import java.util.List;
 
-@TxOperation("time")
+@RedisCommand("time")
 public class RO_time extends AbstractRedisOperation {
     RO_time(RedisBase base, List<Slice> params) {
         super(base, params);

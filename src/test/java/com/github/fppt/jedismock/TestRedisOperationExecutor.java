@@ -82,7 +82,7 @@ public class TestRedisOperationExecutor {
         //TODO: Mock out the client here
         Map<Integer, RedisBase> redisBases = new HashMap<>();
         redisBases.put(0, new RedisBase());
-        OperationExecutorState state = new OperationExecutorState(null, new ReentrantLock(), redisBases);
+        OperationExecutorState state = new OperationExecutorState(null, redisBases);
         executor = new RedisOperationExecutor(state);
     }
 

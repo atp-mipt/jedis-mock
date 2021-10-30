@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 import static com.github.fppt.jedismock.Utils.convertToLong;
 
-@TxOperation("scan")
+@RedisCommand("scan")
 class RO_scan extends AbstractRedisOperation {
 
     private static final long CURSOR_START = 0;

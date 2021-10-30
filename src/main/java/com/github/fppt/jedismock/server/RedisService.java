@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by Xiaolu on 2015/4/21.
@@ -21,7 +20,6 @@ public class RedisService implements Callable<Void> {
     private final Map<Integer, RedisBase> redisBases;
     private final ServiceOptions options;
     private final ExecutorService threadPool = Executors.newCachedThreadPool();
-    private final ReentrantLock globalLock = new ReentrantLock();
 
     public RedisService(int bindPort, Map<Integer, RedisBase> redisBases, ServiceOptions options) throws IOException {
         Preconditions.checkNotNull(redisBases);
@@ -35,7 +33,7 @@ public class RedisService implements Callable<Void> {
     public Void call() throws IOException {
         while (!server.isClosed()) {
             Socket socket = server.accept();
-            threadPool.submit(new RedisClient(globalLock, redisBases, socket, options));
+            threadPool.submit(new RedisClient(redisBases, socket, options));
         }
         return null;
     }

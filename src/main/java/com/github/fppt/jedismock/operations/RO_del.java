@@ -6,7 +6,7 @@ import com.github.fppt.jedismock.storage.RedisBase;
 
 import java.util.List;
 
-@TxOperation("del")
+@RedisCommand("del")
 class RO_del extends AbstractRedisOperation {
     RO_del(RedisBase base, List<Slice> params) {
         super(base, params);

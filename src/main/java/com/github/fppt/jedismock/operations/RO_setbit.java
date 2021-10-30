@@ -10,7 +10,7 @@ import java.util.List;
 import static com.github.fppt.jedismock.Utils.convertToByte;
 import static com.github.fppt.jedismock.Utils.convertToNonNegativeInteger;
 
-@TxOperation("setbit")
+@RedisCommand("setbit")
 class RO_setbit extends AbstractRedisOperation {
     RO_setbit(RedisBase base, List<Slice> params) {
         super(base, params);

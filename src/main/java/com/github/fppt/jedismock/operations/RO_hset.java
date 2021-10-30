@@ -6,7 +6,7 @@ import com.github.fppt.jedismock.storage.RedisBase;
 
 import java.util.List;
 
-@TxOperation("hset")
+@RedisCommand("hset")
 class RO_hset extends AbstractRedisOperation {
     RO_hset(RedisBase base, List<Slice> params) {
         super(base, params);

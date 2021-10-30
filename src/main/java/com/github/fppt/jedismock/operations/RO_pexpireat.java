@@ -8,7 +8,7 @@ import java.util.List;
 
 import static com.github.fppt.jedismock.Utils.convertToLong;
 
-@TxOperation("pexpireat")
+@RedisCommand("pexpireat")
 class RO_pexpireat extends AbstractRedisOperation {
     RO_pexpireat(RedisBase base, List<Slice> params) {
         super(base, params);
