@@ -7,7 +7,6 @@ import java.io.Serializable;
 import java.util.Arrays;
 
 public class Slice implements RMDataStructure, Comparable<Slice>, Serializable {
-    private static final long serialVersionUID = 247772234876073528L;
     private final byte[] data;
 
     private Slice(byte[] data) {

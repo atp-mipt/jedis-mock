@@ -198,16 +198,7 @@ public class ExpiringKeyValueStorage {
     }
 
     public boolean exists(Slice slice) {
-        if (values().containsKey(slice)) {
-            Long deadline = ttls().get(slice);
-            if (deadline != null && deadline != -1 && deadline <= System.currentTimeMillis()) {
-                delete(slice);
-                return false;
-            } else {
-                return true;
-            }
-        }
-        return false;
+        return verifyKey(slice);
     }
 
     private boolean isSortedSetValue(RMDataStructure value) {
@@ -223,7 +214,7 @@ public class ExpiringKeyValueStorage {
         RMDataStructure valueByKey = getValue(key);
 
         if (valueByKey == null) {
-            return Slice.create("hash");
+            return Slice.create("none");
         }
 
         if(isSortedSetValue(valueByKey)) {
