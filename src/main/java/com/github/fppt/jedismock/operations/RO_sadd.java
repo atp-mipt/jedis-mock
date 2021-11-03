@@ -28,8 +28,9 @@ class RO_sadd extends AbstractRedisOperation {
                 count++;
             }
         }
+
         try {
-            base().putSlice(key, serializeObject(set));
+            base().putValue(key, setDBObj);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }

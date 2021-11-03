@@ -2,6 +2,7 @@ package com.github.fppt.jedismock.storage;
 
 import com.github.fppt.jedismock.Utils;
 import com.github.fppt.jedismock.datastructures.RMDataStructure;
+import com.github.fppt.jedismock.datastructures.RMSet;
 import com.github.fppt.jedismock.datastructures.RMSortedSet;
 import com.github.fppt.jedismock.datastructures.Slice;
 
@@ -216,9 +217,11 @@ public class ExpiringKeyValueStorage {
         if (valueByKey == null) {
             return Slice.create("none");
         }
-
-        if(isSortedSetValue(valueByKey)) {
+        if (valueByKey instanceof RMSortedSet) {
             return Slice.create("hash");
+        }
+        if(valueByKey instanceof RMSet) {
+            return Slice.create("set");
         }
 
         Slice value = (Slice) valueByKey;
@@ -229,9 +232,6 @@ public class ExpiringKeyValueStorage {
             Object o = Utils.deserializeObject(value);
             if (o instanceof List){
                 return Slice.create("list");
-            }
-            if (o instanceof Set){
-                return Slice.create("set");
             }
             if (o instanceof Map){
                 return Slice.create("zset");

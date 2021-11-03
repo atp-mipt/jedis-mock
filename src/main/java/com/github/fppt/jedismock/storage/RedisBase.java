@@ -1,6 +1,7 @@
 package com.github.fppt.jedismock.storage;
 
 import com.github.fppt.jedismock.datastructures.RMDataStructure;
+import com.github.fppt.jedismock.datastructures.RMSet;
 import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.server.RedisClient;
 
@@ -41,6 +42,20 @@ public class RedisBase {
 
     public RMDataStructure getValue(Slice key) {
         return keyValueStorage.getValue(key);
+    }
+
+    public RMSet getSet(Slice key) {
+        RMDataStructure value = getValue(key);
+
+        if (value == null) {
+            return null;
+        }
+
+        if(!(value instanceof RMSet)) {
+            value.raiseTypeCastException();
+        }
+
+        return (RMSet) value;
     }
 
     public Map<Slice, Slice> getFieldsAndValues(Slice hash){
@@ -90,6 +105,10 @@ public class RedisBase {
 
     public void putValue(Slice key, RMDataStructure value, Long ttl) {
         keyValueStorage.put(key, value, ttl);
+    }
+
+    public void putValue(Slice key, RMDataStructure value) {
+        keyValueStorage.put(key, value, -1L);
     }
 
     public void deleteValue(Slice key) {

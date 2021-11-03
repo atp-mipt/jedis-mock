@@ -1,5 +1,6 @@
 package com.github.fppt.jedismock.operations;
 
+import com.github.fppt.jedismock.datastructures.RMSet;
 import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.storage.RedisBase;
@@ -20,24 +21,15 @@ class RO_sinter extends AbstractRedisOperation {
     @Override
     Slice response() {
         Slice key = params().get(0);
-        Set<Slice> resultSoFar = getSet(key);
+        RMSet setObj = getSetFromBase(key);
+        Set<Slice> resultSoFar = setObj.getStoredData();
 
-        for (int i = 1; i < params().size(); i++) {
-            Set<Slice> set = getSet(params().get(i));
-            resultSoFar.retainAll(set);
+        for(int i = 1; i < params().size(); i++){
+            RMSet secondSetObj = getSetFromBase(params().get(i));
+            Set<Slice> secondSet = secondSetObj.getStoredData();
+            resultSoFar.retainAll(secondSet);
         }
 
         return Response.array(resultSoFar.stream().map(Response::bulkString).collect(toList()));
-    }
-
-    private Set<Slice> getSet(Slice key) {
-        Set<Slice> set;
-        Slice data = base().getSlice(key);
-        if (data != null) {
-            set = new HashSet<>(deserializeObject(data));
-        } else {
-            set = new HashSet<>();
-        }
-        return set;
     }
 }

@@ -1,5 +1,6 @@
 package com.github.fppt.jedismock.operations;
 
+import com.github.fppt.jedismock.datastructures.RMSet;
 import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.storage.RedisBase;
@@ -19,30 +20,27 @@ class RO_pfmerge extends AbstractRedisOperation {
 
     Slice response() {
         Slice key = params().get(0);
-        Slice data = base().getSlice(key);
+        RMSet rmData = base().getSet(key);
         boolean first;
-
         Set<Slice> set;
-        if (data == null) {
+        if (rmData == null) {
             set = new HashSet<>();
             first = true;
         } else {
-            set = deserializeObject(data);
+            set = rmData.getStoredData();
             first = false;
         }
+
         for (Slice v : params().subList(1, params().size())) {
-            Slice src = base().getSlice(v);
-            if (src != null) {
-                Set<Slice> s = deserializeObject(src);
+            RMSet valueToMerge = base().getSet(v);
+            if (valueToMerge != null) {
+                Set<Slice> s = valueToMerge.getStoredData();
                 set.addAll(s);
             }
         }
 
-        Slice out = serializeObject(set);
         if (first) {
-            base().putSlice(key, out);
-        } else {
-            base().putSlice(key, out, null);
+            base().putValue(key, new RMSet(set));
         }
         return Response.OK;
     }

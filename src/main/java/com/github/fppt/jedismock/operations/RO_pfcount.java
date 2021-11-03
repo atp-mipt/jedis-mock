@@ -1,5 +1,6 @@
 package com.github.fppt.jedismock.operations;
 
+import com.github.fppt.jedismock.datastructures.RMSet;
 import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.storage.RedisBase;
@@ -19,12 +20,12 @@ class RO_pfcount extends AbstractRedisOperation {
     Slice response() {
         Set<Slice> set = new HashSet<>();
         for (Slice key : params()) {
-            Slice data = base().getSlice(key);
+            RMSet data = base().getSet(key);
             if (data == null) {
                 continue;
             }
 
-            Set<Slice> s = deserializeObject(data);
+            Set<Slice> s = data.getStoredData();
             set.addAll(s);
         }
         return Response.integer((long) set.size());

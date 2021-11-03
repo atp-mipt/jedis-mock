@@ -14,6 +14,14 @@ public class RMSet implements RMDataStructure {
         return storedData;
     }
 
+    public RMSet() {
+        storedData = new HashSet<>();
+    }
+
+    public RMSet(Set<Slice> data) {
+        storedData = data;
+    }
+
     public RMSet(Slice data) {
         if (data == null) {
             storedData = new HashSet<>();
