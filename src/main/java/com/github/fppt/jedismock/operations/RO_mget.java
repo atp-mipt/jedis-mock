@@ -15,6 +15,9 @@ class RO_mget extends AbstractRedisOperation {
     }
 
     Slice response() {
-        return Response.array(params().stream().map(key -> Response.bulkString(base().getSlice(key))).collect(toList()));
+        return Response.array(params().stream()
+                .map(key-> base().getSlice(key))
+                .map(Response::bulkString)
+                .collect(toList()));
     }
 }
