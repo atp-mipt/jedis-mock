@@ -5,7 +5,11 @@ import com.github.fppt.jedismock.datastructures.RMDataStructure;
 import com.github.fppt.jedismock.datastructures.RMSortedSet;
 import com.github.fppt.jedismock.datastructures.Slice;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 public class ExpiringKeyValueStorage {
     private final Map<Slice, RMDataStructure> values = new HashMap<>();
