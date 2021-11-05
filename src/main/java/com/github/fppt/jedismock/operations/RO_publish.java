@@ -5,7 +5,6 @@ import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.storage.RedisBase;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
