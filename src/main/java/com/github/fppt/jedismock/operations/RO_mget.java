@@ -6,7 +6,6 @@ import com.github.fppt.jedismock.storage.RedisBase;
 
 import static java.util.stream.Collectors.toList;
 
-import java.util.Collections;
 import java.util.List;
 
 @RedisCommand("mget")
@@ -16,6 +15,6 @@ class RO_mget extends AbstractRedisOperation {
     }
 
     Slice response() {
-        return Response.array(Collections.unmodifiableList(params().stream().map(key -> Response.bulkString(base().getSlice(key))).collect(toList())));
+        return Response.array(params().stream().map(key -> Response.bulkString(base().getSlice(key))).collect(toList()));
     }
 }

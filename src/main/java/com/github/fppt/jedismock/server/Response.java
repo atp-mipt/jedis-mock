@@ -32,7 +32,7 @@ public class Response {
             bo.write(slice.data());
             bo.write(LINE_SEPARATOR.getBytes());
         } catch (IOException e) {
-            throw new IllegalStateException();
+            throw new IllegalStateException(e);
         }
         return Slice.create(bo.toByteArray());
     }
@@ -57,7 +57,7 @@ public class Response {
                 bo.write(value.data());
             }
         } catch (IOException e) {
-            throw new IllegalStateException();
+            throw new IllegalStateException(e);
         }
         return Slice.create(bo.toByteArray());
     }

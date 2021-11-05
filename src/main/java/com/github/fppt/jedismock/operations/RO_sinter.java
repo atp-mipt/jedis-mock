@@ -4,7 +4,6 @@ import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.storage.RedisBase;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -28,7 +27,7 @@ class RO_sinter extends AbstractRedisOperation {
             resultSoFar.retainAll(set);
         }
 
-        return Response.array(Collections.unmodifiableList(resultSoFar.stream().map(Response::bulkString).collect(toList())));
+        return Response.array(resultSoFar.stream().map(Response::bulkString).collect(toList()));
     }
 
     private Set<Slice> getSet(Slice key) {

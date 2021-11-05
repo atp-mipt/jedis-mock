@@ -4,7 +4,6 @@ import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.storage.RedisBase;
 
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -28,6 +27,6 @@ class RO_smembers extends AbstractRedisOperation {
             set = new LinkedList<>();
         }
 
-        return Response.array(Collections.unmodifiableList(set.stream().map(Response::bulkString).collect(toList())));
+        return Response.array(set.stream().map(Response::bulkString).collect(toList()));
     }
 }
