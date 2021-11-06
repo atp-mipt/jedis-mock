@@ -3,12 +3,10 @@ package com.github.fppt.jedismock.operations;
 import com.github.fppt.jedismock.Utils;
 import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.server.Response;
-import com.github.fppt.jedismock.storage.OperationExecutorState;
 import com.github.fppt.jedismock.storage.RedisBase;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @RedisCommand(value = "pubsub", transactional = false)
