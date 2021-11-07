@@ -8,8 +8,6 @@ import com.github.fppt.jedismock.storage.RedisBase;
 import java.util.List;
 import java.util.Map;
 
-import static com.github.fppt.jedismock.Utils.serializeObject;
-
 @RedisCommand("zrem")
 class RO_zrem extends AbstractRedisOperation {
 
@@ -27,11 +25,6 @@ class RO_zrem extends AbstractRedisOperation {
             if (map.remove(params().get(i)) != null) {
                 count++;
             }
-        }
-        try {
-            base().putSlice(key, serializeObject(map));
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
         }
         return Response.integer(count);
     }

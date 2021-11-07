@@ -14,6 +14,14 @@ public class RMHMap implements RMDataStructure {
         return storedData;
     }
 
+    public RMHMap() {
+        storedData = new LinkedHashMap<>();
+    }
+
+    public RMHMap(Map<Slice, Double> data) {
+        storedData = data;
+    }
+
     public RMHMap(Slice data) {
         if (data == null) {
             storedData = new LinkedHashMap<>();

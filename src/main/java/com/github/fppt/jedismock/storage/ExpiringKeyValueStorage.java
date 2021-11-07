@@ -1,6 +1,5 @@
 package com.github.fppt.jedismock.storage;
 
-import com.github.fppt.jedismock.Utils;
 import com.github.fppt.jedismock.datastructures.RMDataStructure;
 import com.github.fppt.jedismock.datastructures.RMSet;
 import com.github.fppt.jedismock.datastructures.RMSortedSet;
@@ -225,18 +224,10 @@ public class ExpiringKeyValueStorage {
         if(valueByKey instanceof RMList) {
             return Slice.create("list");
         }
-
-        Slice value = (Slice) valueByKey;
-
-        //0xACED is a magic number denoting a serialized Java object
-        if (value.data()[0] == (byte) 0xAC
-                && value.data()[1] == (byte) 0xED){
-            Object o = Utils.deserializeObject(value);
-            if (o instanceof Map){
-                return Slice.create("zset");
-            }
-            throw new IllegalStateException("Unknown value type");
+        if(valueByKey instanceof RMHMap) {
+            return Slice.create("zset");
         }
+
         return Slice.create("string");
     }
 }

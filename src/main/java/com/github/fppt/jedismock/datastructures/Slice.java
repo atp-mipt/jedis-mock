@@ -1,6 +1,5 @@
 package com.github.fppt.jedismock.datastructures;
 
-
 import com.github.fppt.jedismock.exception.WrongValueTypeException;
 
 import java.io.Serializable;

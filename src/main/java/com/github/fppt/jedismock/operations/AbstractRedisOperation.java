@@ -52,8 +52,12 @@ abstract class AbstractRedisOperation implements RedisOperation {
     }
 
     public RMHMap getHMapFromBase(Slice key) {
-        Slice data = base.getSlice(key);
-        return new RMHMap(data);
+        RMHMap data = base().getMap(key);
+        if(data == null) {
+            return new RMHMap();
+        }
+
+        return data;
     }
 
     @Override
