@@ -5,12 +5,11 @@ import com.github.fppt.jedismock.datastructures.RMDataStructure;
 import com.github.fppt.jedismock.datastructures.RMSet;
 import com.github.fppt.jedismock.datastructures.RMSortedSet;
 import com.github.fppt.jedismock.datastructures.Slice;
+import com.github.fppt.jedismock.datastructures.*;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
 public class ExpiringKeyValueStorage {
     private final Map<Slice, RMDataStructure> values = new HashMap<>();
@@ -223,6 +222,9 @@ public class ExpiringKeyValueStorage {
         if(valueByKey instanceof RMSet) {
             return Slice.create("set");
         }
+        if(valueByKey instanceof RMList) {
+            return Slice.create("list");
+        }
 
         Slice value = (Slice) valueByKey;
 
@@ -230,9 +232,6 @@ public class ExpiringKeyValueStorage {
         if (value.data()[0] == (byte) 0xAC
                 && value.data()[1] == (byte) 0xED){
             Object o = Utils.deserializeObject(value);
-            if (o instanceof List){
-                return Slice.create("list");
-            }
             if (o instanceof Map){
                 return Slice.create("zset");
             }

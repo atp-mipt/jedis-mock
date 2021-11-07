@@ -34,8 +34,12 @@ abstract class AbstractRedisOperation implements RedisOperation {
     }
 
     public RMList getListFromBase(Slice key) {
-        Slice data = base().getSlice(key);
-        return new RMList(data);
+        RMList data = base().getList(key);
+        if(data == null) {
+            return new RMList();
+        }
+
+        return data;
     }
 
     public RMSet getSetFromBase(Slice key) {

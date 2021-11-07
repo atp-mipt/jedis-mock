@@ -1,5 +1,6 @@
 package com.github.fppt.jedismock.operations;
 
+import com.github.fppt.jedismock.datastructures.RMDataStructure;
 import com.github.fppt.jedismock.storage.OperationExecutorState;
 import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.datastructures.Slice;
@@ -14,7 +15,7 @@ class RO_lpushx extends RO_lpush {
 
     Slice response(){
         Slice key = params().get(0);
-        Slice data = base().getSlice(key);
+        RMDataStructure data = base().getValue(key);
 
         if(data != null){
             return super.response();

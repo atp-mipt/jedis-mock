@@ -14,6 +14,10 @@ public class RMList implements RMDataStructure {
         return storedData;
     }
 
+    public RMList() {
+        storedData = new LinkedList<>();
+    }
+
     public RMList(Slice data) {
         if (data == null) {
             storedData = new LinkedList<>();

@@ -28,7 +28,7 @@ abstract class RO_add extends AbstractRedisOperation {
         }
 
         try {
-            base().putSlice(key, serializeObject(list));
+            base().putValue(key, listDBObj);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }

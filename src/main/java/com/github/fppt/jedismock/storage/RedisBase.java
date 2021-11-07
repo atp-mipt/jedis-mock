@@ -1,6 +1,7 @@
 package com.github.fppt.jedismock.storage;
 
 import com.github.fppt.jedismock.datastructures.RMDataStructure;
+import com.github.fppt.jedismock.datastructures.RMList;
 import com.github.fppt.jedismock.datastructures.RMSet;
 import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.server.RedisClient;
@@ -56,6 +57,20 @@ public class RedisBase {
         }
 
         return (RMSet) value;
+    }
+
+    public RMList getList(Slice key) {
+        RMDataStructure value = getValue(key);
+
+        if (value == null) {
+            return null;
+        }
+
+        if(!(value instanceof RMList)) {
+            value.raiseTypeCastException();
+        }
+
+        return (RMList) value;
     }
 
     public Map<Slice, Slice> getFieldsAndValues(Slice hash){
