@@ -1,19 +1,16 @@
 package com.github.fppt.jedismock.operations;
 
-import com.github.fppt.jedismock.datastructures.RMDataStructure;
 import com.github.fppt.jedismock.datastructures.RMList;
 import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.storage.RedisBase;
 
+import org.apache.commons.collections4.iterators.ReverseListIterator;
+
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
 
 import static com.github.fppt.jedismock.Utils.convertToInteger;
-import static com.github.fppt.jedismock.Utils.deserializeObject;
-import static com.github.fppt.jedismock.Utils.serializeObject;
 
 @RedisCommand("lrem")
 class RO_lrem extends AbstractRedisOperation {
@@ -32,7 +29,6 @@ class RO_lrem extends AbstractRedisOperation {
 
     Slice response(){
         Slice key = params().get(0);
-        Slice target = params().get(2);
         RMList listObj = base().getList(key);
         if(listObj == null){
             return Response.integer(0);
@@ -42,26 +38,20 @@ class RO_lrem extends AbstractRedisOperation {
 
         //Determine the directionality of the deletions
         int numRemoved = 0;
+        Iterator<Slice> iterator;
         if(directedNumRemove < 0){
-            ListIterator<Slice> iterator = list.listIterator(list.size());
-            while (iterator.hasPrevious()) {
-                Slice element = iterator.previous();
-                if(isDeletingElement(element, numRemoved)) {
-                    iterator.remove();
-                    numRemoved++;
-                }
-            }
+            iterator = new ReverseListIterator<>(list);
         } else {
-            Iterator<Slice> iterator = list.listIterator();
-            while (iterator.hasNext()) {
-                Slice element = iterator.next();
-                if(isDeletingElement(element, numRemoved)) {
-                    iterator.remove();
-                    numRemoved++;
-                }
-            }
+            iterator = list.listIterator();
         }
 
+        while (iterator.hasNext()) {
+            Slice element = iterator.next();
+            if(isDeletingElement(element, numRemoved)) {
+                iterator.remove();
+                numRemoved++;
+            }
+        }
         return Response.integer(numRemoved);
     }
 }
