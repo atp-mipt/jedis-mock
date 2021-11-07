@@ -7,8 +7,6 @@ import com.github.fppt.jedismock.storage.OperationExecutorState;
 
 import java.util.List;
 
-import static com.github.fppt.jedismock.Utils.serializeObject;
-
 abstract class RO_add extends AbstractRedisOperation {
     private final Object lock;
     RO_add(OperationExecutorState state, List<Slice> params) {

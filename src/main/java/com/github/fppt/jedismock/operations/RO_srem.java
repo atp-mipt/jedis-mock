@@ -8,8 +8,6 @@ import com.github.fppt.jedismock.storage.RedisBase;
 import java.util.List;
 import java.util.Set;
 
-import static com.github.fppt.jedismock.Utils.serializeObject;
-
 @RedisCommand("srem")
 class RO_srem extends AbstractRedisOperation {
 

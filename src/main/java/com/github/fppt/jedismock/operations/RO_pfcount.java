@@ -9,8 +9,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.github.fppt.jedismock.Utils.deserializeObject;
-
 @RedisCommand("pfcount")
 class RO_pfcount extends AbstractRedisOperation {
     RO_pfcount(RedisBase base, List<Slice> params) {

@@ -5,8 +5,6 @@ import com.github.fppt.jedismock.exception.WrongValueTypeException;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.github.fppt.jedismock.Utils.deserializeObject;
-
 public class RMSet implements RMDataStructure {
     protected Set<Slice> storedData;
 
@@ -20,18 +18,6 @@ public class RMSet implements RMDataStructure {
 
     public RMSet(Set<Slice> data) {
         storedData = data;
-    }
-
-    public RMSet(Slice data) {
-        if (data == null) {
-            storedData = new HashSet<>();
-            return;
-        }
-        try {
-            storedData = deserializeObject(data);
-        } catch (WrongValueTypeException e) {
-            throw new WrongValueTypeException("WRONGTYPE Failed to deserialize HashSet<Slice> value");
-        }
     }
 
     @Override

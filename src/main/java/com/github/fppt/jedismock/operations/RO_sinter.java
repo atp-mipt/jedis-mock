@@ -5,11 +5,9 @@ import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.storage.RedisBase;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.github.fppt.jedismock.Utils.deserializeObject;
 import static java.util.stream.Collectors.toList;
 
 @RedisCommand("sinter")

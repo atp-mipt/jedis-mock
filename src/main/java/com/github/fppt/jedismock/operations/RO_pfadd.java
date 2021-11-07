@@ -10,9 +10,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.github.fppt.jedismock.Utils.deserializeObject;
-import static com.github.fppt.jedismock.Utils.serializeObject;
-
 @RedisCommand("pfadd")
 class RO_pfadd extends AbstractRedisOperation {
     RO_pfadd(RedisBase base, List<Slice> params) {

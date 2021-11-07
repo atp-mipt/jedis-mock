@@ -8,8 +8,6 @@ import com.github.fppt.jedismock.datastructures.Slice;
 import java.util.List;
 import java.util.Set;
 
-import static com.github.fppt.jedismock.Utils.serializeObject;
-
 @RedisCommand("sadd")
 class RO_sadd extends AbstractRedisOperation {
     RO_sadd(RedisBase base, List<Slice> params) {

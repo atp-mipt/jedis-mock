@@ -151,9 +151,10 @@ public class ExpiringKeyValueStorage {
         Objects.requireNonNull(key1);
         Objects.requireNonNull(key2);
         Objects.requireNonNull(value);
-        RMSortedSet mapByKey = null;
+        RMSortedSet mapByKey;
+
         if(!values.containsKey(key1)) {
-            mapByKey = new RMSortedSet(null);
+            mapByKey = new RMSortedSet();
             values.put(key1, mapByKey);
         } else {
             mapByKey = getRMSortedSet(key1);

@@ -7,8 +7,6 @@ import com.github.fppt.jedismock.datastructures.Slice;
 
 import java.util.List;
 
-import static com.github.fppt.jedismock.Utils.serializeObject;
-
 @RedisCommand("lpop")
 class RO_lpop extends AbstractRedisOperation {
     RO_lpop(RedisBase base,List<Slice> params ) {
