@@ -15,9 +15,9 @@ class RO_lpushx extends RO_lpush {
 
     Slice response(){
         Slice key = params().get(0);
-        RMDataStructure data = base().getValue(key);
+        boolean exists = base().exists(key);
 
-        if(data != null){
+        if(exists){
             return super.response();
         }
 

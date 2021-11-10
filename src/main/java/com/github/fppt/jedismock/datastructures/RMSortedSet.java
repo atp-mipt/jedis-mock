@@ -2,11 +2,12 @@ package com.github.fppt.jedismock.datastructures;
 
 import com.github.fppt.jedismock.exception.WrongValueTypeException;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class RMSortedSet implements RMDataStructure {
     protected LinkedHashMap<Slice, Slice> storedData;
 
-    public LinkedHashMap<Slice, Slice> getStoredData() {
+    public Map<Slice, Slice> getStoredData() {
         return storedData;
     }
 

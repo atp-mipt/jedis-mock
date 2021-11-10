@@ -19,11 +19,11 @@ class RO_sinter extends AbstractRedisOperation {
     @Override
     Slice response() {
         Slice key = params().get(0);
-        RMSet setObj = getSetFromBase(key);
+        RMSet setObj = getSetFromBaseOrCreateEmpty(key);
         Set<Slice> resultSoFar = setObj.getStoredData();
 
         for(int i = 1; i < params().size(); i++){
-            RMSet secondSetObj = getSetFromBase(params().get(i));
+            RMSet secondSetObj = getSetFromBaseOrCreateEmpty(params().get(i));
             Set<Slice> secondSet = secondSetObj.getStoredData();
             resultSoFar.retainAll(secondSet);
         }

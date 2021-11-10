@@ -1,6 +1,5 @@
 package com.github.fppt.jedismock.operations;
 
-import com.github.fppt.jedismock.datastructures.RMDataStructure;
 import com.github.fppt.jedismock.datastructures.RMSet;
 import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.storage.RedisBase;
@@ -25,7 +24,7 @@ class RO_spop extends AbstractRedisOperation {
 
     Slice response() {
         Slice key = params().get(0);
-        final RMSet setDBObj = getSetFromBase(key);
+        final RMSet setDBObj = getSetFromBaseOrCreateEmpty(key);
         Set<Slice> data = setDBObj.getStoredData();
         if(data == null || data.isEmpty()) return Response.NULL;
         Slice v = popper(data);

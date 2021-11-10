@@ -17,7 +17,7 @@ class RO_sadd extends AbstractRedisOperation {
     @Override
     Slice response() {
         Slice key = params().get(0);
-        RMSet setDBObj = getSetFromBase(key);
+        RMSet setDBObj = getSetFromBaseOrCreateEmpty(key);
         Set<Slice> set = setDBObj.getStoredData();
 
         int count = 0;

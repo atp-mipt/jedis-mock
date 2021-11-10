@@ -17,7 +17,7 @@ class RO_zrem extends AbstractRedisOperation {
 
     Slice response() {
         Slice key = params().get(0);
-        final RMHMap mapDBObj = getHMapFromBase(key);
+        final RMHMap mapDBObj = getHMapFromBaseOrCreateEmpty(key);
         final Map<Slice, Double> map = mapDBObj.getStoredData();
         if(map == null || map.isEmpty()) return Response.integer(0);
         int count = 0;

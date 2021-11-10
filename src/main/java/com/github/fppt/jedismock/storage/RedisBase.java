@@ -34,10 +34,6 @@ public class RedisBase {
         return result;
     }
 
-    public Slice getSlice(Slice key) {
-        return keyValueStorage.getSlice(key);
-    }
-
     public RMDataStructure getValue(Slice key) {
         return keyValueStorage.getValue(key);
     }
@@ -85,12 +81,56 @@ public class RedisBase {
         return (RMList) value;
     }
 
-    public Map<Slice, Slice> getFieldsAndValues(Slice hash){
-        return keyValueStorage.getFieldsAndValues(hash);
+    public Slice getSlice(Slice key) {
+        RMDataStructure value = getValue(key);
+
+        if (value == null) {
+            return null;
+        }
+
+        if(!(value instanceof Slice)) {
+            value.raiseTypeCastException();
+        }
+
+        return (Slice) value;
     }
 
     public Slice getSlice(Slice key1, Slice key2) {
-        return keyValueStorage.getSlice(key1, key2);
+        RMSortedSet value = getSortedSet(key1);
+
+        if (value == null) {
+            return null;
+        }
+
+        Map<Slice, Slice> innerMap = value.getStoredData();
+        if(innerMap == null) {
+            return null;
+        }
+
+        return innerMap.get(key2);
+    }
+
+
+    private RMSortedSet getSortedSet(Slice key) {
+        RMDataStructure value = getValue(key);
+
+        if (value == null) {
+            return null;
+        }
+
+        if(!(value instanceof RMSortedSet)) {
+            value.raiseTypeCastException();
+        }
+
+        return (RMSortedSet) value;
+    }
+
+    public Map<Slice, Slice> getFieldsAndValues(Slice hash){
+        RMSortedSet sortedSet = getSortedSet(hash);
+        if(sortedSet == null) {
+            return null;
+        }
+        return sortedSet.getStoredData();
     }
 
     public Long getTTL(Slice key) {

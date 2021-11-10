@@ -18,7 +18,7 @@ abstract class RO_add extends AbstractRedisOperation {
 
     Slice response() {
         Slice key = params().get(0);
-        final RMList listDBObj = getListFromBase(key);
+        final RMList listDBObj = getListFromBaseOrCreateEmpty(key);
         final List<Slice> list = listDBObj.getStoredData();
 
         for (int i = 1; i < params().size(); i++) {

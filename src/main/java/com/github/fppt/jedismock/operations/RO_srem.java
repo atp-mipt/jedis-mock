@@ -18,7 +18,7 @@ class RO_srem extends AbstractRedisOperation {
 
     Slice response() {
         Slice key = params().get(0);
-        RMSet setDBObj = getSetFromBase(key);
+        RMSet setDBObj = getSetFromBaseOrCreateEmpty(key);
         Set<Slice> set = setDBObj.getStoredData();
         if(set == null || set.isEmpty()) return Response.integer(0);
         int count = 0;

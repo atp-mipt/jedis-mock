@@ -19,7 +19,7 @@ class RO_lpop extends AbstractRedisOperation {
 
     Slice response() {
         Slice key = params().get(0);
-        final RMList listDBObj = getListFromBase(key);
+        final RMList listDBObj = getListFromBaseOrCreateEmpty(key);
         List<Slice> list = listDBObj.getStoredData();
         if(list == null || list.isEmpty()) return Response.NULL;
         Slice v = popper(list);

@@ -24,7 +24,7 @@ class RO_zadd extends AbstractRedisOperation {
     Slice response() {
         Slice key = params().get(0);
 
-        final RMHMap mapDBObj = getHMapFromBase(key);
+        final RMHMap mapDBObj = getHMapFromBaseOrCreateEmpty(key);
         final Map<Slice, Double> map = mapDBObj.getStoredData();
 
         int count = 0;

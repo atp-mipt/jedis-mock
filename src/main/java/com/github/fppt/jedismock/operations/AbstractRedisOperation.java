@@ -33,7 +33,7 @@ abstract class AbstractRedisOperation implements RedisOperation {
         return params;
     }
 
-    public RMList getListFromBase(Slice key) {
+    public RMList getListFromBaseOrCreateEmpty(Slice key) {
         RMList data = base().getList(key);
         if(data == null) {
             return new RMList();
@@ -42,7 +42,7 @@ abstract class AbstractRedisOperation implements RedisOperation {
         return data;
     }
 
-    public RMSet getSetFromBase(Slice key) {
+    public RMSet getSetFromBaseOrCreateEmpty(Slice key) {
         RMSet data = base().getSet(key);
         if(data == null) {
             return new RMSet();
@@ -51,7 +51,7 @@ abstract class AbstractRedisOperation implements RedisOperation {
         return data;
     }
 
-    public RMHMap getHMapFromBase(Slice key) {
+    public RMHMap getHMapFromBaseOrCreateEmpty(Slice key) {
         RMHMap data = base().getMap(key);
         if(data == null) {
             return new RMHMap();

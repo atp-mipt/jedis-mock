@@ -39,6 +39,7 @@ public class ExpiringKeyValueStorage {
         if (!storedData.containsKey(key2)) {
             return;
         }
+
         storedData.remove(key2);
 
         if(storedData.isEmpty()) {
@@ -60,38 +61,6 @@ public class ExpiringKeyValueStorage {
             return null;
         }
         return values().get(key);
-    }
-
-    public Slice getSlice(Slice key) {
-        if(!verifyKey(key)) {
-            return null;
-        }
-        RMDataStructure valueByKey = values.get(key);
-        if(!(valueByKey instanceof Slice)) {
-            valueByKey.raiseTypeCastException();
-        }
-
-        return (Slice) valueByKey;
-    }
-
-    public Map<Slice, Slice> getFieldsAndValues(Slice hash) {
-        if(!verifyKey(hash)) {
-            return new HashMap<>();
-        }
-        return getRMSortedSet(hash).getStoredData();
-    }
-
-    public Slice getSlice(Slice key1, Slice key2) {
-        Objects.requireNonNull(key2);
-        if(!verifyKey(key1)) {
-            return null;
-        };
-        RMSortedSet sortedSet = getRMSortedSet(key1);
-
-        if(!sortedSet.getStoredData().containsKey(key2)) {
-            return null;
-        }
-        return sortedSet.getStoredData().get(key2);
     }
 
     private boolean verifyKey(Slice key) {
