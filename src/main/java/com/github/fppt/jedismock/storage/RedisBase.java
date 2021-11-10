@@ -1,6 +1,11 @@
 package com.github.fppt.jedismock.storage;
 
-import com.github.fppt.jedismock.datastructures.*;
+import com.github.fppt.jedismock.datastructures.RMDataStructure;
+import com.github.fppt.jedismock.datastructures.RMHMap;
+import com.github.fppt.jedismock.datastructures.RMSet;
+import com.github.fppt.jedismock.datastructures.Slice;
+import com.github.fppt.jedismock.datastructures.RMList;
+import com.github.fppt.jedismock.datastructures.RMSortedSet;
 import com.github.fppt.jedismock.server.RedisClient;
 
 import java.util.ArrayList;

@@ -20,7 +20,7 @@ public class RO_hgetall extends AbstractRedisOperation {
         Slice hash = params().get(0);
 
         Map<Slice, Slice> fieldAndValueMap = base().getFieldsAndValues(hash);
-        
+
         if(fieldAndValueMap == null) {
             fieldAndValueMap = new HashMap<>();
         }
