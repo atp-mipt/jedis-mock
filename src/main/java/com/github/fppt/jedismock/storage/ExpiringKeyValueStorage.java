@@ -1,11 +1,8 @@
 package com.github.fppt.jedismock.storage;
 
 import com.github.fppt.jedismock.datastructures.RMDataStructure;
-import com.github.fppt.jedismock.datastructures.RMSet;
 import com.github.fppt.jedismock.datastructures.RMSortedSet;
 import com.github.fppt.jedismock.datastructures.Slice;
-import com.github.fppt.jedismock.datastructures.RMList;
-import com.github.fppt.jedismock.datastructures.RMHMap;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -180,7 +177,6 @@ public class ExpiringKeyValueStorage {
         if (!verifyKey(key)) {
             return Slice.create("none");
         }
-
         RMDataStructure valueByKey = getValue(key);
 
         if (valueByKey == null) {
