@@ -5,7 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class RMSortedSet implements RMDataStructure {
-    protected LinkedHashMap<Slice, Slice> storedData;
+    private final LinkedHashMap<Slice, Slice> storedData;
 
     public Map<Slice, Slice> getStoredData() {
         return storedData;
@@ -22,5 +22,10 @@ public class RMSortedSet implements RMDataStructure {
     @Override
     public void raiseTypeCastException() {
         throw new WrongValueTypeException("WRONGTYPE RMSortedSet value is used in the wrong place");
+    }
+
+    @Override
+    public String getTypeName() {
+        return "hash";
     }
 }

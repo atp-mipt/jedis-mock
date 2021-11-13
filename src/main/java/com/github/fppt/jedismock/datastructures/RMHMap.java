@@ -6,7 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class RMHMap implements RMDataStructure {
-    protected Map<Slice, Double> storedData;
+    private final Map<Slice, Double> storedData;
 
     public Map<Slice, Double> getStoredData() {
         return storedData;
@@ -23,5 +23,10 @@ public class RMHMap implements RMDataStructure {
     @Override
     public void raiseTypeCastException() {
         throw new WrongValueTypeException("WRONGTYPE RMHMap value is used in the wrong place");
+    }
+
+    @Override
+    public String getTypeName() {
+        return "zset";
     }
 }

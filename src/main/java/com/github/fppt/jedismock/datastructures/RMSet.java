@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class RMSet implements RMDataStructure {
-    protected Set<Slice> storedData;
+    private final Set<Slice> storedData;
 
     public Set<Slice> getStoredData() {
         return storedData;
@@ -23,5 +23,10 @@ public class RMSet implements RMDataStructure {
     @Override
     public void raiseTypeCastException() {
         throw new WrongValueTypeException("WRONGTYPE RMSet value is used in the wrong place");
+    }
+
+    @Override
+    public String getTypeName() {
+        return "set";
     }
 }

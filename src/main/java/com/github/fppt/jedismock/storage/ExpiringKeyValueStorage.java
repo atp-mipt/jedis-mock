@@ -186,19 +186,6 @@ public class ExpiringKeyValueStorage {
         if (valueByKey == null) {
             return Slice.create("none");
         }
-        if (valueByKey instanceof RMSortedSet) {
-            return Slice.create("hash");
-        }
-        if(valueByKey instanceof RMSet) {
-            return Slice.create("set");
-        }
-        if(valueByKey instanceof RMList) {
-            return Slice.create("list");
-        }
-        if(valueByKey instanceof RMHMap) {
-            return Slice.create("zset");
-        }
-
-        return Slice.create("string");
+        return Slice.create(valueByKey.getTypeName());
     }
 }
