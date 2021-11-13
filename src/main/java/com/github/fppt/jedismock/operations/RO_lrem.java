@@ -5,10 +5,8 @@ import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.storage.RedisBase;
 
-import org.apache.commons.collections4.iterators.ReverseListIterator;
-
-import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 
 import static com.github.fppt.jedismock.Utils.convertToInteger;
 
@@ -38,16 +36,16 @@ class RO_lrem extends AbstractRedisOperation {
 
         //Determine the directionality of the deletions
         int numRemoved = 0;
-        Iterator<Slice> iterator;
-        if(directedNumRemove < 0){
-            iterator = new ReverseListIterator<>(list);
+        ListIterator<Slice> iterator;
+        if (directedNumRemove < 0) {
+            iterator = list.listIterator(list.size());
         } else {
             iterator = list.listIterator();
         }
 
-        while (iterator.hasNext()) {
-            Slice element = iterator.next();
-            if(isDeletingElement(element, numRemoved)) {
+        while (directedNumRemove < 0 ? iterator.hasPrevious() : iterator.hasNext()) {
+            Slice element = directedNumRemove < 0 ? iterator.previous() : iterator.next();
+            if (isDeletingElement(element, numRemoved)) {
                 iterator.remove();
                 numRemoved++;
             }
