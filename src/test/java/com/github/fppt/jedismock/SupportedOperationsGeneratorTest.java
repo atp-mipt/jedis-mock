@@ -27,7 +27,6 @@ import static org.reflections.util.ReflectionUtilsPredicates.withAnnotation;
 @Testcontainers
 public class SupportedOperationsGeneratorTest {
     private static final String SEPARATOR = " ";
-    private static final String LINE_SEPARATOR = "  ";
     private static final String HEADING = "# Supported operations:";
     private static final String SYMBOL_SUPPORTED = ":heavy_check_mark:";
     private static final String SYMBOL_UNSUPPORTED = ":x:";
@@ -36,7 +35,7 @@ public class SupportedOperationsGeneratorTest {
     @Container
     private final GenericContainer redis = new GenericContainer<>(DockerImageName.parse("redis:5.0-alpine"));
 
-    private final static List<String> implementedOperations;
+    private final static Set<String> implementedOperations;
 
     static {
         Reflections scanner = new Reflections(CommandFactory.class.getPackage().getName());
@@ -45,7 +44,7 @@ public class SupportedOperationsGeneratorTest {
                 redisOperations.stream()
                         .filter(withAnnotation(RedisCommand.class))
                         .map(op -> op.getAnnotation(RedisCommand.class).value())
-                        .collect(Collectors.toList());
+                        .collect(Collectors.toSet());
     }
 
     private void writeToFile(List<String> lines) throws IOException {
@@ -71,11 +70,11 @@ public class SupportedOperationsGeneratorTest {
         List<String> lines = allOperations.stream()
                 .sorted()
                 .map(op -> implementedOperations.contains(op) ?
-                        SYMBOL_SUPPORTED + SEPARATOR + op + LINE_SEPARATOR :
-                        SYMBOL_UNSUPPORTED + SEPARATOR + op + LINE_SEPARATOR
+                        SYMBOL_SUPPORTED + SEPARATOR + op:
+                        SYMBOL_UNSUPPORTED + SEPARATOR + op
                 )
                 .collect(Collectors.toList());
-        lines.add(0, HEADING + LINE_SEPARATOR);
+        lines.add(0, HEADING);
 
         writeToFile(lines);
     }

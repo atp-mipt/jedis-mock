@@ -29,7 +29,7 @@ jobs:
         run: mvn -B -V verify -Dmaven.javadoc.skip
 
       - name: Update list of supported operations
-        if: ${{ github.event_name == 'push' }}
+        if: success() && github.ref == 'refs/heads/master'
         run: |-
             git add supported_operations.md
             git diff
