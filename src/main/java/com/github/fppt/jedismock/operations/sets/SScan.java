@@ -2,6 +2,7 @@ package com.github.fppt.jedismock.operations.sets;
 
 import com.github.fppt.jedismock.datastructures.RMSet;
 import com.github.fppt.jedismock.operations.RedisCommand;
+import com.github.fppt.jedismock.operations.keys.Scan;
 import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.storage.RedisBase;
@@ -11,9 +12,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @RedisCommand("sscan")
-class Scan extends com.github.fppt.jedismock.operations.keys.Scan {
+class SScan extends Scan {
 
-    Scan(RedisBase base, List<Slice> params) {
+    SScan(RedisBase base, List<Slice> params) {
         super(base, params);
     }
 
