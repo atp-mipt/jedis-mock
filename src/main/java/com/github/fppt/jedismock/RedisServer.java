@@ -26,7 +26,7 @@ public class RedisServer {
     private ServiceOptions options = ServiceOptions.defaultOptions();
     private Future<Void> serviceFinalization;
 
-    public RedisServer() throws IOException {
+    public RedisServer() {
         this(0);
     }
 
@@ -41,7 +41,7 @@ public class RedisServer {
         return new RedisServer();
     }
 
-    static public RedisServer newRedisServer(int port) throws IOException {
+    static public RedisServer newRedisServer(int port) {
         return new RedisServer(port);
     }
 
