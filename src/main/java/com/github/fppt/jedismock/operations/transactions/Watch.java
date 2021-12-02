@@ -15,16 +15,16 @@ import java.util.List;
 @RedisCommand(value = "watch", transactional = false)
 public class Watch implements RedisOperation {
     private OperationExecutorState state;
-    private List<Slice> params;
+    private List<Slice> keys;
 
-    Watch(OperationExecutorState state, List<Slice> params) {
+    Watch(OperationExecutorState state, List<Slice> keys) {
         this.state = state;
-        this.params = params;
+        this.keys = keys;
     }
 
     @Override
     public Slice execute() {
-        state.watch(params);
+        state.watch(keys);
         return Response.OK;
     }
 }

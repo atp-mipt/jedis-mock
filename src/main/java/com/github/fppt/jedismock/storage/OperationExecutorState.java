@@ -47,6 +47,7 @@ public class OperationExecutorState {
 
     public void newTransaction(){
         if(isTransactionModeOn.get()) throw new RuntimeException("Redis mock does not support more than one transaction");
+        watchedKeysAffected = false;
         transactionMode(true);
     }
 

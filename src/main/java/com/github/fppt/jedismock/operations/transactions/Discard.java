@@ -18,6 +18,7 @@ public class Discard implements RedisOperation {
     public Slice execute() {
         state.transactionMode(false);
         state.tx().clear();
+        state.unwatch();
         return Response.OK;
     }
 }
