@@ -5,7 +5,6 @@ import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.operations.server.MockExecutor;
 import com.github.fppt.jedismock.operations.server.RedisCommandInterceptor;
 import com.github.fppt.jedismock.storage.OperationExecutorState;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -13,7 +12,6 @@ import java.util.List;
  * Created by Xiaolu on 2015/4/20.
  */
 public class RedisOperationExecutor {
-    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(RedisOperationExecutor.class);
     private final OperationExecutorState state;
     private RedisCommandInterceptor mockedOperationsHandler = MockExecutor::proceed;
 

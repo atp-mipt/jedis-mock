@@ -1,19 +1,16 @@
 package com.github.fppt.jedismock.server;
 
-import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.operations.server.RedisCommandInterceptor;
 import com.github.fppt.jedismock.storage.RedisBase;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.function.BiFunction;
 
 /**
  * Created by Xiaolu on 2015/4/21.
