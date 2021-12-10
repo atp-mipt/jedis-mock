@@ -16,7 +16,7 @@ import java.util.concurrent.Executors;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(ComparisonBase.class)
-public class SimpleOperationsTest {
+public class StringOperationsTest {
 
     @BeforeEach
     public void setUp(Jedis jedis) {

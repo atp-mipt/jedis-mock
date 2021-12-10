@@ -11,7 +11,7 @@ import redis.clients.jedis.exceptions.JedisDataException;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(ComparisonBase.class)
-public class AdvanceOperationsTest {
+public class TransactionOperationsTest {
 
     @BeforeEach
     public void setUp(Jedis jedis) {
@@ -30,6 +30,20 @@ public class AdvanceOperationsTest {
         transaction.exec();
 
         assertEquals(new Long(3), jedis.llen(key));
+    }
+
+    @TestTemplate
+    public void whenDiscardIsExecuted_EnsureResultsAreDiscarded(Jedis jedis) {
+        String key = "my-list";
+        assertEquals(new Long(0), jedis.llen(key));
+
+        Transaction transaction = jedis.multi();
+        transaction.lpush(key, "1");
+        transaction.lpush(key, "2");
+        transaction.discard();
+        jedis.lpush(key, "3");
+
+        assertEquals(new Long(1), jedis.llen(key));
     }
 
     @TestTemplate

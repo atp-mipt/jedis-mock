@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 @ExtendWith(ComparisonBase.class)
-public class AdvanceOperationsTest {
+public class AdvanceListOperationsTest {
 
     @BeforeEach
     public void setUp(Jedis jedis) {

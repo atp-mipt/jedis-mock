@@ -9,7 +9,7 @@ import redis.clients.jedis.Jedis;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ComparisonBase.class)
-public class SimpleOperationsTest {
+public class ConnectionOperationsTest {
 
     @TestTemplate
     public void whenUsingQuit_EnsureTheResultIsOK(Jedis jedis) {

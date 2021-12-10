@@ -14,7 +14,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(ComparisonBase.class)
-public class SimpleOperationsTest {
+public class SetOperationsTest {
 
     @BeforeEach
     public void setUp(Jedis jedis) {

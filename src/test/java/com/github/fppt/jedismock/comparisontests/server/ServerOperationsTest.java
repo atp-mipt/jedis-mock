@@ -11,7 +11,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(ComparisonBase.class)
-public class SimpleOperationsTest {
+public class ServerOperationsTest {
 
     private final String HASH = "hash";
     private final String FIELD_1 = "field1";
