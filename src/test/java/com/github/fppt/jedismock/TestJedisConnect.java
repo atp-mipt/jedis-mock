@@ -55,6 +55,7 @@ public class TestJedisConnect {
 
         //assertEquals(jedis.);
 
+        jedis.disconnect();
         server.stop();
     }
 
