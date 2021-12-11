@@ -1,6 +1,5 @@
 package com.github.fppt.jedismock.server;
 
-import com.github.fppt.jedismock.operations.server.RedisCommandInterceptor;
 import com.github.fppt.jedismock.storage.RedisBase;
 
 import java.io.IOException;
@@ -21,7 +20,6 @@ public class RedisService implements Callable<Void> {
     private final Map<Integer, RedisBase> redisBases;
     private final ServiceOptions options;
     private final ExecutorService threadPool = Executors.newCachedThreadPool();
-    private RedisCommandInterceptor mockedOperationsHandler;
 
     public RedisService(int bindPort, Map<Integer, RedisBase> redisBases, ServiceOptions options) throws IOException {
         Objects.requireNonNull(redisBases);
@@ -35,14 +33,8 @@ public class RedisService implements Callable<Void> {
     public Void call() throws IOException {
         while (!server.isClosed()) {
             Socket socket = server.accept();
-
             RedisClient rc;
-
-            if (mockedOperationsHandler != null) {
-                rc = new RedisClient(redisBases, socket, options, mockedOperationsHandler);
-            } else {
-                rc = new RedisClient(redisBases, socket, options);
-            }
+            rc = new RedisClient(redisBases, socket, options);
             threadPool.submit(rc);
         }
         return null;
@@ -54,9 +46,5 @@ public class RedisService implements Callable<Void> {
 
     public void stop() throws IOException {
         server.close();
-    }
-
-    public void setMockedOperationHandler(RedisCommandInterceptor mockedOperationsHandler) {
-        this.mockedOperationsHandler = mockedOperationsHandler;
     }
 }

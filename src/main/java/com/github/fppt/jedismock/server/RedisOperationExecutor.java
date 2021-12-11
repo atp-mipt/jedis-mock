@@ -2,8 +2,6 @@ package com.github.fppt.jedismock.server;
 
 import com.github.fppt.jedismock.commands.RedisCommand;
 import com.github.fppt.jedismock.datastructures.Slice;
-import com.github.fppt.jedismock.operations.server.MockExecutor;
-import com.github.fppt.jedismock.operations.server.RedisCommandInterceptor;
 import com.github.fppt.jedismock.storage.OperationExecutorState;
 
 import java.util.List;
@@ -13,15 +11,9 @@ import java.util.List;
  */
 public class RedisOperationExecutor {
     private final OperationExecutorState state;
-    private RedisCommandInterceptor mockedOperationsHandler = MockExecutor::proceed;
 
     public RedisOperationExecutor(OperationExecutorState state) {
         this.state = state;
-    }
-
-    public RedisOperationExecutor(OperationExecutorState state, RedisCommandInterceptor mockedOperationsHandler) {
-        this.state = state;
-        this.mockedOperationsHandler = mockedOperationsHandler;
     }
 
     public Slice execCommand(RedisCommand command) {
@@ -31,11 +23,8 @@ public class RedisOperationExecutor {
         List<Slice> params = command.parameters();
         List<Slice> commandParams = params.subList(1, params.size());
         String name = new String(params.get(0).data()).toLowerCase();
-
-        return mockedOperationsHandler.execCommand(state, name, commandParams);
+        return state.owner().options().getCommandInterceptor()
+                .execCommand(state, name, commandParams);
     }
 
-    public void setMockedOperationsHandler(RedisCommandInterceptor mockedOperationsHandler) {
-        this.mockedOperationsHandler = mockedOperationsHandler;
-    }
 }

@@ -45,21 +45,6 @@ public class TestJedisConnect {
     }
 
     @Test
-    public void testMockedOperations() throws IOException {
-        RedisServer server = RedisServer.newRedisServer();
-        ServiceOptions options = ServiceOptions.create(3);
-        server.setOptions(options);
-        server.setMockedCommands((state, roName, params) -> { return null; } /*Does nothing for unknown commands.*/);
-        server.start();
-        Jedis jedis = new Jedis(server.getHost(), server.getBindPort());
-
-        //assertEquals(jedis.);
-
-        jedis.disconnect();
-        server.stop();
-    }
-
-    @Test
     public void testLpush() throws IOException {
         RedisServer server = RedisServer.newRedisServer();
         server.start();

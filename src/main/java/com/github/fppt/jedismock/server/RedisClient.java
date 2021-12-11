@@ -1,7 +1,6 @@
 package com.github.fppt.jedismock.server;
 
 import com.github.fppt.jedismock.datastructures.Slice;
-import com.github.fppt.jedismock.operations.server.RedisCommandInterceptor;
 import com.github.fppt.jedismock.storage.OperationExecutorState;
 import com.github.fppt.jedismock.storage.RedisBase;
 import com.github.fppt.jedismock.commands.RedisCommand;
@@ -44,31 +43,12 @@ public class RedisClient implements Runnable {
         this.running = new AtomicBoolean(true);
     }
 
-    RedisClient(Map<Integer, RedisBase> redisBases, Socket socket,
-                ServiceOptions options, RedisCommandInterceptor mockedOperationsHandler) throws IOException {
-        Objects.requireNonNull(redisBases);
-        Objects.requireNonNull(socket);
-        Objects.requireNonNull(options);
-        OperationExecutorState state = new OperationExecutorState(this, redisBases);
-        this.executor = new RedisOperationExecutor(state, mockedOperationsHandler);
-        this.socket = socket;
-        this.options = options;
-        this.in = socket.getInputStream();
-        this.out = socket.getOutputStream();
-        this.running = new AtomicBoolean(true);
-    }
-
     public void run() {
-        int count = 0;
         while (running.get() && !socket.isClosed()) {
             Optional<RedisCommand> command = nextCommand();
             if (command.isPresent()) {
                 Slice response = executor.execCommand(command.get());
                 sendResponse(response, command.toString());
-                count++;
-                if (options.autoCloseOn() != 0 && options.autoCloseOn() <= count) {
-                    break;
-                }
             }
         }
         LOG.debug("Mock redis connection shut down.");
@@ -114,7 +94,7 @@ public class RedisClient implements Runnable {
         Utils.closeQuietly(out);
     }
 
-    public void setMockedOperationsHandler(RedisCommandInterceptor mockedOperationsHandler) {
-        executor.setMockedOperationsHandler(mockedOperationsHandler);
+    ServiceOptions options() {
+        return options;
     }
 }
