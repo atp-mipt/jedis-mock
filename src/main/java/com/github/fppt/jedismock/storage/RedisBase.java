@@ -20,13 +20,10 @@ import java.util.Set;
  * Created by Xiaolu on 2015/4/20.
  */
 public class RedisBase {
-    private final ExpiringKeyValueStorage keyValueStorage = new ExpiringKeyValueStorage();
+    private final ExpiringKeyValueStorage keyValueStorage =
+            new ExpiringKeyValueStorage(this::notifyClientsAboutKeyAffection);
     private final Map<Slice, Set<RedisClient>> subscribers = new HashMap<>();
     private final HashMap<Object, HashSet<OperationExecutorState>> watchedKeys = new HashMap<>();
-
-    public RedisBase() {
-        keyValueStorage.setRedisBase(this);
-    }
 
     public Set<Slice> keys() {
         Set<Slice> slices = keyValueStorage.values().keySet();

@@ -7,11 +7,16 @@ import com.github.fppt.jedismock.datastructures.Slice;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 public class ExpiringKeyValueStorage {
     private final Map<Slice, RMDataStructure> values = new HashMap<>();
     private final Map<Slice, Long> ttls = new HashMap<>();
-    private RedisBase redisBase;
+    private final Consumer<Slice> keyChangeNotifier;
+
+    public ExpiringKeyValueStorage(Consumer<Slice> keyChangeNotifier) {
+        this.keyChangeNotifier = keyChangeNotifier;
+    }
 
     public Map<Slice, RMDataStructure> values() {
         return values;
@@ -22,23 +27,13 @@ public class ExpiringKeyValueStorage {
     }
 
     public void delete(Slice key) {
-        notifyClientsAboutKeyAffection(key);
+        keyChangeNotifier.accept(key);
         ttls().remove(key);
         values().remove(key);
     }
 
-    final public void setRedisBase(RedisBase redisBase) {
-        this.redisBase = redisBase;
-    }
-
-    private void notifyClientsAboutKeyAffection(Slice key) {
-        if (redisBase != null) {
-            redisBase.notifyClientsAboutKeyAffection(key);
-        }
-    }
-
     public void delete(Slice key1, Slice key2) {
-        notifyClientsAboutKeyAffection(key1);
+        keyChangeNotifier.accept(key1);
         Objects.requireNonNull(key2);
 
         if (!verifyKey(key1)) {
@@ -110,19 +105,19 @@ public class ExpiringKeyValueStorage {
     }
 
     public long setTTL(Slice key, long ttl) {
-        notifyClientsAboutKeyAffection(key);
+        keyChangeNotifier.accept(key);
         return setDeadline(key, ttl + System.currentTimeMillis());
     }
 
     public void put(Slice key, RMDataStructure value, Long ttl) {
-        notifyClientsAboutKeyAffection(key);
+        keyChangeNotifier.accept(key);
         values().put(key, value);
         configureTTL(key, ttl);
     }
 
     // Put inside
     public void put(Slice key, Slice value, Long ttl) {
-        notifyClientsAboutKeyAffection(key);
+        keyChangeNotifier.accept(key);
         Objects.requireNonNull(key);
         Objects.requireNonNull(value);
         values().put(key, value);
@@ -131,7 +126,7 @@ public class ExpiringKeyValueStorage {
 
     // Put into inner RMHMap
     public void put(Slice key1, Slice key2, Slice value, Long ttl) {
-        notifyClientsAboutKeyAffection(key1);
+        keyChangeNotifier.accept(key1);
         Objects.requireNonNull(key1);
         Objects.requireNonNull(key2);
         Objects.requireNonNull(value);
