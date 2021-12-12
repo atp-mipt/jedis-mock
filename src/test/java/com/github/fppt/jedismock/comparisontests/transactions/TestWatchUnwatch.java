@@ -80,6 +80,17 @@ public class TestWatchUnwatch {
     }
 
     @TestTemplate
+    public void testWatchWithSet(Jedis jedis) throws ExecutionException, InterruptedException {
+        jedis.sadd(FIRST_KEY, FIRST_VALUE);
+        jedis.watch(FIRST_KEY);
+        runAsync(() -> anotherJedis.sadd(FIRST_KEY, ANOTHER_VALUE)).get();
+        Transaction transaction = jedis.multi();
+        transaction.set(SECOND_KEY, SECOND_VALUE);
+        List<Object> result = transaction.exec();
+        assertNull(result);
+    }
+
+    @TestTemplate
     public void testWatchWithNoKeyAffection(Jedis jedis) throws ExecutionException, InterruptedException {
         jedis.set(FIRST_KEY, FIRST_VALUE);
         jedis.watch(FIRST_KEY);
