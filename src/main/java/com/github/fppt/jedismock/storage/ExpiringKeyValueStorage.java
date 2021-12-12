@@ -27,7 +27,7 @@ public class ExpiringKeyValueStorage {
         values().remove(key);
     }
 
-    public void setRedisBase(RedisBase redisBase) {
+    final public void setRedisBase(RedisBase redisBase) {
         this.redisBase = redisBase;
     }
 
