@@ -37,7 +37,7 @@ public class TestTransactions {
     }
 
     @TestTemplate
-    public void withKeySetting(Jedis jedis) throws ExecutionException, InterruptedException {
+    public void testWatchWithKeySetting(Jedis jedis) throws ExecutionException, InterruptedException {
         Client client = jedis.getClient();
         Jedis anotherJedis = new Jedis(client.getHost(), client.getPort());
 
@@ -63,7 +63,7 @@ public class TestTransactions {
     }
 
     @TestTemplate
-    public void withChangingToTheSameValue(Jedis jedis) throws ExecutionException, InterruptedException {
+    public void testWatchWithChangingToTheSameValue(Jedis jedis) throws ExecutionException, InterruptedException {
         Client client = jedis.getClient();
         Jedis anotherJedis = new Jedis(client.getHost(), client.getPort());
 
@@ -89,7 +89,7 @@ public class TestTransactions {
     }
 
     @TestTemplate
-    public void withHSet(Jedis jedis) throws ExecutionException, InterruptedException {
+    public void testWatchWithHSet(Jedis jedis) throws ExecutionException, InterruptedException {
         Client client = jedis.getClient();
         Jedis anotherJedis = new Jedis(client.getHost(), client.getPort());
 
@@ -115,7 +115,7 @@ public class TestTransactions {
     }
 
     @TestTemplate
-    public void withNoKeyAffection(Jedis jedis) throws ExecutionException, InterruptedException {
+    public void testWatchWithNoKeyAffection(Jedis jedis) throws ExecutionException, InterruptedException {
         Client client = jedis.getClient();
         Jedis anotherJedis = new Jedis(client.getHost(), client.getPort());
 
@@ -142,7 +142,7 @@ public class TestTransactions {
     }
 
     @TestTemplate
-    public void withKeyExpiring(Jedis jedis) throws ExecutionException, InterruptedException {
+    public void testWatchWithKeyExpiring(Jedis jedis) throws ExecutionException, InterruptedException {
         jedis.set(FIRST_KEY, FIRST_VALUE, new SetParams().px(100));
         jedis.watch(FIRST_KEY);
 
@@ -154,7 +154,7 @@ public class TestTransactions {
     }
 
     @TestTemplate
-    public void withKeyDeleting(Jedis jedis) throws ExecutionException, InterruptedException {
+    public void testWatchWithKeyDeleting(Jedis jedis) throws ExecutionException, InterruptedException {
         Client client = jedis.getClient();
         Jedis anotherJedis = new Jedis(client.getHost(), client.getPort());
 
@@ -180,7 +180,7 @@ public class TestTransactions {
     }
 
     @TestTemplate
-    public void withTTLChanging(Jedis jedis) throws ExecutionException, InterruptedException {
+    public void testWatchWithTTLChanging(Jedis jedis) throws ExecutionException, InterruptedException {
         Client client = jedis.getClient();
         Jedis anotherJedis = new Jedis(client.getHost(), client.getPort());
 
@@ -206,7 +206,7 @@ public class TestTransactions {
     }
 
     @TestTemplate
-    public void withUnwatch(Jedis jedis) throws ExecutionException, InterruptedException {
+    public void testWatchWithUnwatch(Jedis jedis) throws ExecutionException, InterruptedException {
         Client client = jedis.getClient();
         Jedis anotherJedis = new Jedis(client.getHost(), client.getPort());
 
@@ -234,7 +234,7 @@ public class TestTransactions {
     }
 
     @TestTemplate
-    public void withMultipleKeys(Jedis jedis) throws ExecutionException, InterruptedException {
+    public void testWatchWithMultipleKeys(Jedis jedis) throws ExecutionException, InterruptedException {
         Client client = jedis.getClient();
         Jedis anotherJedis = new Jedis(client.getHost(), client.getPort());
 
@@ -260,7 +260,7 @@ public class TestTransactions {
     }
 
     @TestTemplate
-    public void withNoKeyInStorage(Jedis jedis) throws ExecutionException, InterruptedException {
+    public void testWatchWithNoKeyInStorage(Jedis jedis) throws ExecutionException, InterruptedException {
         jedis.watch(FIRST_KEY, SECOND_KEY);
 
         Transaction transaction = jedis.multi();
