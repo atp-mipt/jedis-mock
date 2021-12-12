@@ -23,7 +23,7 @@ public class RedisBase {
     private final ExpiringKeyValueStorage keyValueStorage =
             new ExpiringKeyValueStorage(this::notifyClientsAboutKeyAffection);
     private final Map<Slice, Set<RedisClient>> subscribers = new HashMap<>();
-    private final HashMap<Object, HashSet<OperationExecutorState>> watchedKeys = new HashMap<>();
+    private final HashMap<Object, Set<OperationExecutorState>> watchedKeys = new HashMap<>();
 
     public Set<Slice> keys() {
         Set<Slice> slices = keyValueStorage.values().keySet();
@@ -143,7 +143,7 @@ public class RedisBase {
     }
 
     public final void notifyClientsAboutKeyAffection(Slice key) {
-        for (OperationExecutorState state : watchedKeys.get(key)) {
+        for (OperationExecutorState state : watchedKeys.getOrDefault(key, Collections.emptySet())) {
             state.watchedKeyIsAffected();
         }
     }
@@ -250,8 +250,7 @@ public class RedisBase {
     }
 
     public void watch(OperationExecutorState state, Slice key) {
-        HashSet<OperationExecutorState> states = watchedKeys.computeIfAbsent(key, k -> new HashSet<>());
-        states.add(state);
+        watchedKeys.computeIfAbsent(key, k -> new HashSet<>()).add(state);
     }
 
     public void unwatchSingleKey(OperationExecutorState state, Slice key) {
