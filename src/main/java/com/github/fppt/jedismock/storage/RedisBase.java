@@ -24,9 +24,11 @@ public class RedisBase {
     private final Map<Slice, Set<RedisClient>> subscribers = new HashMap<>();
     private final HashMap<Object, HashSet<OperationExecutorState>> watchedKeys = new HashMap<>();
 
-    public RedisBase() {}
+    public RedisBase() {
+        keyValueStorage.setRedisBase(this);
+    }
 
-    public Set<Slice> keys(){
+    public Set<Slice> keys() {
         Set<Slice> slices = keyValueStorage.values().keySet();
         Set<Slice> result = new HashSet<>();
         for (Slice key: slices){
@@ -154,62 +156,51 @@ public class RedisBase {
     }
 
     public long setTTL(Slice key, long ttl) {
-        notifyClientsAboutKeyAffection(key);
         return keyValueStorage.setTTL(key, ttl);
     }
 
     public long setDeadline(Slice key, long deadline) {
-        notifyClientsAboutKeyAffection(key);
         return keyValueStorage.setDeadline(key, deadline);
     }
 
-    public void clear(){
+    public void clear() {
         keyValueStorage.clear();
         subscribers.clear();
     }
 
     public void putSliceWithoutClearingTtl(Slice key, Slice value) {
-        notifyClientsAboutKeyAffection(key);
         putSlice(key, value, null);
     }
 
     public void putSliceWithoutClearingTtl(Slice key1, Slice key2, Slice value) {
-        notifyClientsAboutKeyAffection(key1);
         putSlice(key1, key2, value, null);
     }
 
-    public void putSlice(Slice key, Slice value){
-        notifyClientsAboutKeyAffection(key);
+    public void putSlice(Slice key, Slice value) {
         putSlice(key, value, -1L);
     }
 
     public void putSlice(Slice key, Slice value, Long ttl) {
-        notifyClientsAboutKeyAffection(key);
         keyValueStorage.put(key, value, ttl);
     }
 
     public void putSlice(Slice key1, Slice key2, Slice value, Long ttl) {
-        notifyClientsAboutKeyAffection(key1);
         keyValueStorage.put(key1, key2, value, ttl);
     }
 
     public void putValue(Slice key, RMDataStructure value, Long ttl) {
-        notifyClientsAboutKeyAffection(key);
         keyValueStorage.put(key, value, ttl);
     }
 
     public void putValue(Slice key, RMDataStructure value) {
-        notifyClientsAboutKeyAffection(key);
         keyValueStorage.put(key, value, -1L);
     }
 
     public void deleteValue(Slice key) {
-        notifyClientsAboutKeyAffection(key);
         keyValueStorage.delete(key);
     }
 
     public void deleteValue(Slice key1, Slice key2) {
-        notifyClientsAboutKeyAffection(key1);
         keyValueStorage.delete(key1, key2);
     }
 
@@ -266,10 +257,7 @@ public class RedisBase {
     }
 
     public void watch(OperationExecutorState state, Slice key) {
-        Set<OperationExecutorState> states = watchedKeys.get(key);
-        if (states == null) {
-            states = new HashSet<>();
-        }
+        HashSet<OperationExecutorState> states = watchedKeys.computeIfAbsent(key, k -> new HashSet<>());
         states.add(state);
     }
 

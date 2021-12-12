@@ -12,7 +12,7 @@ public class OperationExecutorState {
     private final Map<Integer, RedisBase> redisBases;
     private final AtomicBoolean isTransactionModeOn = new AtomicBoolean(false);
     private final List<RedisOperation> tx = new ArrayList<>();
-    private final Set<Slice> watchedKeys = new HashSet<>();
+    public final Set<Slice> watchedKeys = new HashSet<>();
     private boolean watchedKeysAffected = false;
     private int selectedRedisBase = 0;
 
@@ -47,7 +47,6 @@ public class OperationExecutorState {
 
     public void newTransaction(){
         if(isTransactionModeOn.get()) throw new RuntimeException("Redis mock does not support more than one transaction");
-        watchedKeysAffected = false;
         transactionMode(true);
     }
 
@@ -59,6 +58,12 @@ public class OperationExecutorState {
 
     public Object lock() {
         return redisBases;
+    }
+
+    public void checkWatchedKeysNotExpired() {
+        for (Slice key : watchedKeys) {
+            base().exists(key);
+        }
     }
 
     public boolean isValid() {
