@@ -142,12 +142,8 @@ public class RedisBase {
         return keyValueStorage.getTTL(key);
     }
 
-    public void notifyClientsAboutKeyAffection(Slice key) {
-        Set<OperationExecutorState> states = watchedKeys.get(key);
-        if (states == null) {
-            return;
-        }
-        for (OperationExecutorState state : states) {
+    public final void notifyClientsAboutKeyAffection(Slice key) {
+        for (OperationExecutorState state : watchedKeys.get(key)) {
             state.watchedKeyIsAffected();
         }
     }
