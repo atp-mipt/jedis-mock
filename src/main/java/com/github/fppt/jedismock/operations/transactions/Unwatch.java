@@ -5,9 +5,6 @@ import com.github.fppt.jedismock.operations.RedisCommand;
 import com.github.fppt.jedismock.operations.RedisOperation;
 import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.storage.OperationExecutorState;
-import com.github.fppt.jedismock.storage.RedisBase;
-
-import java.util.List;
 
 @RedisCommand(value = "unwatch", transactional = false)
 public class Unwatch implements RedisOperation {
