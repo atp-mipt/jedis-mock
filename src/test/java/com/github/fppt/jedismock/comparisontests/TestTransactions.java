@@ -194,7 +194,7 @@ public class TestTransactions {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            jedis.pexpire(FIRST_KEY, 1000);
+            anotherJedis.pexpire(FIRST_KEY, 1000);
         });
         future.get();
 
