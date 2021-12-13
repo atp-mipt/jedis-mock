@@ -1,5 +1,6 @@
 package com.github.fppt.jedismock.storage;
 
+import com.github.fppt.jedismock.Utils;
 import com.github.fppt.jedismock.datastructures.RMDataStructure;
 import com.github.fppt.jedismock.datastructures.RMHMap;
 import com.github.fppt.jedismock.datastructures.RMSet;
@@ -23,7 +24,8 @@ public class RedisBase {
     private final ExpiringKeyValueStorage keyValueStorage =
             new ExpiringKeyValueStorage(this::notifyClientsAboutKeyAffection);
     private final Map<Slice, Set<RedisClient>> subscribers = new HashMap<>();
-    private final HashMap<Object, Set<OperationExecutorState>> watchedKeys = new HashMap<>();
+    private final Map<Object, Set<OperationExecutorState>> watchedKeys = new HashMap<>();
+    private final Map<Slice, Set<RedisClient>> psubscribers = new HashMap<>();
 
     public Set<Slice> keys() {
         Set<Slice> slices = keyValueStorage.values().keySet();
@@ -206,6 +208,15 @@ public class RedisBase {
         });
     }
 
+    public void subscribeByPattern(Slice pattern, RedisClient client) {
+        Set<RedisClient> newClient = new HashSet<>();
+        newClient.add(client);
+        psubscribers.merge(pattern, newClient, (currentSubscribers, newSubscribers) -> {
+            currentSubscribers.addAll(newSubscribers);
+            return currentSubscribers;
+        });
+    }
+
     public boolean removeSubscriber(Slice channel, RedisClient client) {
         if (subscribers.containsKey(channel)) {
             Set<RedisClient> redisClients = subscribers.get(channel);
@@ -218,11 +229,50 @@ public class RedisBase {
         return false;
     }
 
-    public Set<RedisClient> getSubscribers(Slice channel) {
-        if (subscribers.containsKey(channel)) {
-            return subscribers.get(channel);
+    public boolean removePSubscriber(Slice channel, RedisClient client) {
+        if (psubscribers.containsKey(channel)) {
+            Set<RedisClient> redisClients = psubscribers.get(channel);
+            redisClients.remove(client);
+            if (redisClients.isEmpty()) {
+                psubscribers.remove(channel);
+            }
+            return true;
         }
-        return Collections.emptySet();
+        return false;
+    }
+
+    public Set<RedisClient> getSubscribers(Slice channel) {
+        Set<RedisClient> subs = new HashSet<>(Collections.emptySet());
+        if (subscribers.containsKey(channel)) {
+            subs.addAll(subscribers.get(channel));
+        }
+        return subs;
+    }
+
+    public Map<Slice, Set<RedisClient>> getPsubscribers(Slice channel) {
+        Map<Slice, Set<RedisClient>> matchingPatterns = new HashMap<>();
+        String channelStr = channel.toString();
+        for (Map.Entry<Slice, Set<RedisClient>> patternSubscribedClients : psubscribers.entrySet()) {
+            Slice jedisPattern = patternSubscribedClients.getKey();
+            String regexpPattern = getRegexpFromPattern(jedisPattern);
+            if (!channelStr.matches(regexpPattern)) {
+                continue;
+            }
+            matchingPatterns.put(jedisPattern, patternSubscribedClients.getValue());
+        }
+        return matchingPatterns;
+    }
+
+    private static String getRegexpFromPattern(Slice pattern) {
+        String patternStr = pattern.toString();
+        if (patternStr.isEmpty()) {
+            return ".*";
+        }
+        return Utils.createRegexFromGlob(patternStr);
+    }
+
+    public int getNumpat() {
+        return psubscribers.size();
     }
 
     public Set<Slice> getChannels() {
@@ -233,6 +283,18 @@ public class RedisBase {
         List<Slice> subscriptions = new ArrayList<>();
 
         subscribers.forEach((channel, subscribers) -> {
+            if (subscribers.contains(client)) {
+                subscriptions.add(channel);
+            }
+        });
+
+        return subscriptions;
+    }
+
+    public List<Slice> getPSubscriptions(RedisClient client) {
+        List<Slice> subscriptions = new ArrayList<>();
+
+        psubscribers.forEach((channel, subscribers) -> {
             if (subscribers.contains(client)) {
                 subscriptions.add(channel);
             }
