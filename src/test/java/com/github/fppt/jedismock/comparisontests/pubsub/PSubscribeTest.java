@@ -1,5 +1,6 @@
-package com.github.fppt.jedismock.comparisontests;
+package com.github.fppt.jedismock.comparisontests.pubsub;
 
+import com.github.fppt.jedismock.comparisontests.ComparisonBase;
 import com.github.fppt.jedismock.util.MockPSubscriber;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
