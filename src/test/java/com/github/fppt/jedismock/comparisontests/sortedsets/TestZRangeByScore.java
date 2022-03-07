@@ -5,11 +5,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.Tuple;
+import redis.clients.jedis.resps.Tuple;
 import redis.clients.jedis.exceptions.JedisDataException;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static java.util.Arrays.asList;
@@ -54,7 +55,7 @@ public class TestZRangeByScore {
         assertEquals(3, jedis.zrange(ZSET_KEY, 0, -1).size());
 
         // when
-        final Set<String> zrangeByScoreResult = jedis.zrangeByScore(ZSET_KEY, "-inf", "+inf");
+        final List<String> zrangeByScoreResult = jedis.zrangeByScore(ZSET_KEY, "-inf", "+inf");
 
         // then
         assertEquals(new HashSet(asList("one", "two", "three")), zrangeByScoreResult);
@@ -73,7 +74,7 @@ public class TestZRangeByScore {
         assertEquals(3, jedis.zrange(ZSET_KEY, 0, -1).size());
 
         // when
-        final Set<String> zrangeByScoreResult = jedis.zrangeByScore(ZSET_KEY, "-inf", "2");
+        final List<String> zrangeByScoreResult = jedis.zrangeByScore(ZSET_KEY, "-inf", "2");
 
         // then
         assertEquals(new HashSet(asList("one", "two")), zrangeByScoreResult);
