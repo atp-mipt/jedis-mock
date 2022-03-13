@@ -51,4 +51,11 @@ public class TestZRange {
     public void whenUsingZrange_EnsureItReturnsListInRightOrderWithPositiveStartAndNegativeEndRange(Jedis jedis) {
         assertEquals(Arrays.asList("aaaa", "babb", "bbbb", "bcbb"), new ArrayList<>(jedis.zrange(ZSET_KEY, 1, -1)));
     }
+
+    @TestTemplate
+    public void whenUsingZrange_EnsureItReturnsListInLexicographicOrderForSameScore(Jedis jedis) {
+        jedis.zadd("foo", 42, "def");
+        jedis.zadd("foo", 42, "abc");
+        assertEquals(Arrays.asList("abc", "def"), jedis.zrange("foo", 0, -1));
+    }
 }

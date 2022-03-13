@@ -25,7 +25,6 @@ class ZRange extends AbstractRedisOperation {
     private static final Comparator<Map.Entry<Slice, Double>> zRangeComparator = Comparator
             .comparingDouble((ToDoubleFunction<Map.Entry<Slice, Double>>) Map.Entry::getValue)
             .thenComparing(Map.Entry::getKey);
-    private static final Comparator<Map.Entry<Slice, Double>> zRevRangeComparator = (o1, o2) -> zRangeComparator.compare(o2, o1);
 
     ZRange(RedisBase base, List<Slice> params) {
         super(base, params);
@@ -72,7 +71,7 @@ class ZRange extends AbstractRedisOperation {
 
         boolean finalWithScores = withScores;
         List<Slice> values = map.entrySet().stream()
-                .sorted(isRev ? zRevRangeComparator : zRangeComparator)
+                .sorted(isRev ? zRangeComparator.reversed() : zRangeComparator)
                 .skip(start)
                 .limit(end - start + 1)
                 .flatMap(e -> finalWithScores
