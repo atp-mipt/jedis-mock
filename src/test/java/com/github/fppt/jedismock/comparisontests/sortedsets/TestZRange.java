@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.params.ZRangeParams;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -57,5 +58,6 @@ public class TestZRange {
         jedis.zadd("foo", 42, "def");
         jedis.zadd("foo", 42, "abc");
         assertEquals(Arrays.asList("abc", "def"), jedis.zrange("foo", 0, -1));
+        assertEquals(Arrays.asList("def", "abc"), jedis.zrange("foo", ZRangeParams.zrangeParams(0, -1).rev()));
     }
 }
