@@ -89,7 +89,7 @@ public class TestZRemRangeByScore {
         assertEquals(1, zremrangeByScoreResult);
         final List<String> zrangeResult = jedis.zrange(ZSET_KEY, 0, -1);
         assertEquals(2, zrangeResult.size());
-        assertEquals(new HashSet(Arrays.asList("three", "two")), zrangeResult);
+        assertEquals(Arrays.asList("two", "three"), zrangeResult);
     }
 
     @TestTemplate
@@ -114,7 +114,7 @@ public class TestZRemRangeByScore {
         assertEquals(4, zremrangeByScoreResult);
         final List<String> zrangeResult = jedis.zrange(ZSET_KEY, 0, -1);
         assertEquals(6, zrangeResult.size());
-        assertEquals(new HashSet(Arrays.asList("one", "two", "three", "four", "nine", "ten")), zrangeResult);
+        assertEquals(Arrays.asList("one", "two", "three", "four", "nine", "ten"), zrangeResult);
     }
 
 
