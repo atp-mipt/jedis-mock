@@ -1,6 +1,7 @@
 package com.github.fppt.jedismock.comparisontests.hashes;
 
 import com.github.fppt.jedismock.comparisontests.ComparisonBase;
+import com.github.fppt.jedismock.datastructures.Slice;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -260,5 +261,33 @@ public class HashOperationsTest {
         hash.put("k2", "v3");
         final Long added2 = jedis.hset("key", hash);
         assertEquals(0, added2);
+    }
+
+    @TestTemplate
+    void hdelWithManyArguments(Jedis jedis) {
+        Map<String, String> hash = new HashMap<>();
+        hash.put("key1", "1");
+        hash.put("key2", "2");
+        jedis.hset("foo", hash);
+        final Long res = jedis.hdel("foo", "key1", "key2");
+        assertEquals(2, res);
+    }
+
+    @TestTemplate
+    void hkeysUnknownKey(Jedis jedis) {
+        Set<String> res = jedis.hkeys("foo");
+        assertEquals(new HashSet<String>(), res);
+    }
+
+    @TestTemplate
+    void checkTTL(Jedis jedis) {
+        Map<String, String> hash = new HashMap<>();
+        hash.put("key1", "1");
+        jedis.hset("foo", hash);
+        jedis.expire("foo", 1000000L);
+        assertNotSame(jedis.ttl("foo"), -1L);
+        hash.replace("key1", "2");
+        jedis.hset("foo", hash);
+        assertNotSame(jedis.ttl("foo"), -1L);
     }
 }
