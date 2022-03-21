@@ -10,10 +10,8 @@ import java.util.List;
 
 @RedisCommand("zrevrange")
 class ZRevRange extends AbstractRedisOperation {
-
     private static final String IS_REV = "REV";
     private final ZRange zRange;
-
 
     ZRevRange(RedisBase base, List<Slice> params) {
         super(base, params);
