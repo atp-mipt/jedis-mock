@@ -44,7 +44,6 @@ class ZRange extends AbstractByScoreOperation {
         Slice key = params().get(0);
         final RMHMap mapDBObj = getHMapFromBaseOrCreateEmpty(key);
         final Map<Slice, Double> map = mapDBObj.getStoredData();
-        Predicate<Double> filterPredicate = getFilterPredicate(params().get(1).toString(), params().get(2).toString());
 
         parseArgs();
 
@@ -68,10 +67,8 @@ class ZRange extends AbstractByScoreOperation {
         calculateIndexes(map);
 
         boolean finalWithScores = withScores;
-        boolean finalIsByScore = isByScore;
 
         List<Slice> values = map.entrySet().stream()
-                .filter(e -> !finalIsByScore || filterPredicate.test(e.getValue()))
                 .sorted(isRev ? zRangeComparator.reversed() : zRangeComparator)
                 .skip(start)
                 .limit(end - start + 1)
