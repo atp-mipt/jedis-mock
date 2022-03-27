@@ -264,22 +264,6 @@ public class HashOperationsTest {
     }
 
     @TestTemplate
-    void hdelWithManyArguments(Jedis jedis) {
-        Map<String, String> hash = new HashMap<>();
-        hash.put("key1", "1");
-        hash.put("key2", "2");
-        jedis.hset("foo", hash);
-        final Long res = jedis.hdel("foo", "key1", "key2");
-        assertEquals(2, res);
-    }
-
-    @TestTemplate
-    void hkeysUnknownKey(Jedis jedis) {
-        Set<String> res = jedis.hkeys("foo");
-        assertEquals(new HashSet<String>(), res);
-    }
-
-    @TestTemplate
     void checkTTL(Jedis jedis) {
         Map<String, String> hash = new HashMap<>();
         hash.put("key1", "1");
