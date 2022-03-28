@@ -18,12 +18,26 @@ public class TestHDel {
     }
 
     @TestTemplate
-    void hdelWithManyArguments(Jedis jedis) {
+    public void whenHDeleting_EnsureValuesAreRemoved(Jedis jedis) {
+        String field = "my-field-2";
+        String hash = "my-hash-2";
+        String value = "my-value-2";
+
+        assertEquals(0, jedis.hdel(hash, field));
+        jedis.hset(hash, field, value);
+        assertEquals(value, jedis.hget(hash, field));
+        assertEquals(1, jedis.hdel(hash, field));
+        assertNull(jedis.hget(hash, field));
+    }
+
+    @TestTemplate
+    void whenHDeletingWithManyArguments_EnsureValuesAreRemoved(Jedis jedis) {
         Map<String, String> hash = new HashMap<>();
         hash.put("key1", "1");
         hash.put("key2", "2");
         jedis.hset("foo", hash);
         final Long res = jedis.hdel("foo", "key1", "key2");
         assertEquals(2, res);
+        assertTrue(jedis.hgetAll("foo").isEmpty());
     }
 }
