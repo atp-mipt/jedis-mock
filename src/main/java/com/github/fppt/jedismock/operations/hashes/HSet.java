@@ -16,8 +16,7 @@ class HSet extends AbstractRedisOperation {
 
     Slice hsetValue(Slice key1, Slice key2, Slice value) {
         Slice foundValue = base().getSlice(key1, key2);
-        Long curr_TTL = base().getTTL(key1);
-        base().putSlice(key1, key2, value, curr_TTL == null ? Long.valueOf(-1L) : curr_TTL);
+        base().putSlice(key1, key2, value, null);
         return foundValue;
     }
 
