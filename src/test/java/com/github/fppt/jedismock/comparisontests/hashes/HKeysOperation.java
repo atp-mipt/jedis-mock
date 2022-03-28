@@ -20,6 +20,24 @@ public class HKeysOperation {
     @TestTemplate
     void hkeysUnknownKey(Jedis jedis) {
         Set<String> res = jedis.hkeys("foo");
-        assertEquals(new HashSet<String>(), res);
+        assertTrue(res.isEmpty());
+    }
+
+    @TestTemplate
+    void hvalsUnknownKey(Jedis jedis) {
+        List<String> res = jedis.hvals("foo");
+        assertTrue(res.isEmpty());
+    }
+
+    @TestTemplate
+    void hlenUnknownKey(Jedis jedis) {
+        long hlen = jedis.hlen("foo");
+        assertEquals(0, hlen);
+    }
+
+    @TestTemplate
+    void hGetAllUnknownKey(Jedis jedis) {
+        Map<String, String> result = jedis.hgetAll("foo");
+        assertTrue(result.isEmpty());
     }
 }
