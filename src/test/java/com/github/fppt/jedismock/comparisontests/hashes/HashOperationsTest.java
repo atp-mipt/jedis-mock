@@ -7,7 +7,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisDataException;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -35,7 +39,7 @@ public class HashOperationsTest {
         jedis.hset(key, "E", "3.14e1");
         jedis.hset(key, "F", "not-a-number");
 
-        assertEquals(3, jedis.hincrBy(key, "A", 3).intValue());
+        assertEquals(3, jedis.hincrBy(key, "A", 3));
         assertEquals(4.5, jedis.hincrByFloat(key, "A", 1.5), 0.00001);
         assertEquals(-1.5, jedis.hincrByFloat(key, "B", -1.5), 0.00001);
 
@@ -65,8 +69,8 @@ public class HashOperationsTest {
 
     @TestTemplate
     public void whenHSettingOnTheSameKeys_EnsureReturnTypeIs1WhenKeysAreNew(Jedis jedis) {
-        assertEquals(new Long(1L), jedis.hset(HASH, FIELD_1, VALUE_1));
-        assertEquals(new Long(0L), jedis.hset(HASH, FIELD_1, VALUE_1));
+        assertEquals(1L, jedis.hset(HASH, FIELD_1, VALUE_1));
+        assertEquals(0L, jedis.hset(HASH, FIELD_1, VALUE_1));
     }
 
     @TestTemplate
@@ -165,6 +169,12 @@ public class HashOperationsTest {
     }
 
     @TestTemplate
+    void whenHLenIsCalledOnNonExistingKey_zeroIsReturned(Jedis jedis) {
+        Long non_existent = jedis.hlen("non_existent");
+        assertEquals(0, non_existent);
+    }
+
+    @TestTemplate
     public void whenUsingHMget_EnsureAllValuesReturnedForEachField(Jedis jedis) {
         jedis.hset(HASH, FIELD_1, VALUE_1);
         jedis.hset(HASH, FIELD_2, VALUE_2);
@@ -247,5 +257,17 @@ public class HashOperationsTest {
         hash.put("k2", "v3");
         final Long added2 = jedis.hset("key", hash);
         assertEquals(0, added2);
+    }
+
+    @TestTemplate
+    void checkTTL(Jedis jedis) {
+        Map<String, String> hash = new HashMap<>();
+        hash.put("key1", "1");
+        jedis.hset("foo", hash);
+        jedis.expire("foo", 1000000L);
+        assertNotEquals(-1L, jedis.ttl("foo"));
+        hash.replace("key1", "2");
+        jedis.hset("foo", hash);
+        assertNotEquals(-1L, jedis.ttl("foo"));
     }
 }
