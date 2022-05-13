@@ -67,8 +67,8 @@ public class Slice implements Comparable<Slice>, Serializable {
         return len1 - len2;
     }
 
-    public RMDataStructure expand() {
-        if (storedData[0] == (byte)  0xac && storedData[1] == (byte) 0xed) {
+    public RMDataStructure extract() {
+        if (storedData[0] == (byte) 0xac && storedData[1] == (byte) 0xed) {
             try {
                 ObjectInputStream objectInputStream = new ObjectInputStream(new ByteArrayInputStream(storedData));
                 Object value = objectInputStream.readObject();
@@ -77,11 +77,11 @@ public class Slice implements Comparable<Slice>, Serializable {
                     return (RMDataStructure) value;
                 }
 
-            } catch (IOException | ClassNotFoundException ignored) {
+            } catch (IOException | ClassNotFoundException ex) {
                 throw new DeserializationException("problems with deserialization");
             }
         }
 
-        return new RMString(this.toString());
+        return RMString.create(this.toString());
     }
 }

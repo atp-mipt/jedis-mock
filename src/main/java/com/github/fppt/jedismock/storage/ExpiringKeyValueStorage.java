@@ -120,7 +120,7 @@ public class ExpiringKeyValueStorage {
         keyChangeNotifier.accept(key);
         Objects.requireNonNull(key);
         Objects.requireNonNull(value);
-        values().put(key, value.expand());
+        values().put(key, value.extract());
         configureTTL(key, ttl);
     }
 

@@ -1,7 +1,6 @@
 package com.github.fppt.jedismock.comparisontests.bitmaps;
 
 import com.github.fppt.jedismock.comparisontests.ComparisonBase;
-import com.github.fppt.jedismock.datastructures.Slice;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,8 +36,7 @@ public class BitMapsOperationsTest {
 
     @TestTemplate
     void testGetStringRepresentation(Jedis jedis) {
-        byte[] bitmapString = jedis.get("bm".getBytes());
-        jedis.set("bm2".getBytes(), bitmapString);
+        jedis.set("bm2".getBytes(), jedis.get("bm".getBytes()));
         for (int i = 0; i <= Collections.max(bits); i++) {
             assertEquals(bits.contains(i), jedis.getbit("bm2", i));
         }
@@ -51,5 +49,4 @@ public class BitMapsOperationsTest {
         jedis.setbit("foo", 1L, true);
         assertTrue(jedis.getbit("foo", 0L));
     }
-
 }

@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.exceptions.JedisDataException;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -125,5 +126,15 @@ public class SetOperationsTest {
 
         intersection = jedis.sinter(key1, key2, key3);
         assertEquals(expectedIntersection2, intersection);
+    }
+
+    @TestTemplate
+    public void testGetOperation(Jedis jedis) {
+        String key = "my-set-key";
+        Set<String> mySet = new HashSet<>(Arrays.asList("a", "b", "c", "d"));
+
+        //Add everything from the set
+        mySet.forEach(value -> jedis.sadd(key, value));
+        assertThrows(JedisDataException.class, () -> jedis.get("my-set-key"));
     }
 }
