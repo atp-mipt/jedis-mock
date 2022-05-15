@@ -1,4 +1,5 @@
 package com.github.fppt.jedismock.comparisontests.hyperloglog;
+
 import com.github.fppt.jedismock.comparisontests.ComparisonBase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
@@ -6,6 +7,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisDataException;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -41,13 +43,24 @@ public class HLLOperationsTest {
         jedis.pfadd("hll1", "a", "b", "c", "d");
         jedis.pfadd("hll2", "d", "e", "f");
         jedis.pfmerge("hll3", "hll1", "hll2");
-        assertEquals(jedis.pfcount("hll3"), 6);
+        assertEquals(6, jedis.pfcount("hll3"));
     }
 
     @TestTemplate
     public void testGetOperation(Jedis jedis) {
-        jedis.pfadd("foo", "bar");
-        assertDoesNotThrow(() -> jedis.get("foo"));
+        jedis.pfadd("foo1", "bar");
+        final byte[] buf = jedis.get("foo1".getBytes());
+        jedis.set("foo2".getBytes(), buf);
+        assertEquals(1, jedis.pfcount("foo1"));
+        assertEquals(1, jedis.pfcount("foo2"));
+    }
+
+    @TestTemplate
+    public void testFailingGetOperation(Jedis jedis) {
+        jedis.set("not_a_hll", "bar");
+        assertTrue(
+                assertThrows(JedisDataException.class, () ->
+                        jedis.pfadd("not_a_hll", "value")).getMessage().startsWith("WRONGTYPE"));
     }
 
     @TestTemplate

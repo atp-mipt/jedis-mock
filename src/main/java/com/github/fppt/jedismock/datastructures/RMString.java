@@ -5,7 +5,7 @@ import com.github.fppt.jedismock.exception.WrongValueTypeException;
 import java.io.Serializable;
 
 public class RMString implements RMDataStructure, Serializable {
-    private static final long serialVersionUID= 1L;
+    private static final long serialVersionUID = 1L;
     private String storedData;
 
     public RMString() {
@@ -21,7 +21,7 @@ public class RMString implements RMDataStructure, Serializable {
     }
 
     public static RMString create(String str) {
-        return  new RMString(str);
+        return new RMString(str);
     }
 
     public void add(String str) {

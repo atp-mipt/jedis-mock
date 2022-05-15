@@ -129,12 +129,10 @@ public class SetOperationsTest {
     }
 
     @TestTemplate
-    public void testGetOperation(Jedis jedis) {
-        String key = "my-set-key";
-        Set<String> mySet = new HashSet<>(Arrays.asList("a", "b", "c", "d"));
-
-        //Add everything from the set
-        mySet.forEach(value -> jedis.sadd(key, value));
-        assertThrows(JedisDataException.class, () -> jedis.get("my-set-key"));
+    public void testFailingGetOperation(Jedis jedis) {
+        jedis.sadd("my-set-key", "a", "b", "c", "d");
+        assertTrue(
+                assertThrows(JedisDataException.class, () -> jedis.get("my-set-key"))
+                        .getMessage().startsWith("WRONGTYPE"));
     }
 }

@@ -5,7 +5,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.exceptions.JedisDataException;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -48,5 +50,14 @@ public class BitMapsOperationsTest {
         assertTrue(jedis.getbit("foo", 0L));
         jedis.setbit("foo", 1L, true);
         assertTrue(jedis.getbit("foo", 0L));
+    }
+
+    @TestTemplate
+    public void testStringAndBitmapGet(Jedis jedis) {
+        jedis.set("something", "foo");
+        jedis.setbit("something", 41, true);
+        jedis.set("something2".getBytes(), jedis.get("something".getBytes()));
+        assertTrue(jedis.getbit("something2", 1));
+        assertTrue(jedis.getbit("something2", 41));
     }
 }
