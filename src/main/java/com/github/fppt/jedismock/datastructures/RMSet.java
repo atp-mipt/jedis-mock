@@ -11,6 +11,9 @@ public class RMSet implements RMDataStructure {
     public Set<Slice> getStoredData() {
         return storedData;
     }
+    public String getEncoding() {
+        return "raw";
+    }
 
     public RMSet() {
         storedData = new HashSet<>();

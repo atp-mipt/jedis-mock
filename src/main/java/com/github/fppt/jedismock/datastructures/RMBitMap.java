@@ -9,6 +9,10 @@ public class RMBitMap extends StringCompatible {
     private final BitSet bitSet;
     private int size;
 
+    public String getEncoding() {
+        return "raw";
+    }
+
     public RMBitMap() {
         this.size = 0;
         this.bitSet = new BitSet();

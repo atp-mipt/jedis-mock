@@ -15,6 +15,9 @@ public class RMList implements RMDataStructure {
     public RMList() {
         storedData = new ArrayList<>();
     }
+    public String getEncoding() {
+        return "raw";
+    }
 
     @Override
     public void raiseTypeCastException() {

@@ -7,12 +7,23 @@ import java.util.Map;
 public class RMHash implements RMDataStructure {
     private final LinkedHashMap<Slice, Slice> storedData = new LinkedHashMap<>();
 
+    private String encoding = "ziplist";
+
     public Map<Slice, Slice> getStoredData() {
         return storedData;
     }
 
+    public String getEncoding() {
+        return "* encoding:" + encoding + " *";
+    }
+
     public void put(Slice key, Slice data) {
         storedData.put(key, data);
+        if (storedData.size() < 1000) {
+            encoding = "ziplist";
+        } else {
+            encoding = "hashtable";
+        }
     }
 
     @Override

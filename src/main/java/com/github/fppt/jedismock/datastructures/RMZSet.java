@@ -27,6 +27,9 @@ public class RMZSet implements RMDataStructure {
     public Double getScore(Slice value) {
         return scores.get(value);
     }
+    public String getEncoding() {
+        return "raw";
+    }
 
     public boolean remove(Slice value) {
         final Double previous = scores.remove(value);

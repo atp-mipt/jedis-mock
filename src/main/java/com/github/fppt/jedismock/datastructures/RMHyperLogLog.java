@@ -13,6 +13,9 @@ public class RMHyperLogLog extends StringCompatible {
     public RMHyperLogLog() {
         storedData = new HashSet<>();
     }
+    public String getEncoding() {
+        return "raw";
+    }
 
     public Set<Slice> getStoredData() {
         return storedData;

@@ -13,6 +13,9 @@ public class RMString implements RMDataStructure, Serializable {
     public RMString() {
         storedData = new byte[0];
     }
+    public String getEncoding() {
+        return "raw";
+    }
 
     public RMString(byte[] data) {
         storedData = data;
