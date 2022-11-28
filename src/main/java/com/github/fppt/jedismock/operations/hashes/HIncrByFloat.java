@@ -39,6 +39,7 @@ class HIncrByFloat extends HIncrBy {
         // Slice value = params().get(2);
 
         double numericValue = convertToDouble(String.valueOf(value));
+        // double numericValue = Double.parseDouble(String.valueOf(value));
         Slice foundValue = base().getSlice(key1, key2);
         // System.out.println("WAS:");
         // System.out.println(foundValue);
@@ -52,8 +53,11 @@ class HIncrByFloat extends HIncrBy {
         // byte[] output = ByteBuffer.allocate(8).putDouble(numericValue).array();
 
         // base().putSlice(key1, key2, Slice.create(String.valueOf(output)), -1L);
-        base().putSlice(key1, key2, Slice.create(String.valueOf(numericValue)), -1L);
-        return Response.bulkString(Slice.create(String.valueOf(numericValue)));
+        // base().putSlice(key1, key2, Slice.create(String.valueOf(numericValue)), -1L);
+        // Slice res = Slice.create(String.format("%f", numericValue));
+        Slice res = Slice.create(String.format("%f", numericValue).replaceAll("[0]*$", "").replaceAll("\\.$", ""));
+        base().putSlice(key1, key2, res, -1L);
+        return Response.bulkString(res);
 
     }
 
