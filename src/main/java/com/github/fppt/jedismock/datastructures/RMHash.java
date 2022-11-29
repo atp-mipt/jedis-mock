@@ -24,9 +24,7 @@ public class RMHash implements RMDataStructure {
 
     public void put(Slice key, Slice data) {
         storedData.put(key, data);
-        if (storedData.size() < 1000) {
-            encoding = "ziplist";
-        } else {
+        if (storedData.size() > 1000) {
             encoding = "hashtable";
         }
     }
