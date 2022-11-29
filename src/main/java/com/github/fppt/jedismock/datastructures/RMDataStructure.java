@@ -2,7 +2,7 @@ package com.github.fppt.jedismock.datastructures;
 
 public interface RMDataStructure {
     void raiseTypeCastException();
-    String getEncoding();
+    String getMeta();
     String getTypeName();
 
     default Slice getAsSlice() {

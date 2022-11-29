@@ -13,8 +13,13 @@ public class RMHash implements RMDataStructure {
         return storedData;
     }
 
-    public String getEncoding() {
-        return "* encoding:" + encoding + " *";
+    public void setEncoding(String encoding_) {
+        encoding = encoding_;
+    }
+
+    public String getMeta() {
+        // here could be added some more metainformation later
+        return " encoding:" + encoding + " ";
     }
 
     public void put(Slice key, Slice data) {

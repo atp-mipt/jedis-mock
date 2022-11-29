@@ -18,7 +18,7 @@ class Debug extends AbstractRedisOperation {
     // handling DEBUG OBJECT command
     protected Slice debug_object(List<Slice> params){
         RMHash cls = base().getHash(params.get(1));
-        return Slice.create(cls.getEncoding());
+        return Slice.create(cls.getMeta());
     }
 
     protected Slice response() {
