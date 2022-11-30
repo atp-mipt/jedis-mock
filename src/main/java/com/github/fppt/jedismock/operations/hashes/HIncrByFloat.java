@@ -5,8 +5,6 @@ import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.storage.RedisBase;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import static com.github.fppt.jedismock.Utils.convertToDouble;
 
@@ -25,7 +23,7 @@ class HIncrByFloat extends HIncrBy {
                 throw new IllegalArgumentException("ERROR: HINCRBYFLOAT argument is not a float value");
             }
             byte[] bts = foundValue.data();
-            for (int i = 0; i < bts.length - 1; ++i){
+            for (int i = 0; i < bts.length; ++i){
                 System.out.println(bts[i]);
                 if(bts[i] == 0){
                     throw new IllegalArgumentException("ERROR: HINCRBYFLOAT argument is not a float value");
