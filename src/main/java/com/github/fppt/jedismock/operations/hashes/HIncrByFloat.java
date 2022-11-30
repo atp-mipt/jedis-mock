@@ -5,6 +5,8 @@ import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.storage.RedisBase;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import static com.github.fppt.jedismock.Utils.convertToDouble;
 
@@ -17,11 +19,18 @@ class HIncrByFloat extends HIncrBy {
     Slice hsetValue(Slice key1, Slice key2, Slice value) {
         double numericValue = convertToDouble(String.valueOf(value));
         Slice foundValue = base().getSlice(key1, key2);
-        String foundValueStr = String.valueOf(foundValue);
-        if (foundValueStr.startsWith(" ") || foundValueStr.endsWith(" ")){
-            throw new IllegalArgumentException("ERROR: HINCRBYFLOAT argument is not a float value");
-        }
         if (foundValue != null) {
+            String foundValueStr = String.valueOf(foundValue);
+            if (foundValueStr.startsWith(" ") || foundValueStr.endsWith(" ")){
+                throw new IllegalArgumentException("ERROR: HINCRBYFLOAT argument is not a float value");
+            }
+            byte[] bts = foundValue.data();
+            for (int i = 0; i < bts.length - 1; ++i){
+                System.out.println(bts[i]);
+                if(bts[i] == 0){
+                    throw new IllegalArgumentException("ERROR: HINCRBYFLOAT argument is not a float value");
+                }
+            }
             numericValue = convertToDouble(new String(foundValue.data())) + numericValue;
         }
         Slice res = Slice.create(

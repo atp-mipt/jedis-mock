@@ -17,6 +17,10 @@ public class RMHash implements RMDataStructure {
         encoding = encoding_;
     }
 
+    public String getEncoding() {
+        return encoding;
+    }
+
     public String getMeta() {
         // here could be added some more metainformation later
         return " encoding:" + encoding + " ";
@@ -24,7 +28,7 @@ public class RMHash implements RMDataStructure {
 
     public void put(Slice key, Slice data) {
         storedData.put(key, data);
-        if (storedData.size() > 1000) {
+        if (storedData.size() > 31) {
             encoding = "hashtable";
         }
     }
