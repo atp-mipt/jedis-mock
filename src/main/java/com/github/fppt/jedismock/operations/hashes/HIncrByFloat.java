@@ -24,7 +24,6 @@ class HIncrByFloat extends HIncrBy {
             }
             byte[] bts = foundValue.data();
             for (int i = 0; i < bts.length; ++i){
-                System.out.println(bts[i]);
                 if(bts[i] == 0){
                     throw new IllegalArgumentException("ERROR: HINCRBYFLOAT argument is not a float value");
                 }
