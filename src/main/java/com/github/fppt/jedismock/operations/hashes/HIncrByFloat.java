@@ -5,6 +5,7 @@ import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.storage.RedisBase;
 
+import java.text.DecimalFormat;
 import java.util.List;
 import static com.github.fppt.jedismock.Utils.convertToDouble;
 
@@ -30,11 +31,9 @@ class HIncrByFloat extends HIncrBy {
             }
             numericValue = convertToDouble(new String(foundValue.data())) + numericValue;
         }
-        Slice res = Slice.create(
-            String.format("%f", numericValue)
-                  .replaceAll("[0]*$", "")
-                  .replaceAll(",", ".")
-                  .replaceAll("\\.$", ""));
+        // real redis returns 17 digits after dot
+        DecimalFormat formatter = new DecimalFormat("#.#################");
+        Slice res = Slice.create(formatter.format(numericValue));
         base().putSlice(key1, key2, res, -1L);
         return Response.bulkString(res);
     }
