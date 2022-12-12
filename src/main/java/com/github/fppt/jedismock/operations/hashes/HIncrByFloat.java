@@ -15,20 +15,29 @@ class HIncrByFloat extends HIncrBy {
         super(base, params);
     }
 
+    private void validateHIncrByFloatArgument(Slice input){
+        IllegalArgumentException failed = new IllegalArgumentException("ERROR: HINCRBYFLOAT argument is not a float value");
+
+        // validate input is not started/ended with spaces
+        String foundValueStr = String.valueOf(input);
+        if (foundValueStr.startsWith(" ") || foundValueStr.endsWith(" ")){
+            throw failed;
+        }
+
+        // validate input doesn't contain null-terminator symbols
+        byte[] bts = input.data();
+        for (int i = 0; i < bts.length; ++i){
+            if(bts[i] == 0){
+                throw failed;
+            }
+        }
+    }
+
     Slice hsetValue(Slice key1, Slice key2, Slice value) {
         double numericValue = convertToDouble(String.valueOf(value));
         Slice foundValue = base().getSlice(key1, key2);
         if (foundValue != null) {
-            String foundValueStr = String.valueOf(foundValue);
-            if (foundValueStr.startsWith(" ") || foundValueStr.endsWith(" ")){
-                throw new IllegalArgumentException("ERROR: HINCRBYFLOAT argument is not a float value");
-            }
-            byte[] bts = foundValue.data();
-            for (int i = 0; i < bts.length; ++i){
-                if(bts[i] == 0){
-                    throw new IllegalArgumentException("ERROR: HINCRBYFLOAT argument is not a float value");
-                }
-            }
+            validateHIncrByFloatArgument(foundValue);
             numericValue = convertToDouble(new String(foundValue.data())) + numericValue;
         }
         // real redis returns 17 digits after dot
