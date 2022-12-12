@@ -27,7 +27,7 @@ class HSet extends AbstractRedisOperation {
         int count = 0;
 
         if (params().size() % 2 == 0){
-            // throw exception before doing anything if wrong number of args
+            // throw exception before doing anything if wrong number of args has been recieved
             throw new IllegalArgumentException("Recieved wrong number of arguments when executing command HSET");
         }
 
