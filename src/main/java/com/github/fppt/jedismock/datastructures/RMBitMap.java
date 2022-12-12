@@ -13,6 +13,10 @@ public class RMBitMap extends StringCompatible {
         return "";
     }
 
+    public String getEncoding() {
+        return "";
+    }
+
     public RMBitMap() {
         this.size = 0;
         this.bitSet = new BitSet();

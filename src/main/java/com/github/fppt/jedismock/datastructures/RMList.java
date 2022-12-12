@@ -20,6 +20,10 @@ public class RMList implements RMDataStructure {
         return "";
     }
 
+    public String getEncoding() {
+        return "";
+    }
+
     @Override
     public void raiseTypeCastException() {
         throw new WrongValueTypeException("WRONGTYPE RMList value is used in the wrong place");

@@ -18,6 +18,10 @@ public class RMHyperLogLog extends StringCompatible {
         return "";
     }
 
+    public String getEncoding() {
+        return "";
+    }
+
     public Set<Slice> getStoredData() {
         return storedData;
     }

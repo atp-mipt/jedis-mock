@@ -18,6 +18,10 @@ public class RMString implements RMDataStructure, Serializable {
         return "";
     }
 
+    public String getEncoding() {
+        return "";
+    }
+
     public RMString(byte[] data) {
         storedData = data;
     }
