@@ -6,7 +6,10 @@ import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.storage.RedisBase;
 
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.List;
+import java.util.Locale;
+
 import static com.github.fppt.jedismock.Utils.convertToDouble;
 
 @RedisCommand("hincrbyfloat")
@@ -15,20 +18,21 @@ class HIncrByFloat extends HIncrBy {
         super(base, params);
     }
 
-    private void validateHIncrByFloatArgument(Slice input){
-        IllegalArgumentException failed = new IllegalArgumentException("ERROR: HINCRBYFLOAT argument is not a float value");
+    private void validateHIncrByFloatArgument(Slice input) {
+
+        final String errorMessage = "ERROR: HINCRBYFLOAT argument is not a float value";
 
         // validate input is not started/ended with spaces
         String foundValueStr = String.valueOf(input);
-        if (foundValueStr.startsWith(" ") || foundValueStr.endsWith(" ")){
-            throw failed;
+        if (foundValueStr.startsWith(" ") || foundValueStr.endsWith(" ")) {
+            throw new IllegalArgumentException(errorMessage);
         }
 
         // validate input doesn't contain null-terminator symbols
         byte[] bts = input.data();
-        for (int i = 0; i < bts.length; ++i){
-            if(bts[i] == 0){
-                throw failed;
+        for (int i = 0; i < bts.length; ++i) {
+            if (bts[i] == 0) {
+                throw new IllegalArgumentException(errorMessage);
             }
         }
     }
@@ -41,7 +45,9 @@ class HIncrByFloat extends HIncrBy {
             numericValue = convertToDouble(new String(foundValue.data())) + numericValue;
         }
         // real redis returns 17 digits after dot
-        DecimalFormat formatter = new DecimalFormat("#.#################");
+        DecimalFormatSymbols separator = new DecimalFormatSymbols(Locale.getDefault());
+        separator.setDecimalSeparator('.');
+        DecimalFormat formatter = new DecimalFormat("#.#################", separator);
         Slice res = Slice.create(formatter.format(numericValue));
         base().putSlice(key1, key2, res, -1L);
         return Response.bulkString(res);
