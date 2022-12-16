@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RMList implements RMDataStructure {
-    private final List<Slice> storedData;
+    private final List<Slice> storedData = new ArrayList<>();
 
     public List<Slice> getStoredData() {
         return storedData;
@@ -23,7 +23,7 @@ public class RMList implements RMDataStructure {
     public String getEncoding() {
         return "";
     }
-
+    
     @Override
     public void raiseTypeCastException() {
         throw new WrongValueTypeException("WRONGTYPE RMList value is used in the wrong place");

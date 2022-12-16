@@ -11,7 +11,7 @@
 
     <groupId>com.github.fppt</groupId>
     <artifactId>jedis-mock</artifactId>
-    <version>1.0.5-SNAPSHOT</version>
+    <version>1.0.6-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>jedis-mock</name>
     <description>In memory Redis mock for testing</description>
@@ -44,9 +44,9 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <junit.version>5.9.1</junit.version>
         <jedis.version>4.3.0</jedis.version>
-        <testcontainers.version>1.17.5</testcontainers.version>
+        <testcontainers.version>1.17.6</testcontainers.version>
         <spotbugs.version>4.7.2.1</spotbugs.version>
-        <slf4j.version>2.0.3</slf4j.version>
+        <slf4j.version>2.0.6</slf4j.version>
     </properties>
 
     <distributionManagement>
@@ -96,13 +96,13 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>4.8.0</version>
+            <version>4.9.0</version>
             <scope>test</scope>
         </dependency>
 		<dependency>
             <groupId>nl.jqno.equalsverifier</groupId>
             <artifactId>equalsverifier</artifactId>
-            <version>3.10.1</version>
+            <version>3.12.3</version>
             <scope>test</scope>
         </dependency>
         <!-- SLF4J is the logging API all modules should use -->

@@ -9,6 +9,8 @@ import redis.clients.jedis.exceptions.JedisDataException;
 
 import java.util.List;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(ComparisonBase.class)
@@ -24,6 +26,38 @@ public class ListOperationsTest {
         String key = "Another key";
         jedis.rpush(key, "1", "2", "3");
         assertEquals(jedis.rpop(key), "3");
+    }
+
+    @TestTemplate
+    public void whenUsingLpop_EnsureTheFirstElementPushedIsReturned(Jedis jedis) {
+        String key = "Another key";
+        jedis.rpush(key, "1", "2", "3");
+        assertEquals("1", jedis.lpop(key));
+    }
+
+    @TestTemplate
+    public void whenUsingLpopCount_EnsureAllElementsPushedIsReturned(Jedis jedis) {
+        String key = "Another key";
+        jedis.rpush(key, "1", "2", "3", "4");
+        assertEquals(asList("1", "2", "3"), jedis.lpop(key, 3));
+        assertEquals(singletonList("4"), jedis.lpop(key, 5));
+        assertNull(jedis.lpop(key, 5));
+    }
+
+    @TestTemplate
+    public void whenUsingRpop_EnsureTheFirstElementPushedIsReturned(Jedis jedis) {
+        String key = "Another key";
+        jedis.rpush(key, "1", "2", "3");
+        assertEquals("3", jedis.rpop(key));
+    }
+
+    @TestTemplate
+    public void whenUsingRpopCount_EnsureAllElementsPushedIsReturned(Jedis jedis) {
+        String key = "Another key";
+        jedis.rpush(key, "1", "2", "3", "4");
+        assertEquals(asList("4", "3", "2"), jedis.rpop(key, 3));
+        assertEquals(singletonList("1"), jedis.rpop(key, 5));
+        assertNull(jedis.rpop(key, 5));
     }
 
     @TestTemplate
