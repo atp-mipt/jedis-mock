@@ -12,10 +12,6 @@ public class RMList implements RMDataStructure {
         return storedData;
     }
 
-    public RMList() {
-        storedData = new ArrayList<>();
-    }
-
     public String getMeta() {
         return "";
     }
