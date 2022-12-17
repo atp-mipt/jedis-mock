@@ -33,3 +33,18 @@ jobs:
       - name: Build jm-test-server
         run: mvn -B verify
         working-directory: native_tests/jm-test-server
+
+      - name: Run jm-test-server in background
+        run: java -jar target/jm-test-server-1.0-SNAPSHOT-jar-with-dependencies.jar &
+        working-directory: native_tests/jm-test-server
+
+      - name: Prepare TCL test run
+        run: |
+          sudo chmod +x ./gen-test-certs.sh
+          sudo chmod +x ./runtest
+          ./gen-test-certs.sh
+        working-directory: native_tests/linux
+
+      - name: Run native tests
+        run: ./runtest --host 127.0.0.1 --port 39807 --single unit/type/hash
+        working-directory: native_tests/linux
