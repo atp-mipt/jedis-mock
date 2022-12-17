@@ -5,41 +5,47 @@ import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.operations.server.MockExecutor;
 import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.server.ServiceOptions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-public class InterceptorMockServer {
+public final class InterceptorMockServer {
+
+    public static final int PORT = 39807;
+    public static final Logger LOGGER = LoggerFactory.getLogger(InterceptorMockServer.class);
+
+    private InterceptorMockServer() {
+
+    }
+
     public static void main(String[] args) throws IOException, InterruptedException {
-        //This binds mock redis server to a 39807 port
+        LOGGER.info("Service starting...");
         RedisServer
-                .newRedisServer(39807)
+                .newRedisServer(PORT)
                 .setOptions(ServiceOptions.withInterceptor((state, roName, params) -> {
                     if ("config".equalsIgnoreCase(roName)) {
-                        //You can can imitate any reply from Redis
+                        //Just a junk response instead of an error
                         return Response.bulkString(Slice.create("1"));
-                    } else if (
-                        "debug".equalsIgnoreCase(roName) 
-                        && params.get(0).toString().equalsIgnoreCase("object")
+                    } else if ("debug".equalsIgnoreCase(roName)
+                            && "object".equalsIgnoreCase(params.get(0).toString())
                     ) {
                         //Handling unsopported DEBUG OBJECT command
-
                         RMDataStructure cls = state.base().getHash(params.get(1));
                         return Response.bulkString(Slice.create(cls.getMeta()));
 
-                    } else if (
-                        "object".equalsIgnoreCase(roName) 
-                        && params.get(0).toString().equalsIgnoreCase("encoding")
+                    } else if ("object".equalsIgnoreCase(roName)
+                            && "encoding".equalsIgnoreCase(params.get(0).toString())
                     ) {
                         // Handling unsopported OBJECT ENCODING command
-
                         RMDataStructure cls = state.base().getHash(params.get(1));
                         return Response.bulkString(Slice.create(cls.getEncoding()));
                     } else {
                         //Delegate execution to JedisMock which will mock the real Redis behaviour (when it can)
                         return MockExecutor.proceed(state, roName, params);
                     }
-                    //NB: you can also delegate to a 'real' Redis in TestContainers here
                 }))
                 .start();
+        LOGGER.info("Service started at port {}.", PORT);
     }
 }
