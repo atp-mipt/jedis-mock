@@ -46,5 +46,7 @@ jobs:
         working-directory: native_tests/linux
 
       - name: Run native tests
-        run: ./runtest --host 127.0.0.1 --port 39807 --single unit/type/hash
+        run: |
+          ./runtest --host 127.0.0.1 --port 39807 --single unit/type/hash
+          ./runtest --host 127.0.0.1 --port 39807 --single unit/list
         working-directory: native_tests/linux
