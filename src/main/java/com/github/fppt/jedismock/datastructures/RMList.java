@@ -11,7 +11,7 @@ public class RMList implements RMDataStructure {
     public List<Slice> getStoredData() {
         return storedData;
     }
-    
+
     @Override
     public void raiseTypeCastException() {
         throw new WrongValueTypeException("WRONGTYPE RMList value is used in the wrong place");
