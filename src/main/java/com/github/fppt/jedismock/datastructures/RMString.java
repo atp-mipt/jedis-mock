@@ -14,14 +14,6 @@ public class RMString implements RMDataStructure, Serializable {
         storedData = new byte[0];
     }
 
-    public String getMeta() {
-        return "";
-    }
-
-    public String getEncoding() {
-        return "";
-    }
-
     public RMString(byte[] data) {
         storedData = data;
     }

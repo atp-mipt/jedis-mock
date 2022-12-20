@@ -28,14 +28,6 @@ public class RMZSet implements RMDataStructure {
         return scores.get(value);
     }
 
-    public String getMeta() {
-        return "";
-    }
-
-    public String getEncoding() {
-        return "";
-    }
-
     public boolean remove(Slice value) {
         final Double previous = scores.remove(value);
         if (previous == null) {

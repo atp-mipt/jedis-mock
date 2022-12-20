@@ -12,14 +12,6 @@ public class RMSet implements RMDataStructure {
         return storedData;
     }
 
-    public String getMeta() {
-        return "";
-    }
-
-    public String getEncoding() {
-        return "";
-    }
-
     public RMSet() {
         storedData = new HashSet<>();
     }

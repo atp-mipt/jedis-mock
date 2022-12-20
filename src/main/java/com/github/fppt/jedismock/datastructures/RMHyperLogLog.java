@@ -14,14 +14,6 @@ public class RMHyperLogLog extends StringCompatible {
         storedData = new HashSet<>();
     }
 
-    public String getMeta() {
-        return "";
-    }
-
-    public String getEncoding() {
-        return "";
-    }
-
     public Set<Slice> getStoredData() {
         return storedData;
     }

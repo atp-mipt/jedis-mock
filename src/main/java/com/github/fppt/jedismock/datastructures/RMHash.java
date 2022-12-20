@@ -13,8 +13,12 @@ public class RMHash implements RMDataStructure {
         return storedData;
     }
 
-    public void setEncoding(String encoding_) {
-        encoding = encoding_;
+    public void upgradeEncoding() {
+        this.encoding = "hashtable";
+    }
+
+    public void downgradeEncoding() {
+        this.encoding = "ziplist";
     }
 
     public String getEncoding() {
@@ -29,7 +33,7 @@ public class RMHash implements RMDataStructure {
     public void put(Slice key, Slice data) {
         storedData.put(key, data);
         if (storedData.size() > 31) {
-            encoding = "hashtable";
+            this.upgradeEncoding();
         }
     }
 

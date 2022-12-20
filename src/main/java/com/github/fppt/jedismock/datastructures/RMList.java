@@ -11,14 +11,6 @@ public class RMList implements RMDataStructure {
     public List<Slice> getStoredData() {
         return storedData;
     }
-
-    public String getMeta() {
-        return "";
-    }
-
-    public String getEncoding() {
-        return "";
-    }
     
     @Override
     public void raiseTypeCastException() {
