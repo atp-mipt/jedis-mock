@@ -30,8 +30,13 @@ jobs:
       - name: Fast build and install JedisMock
         run: mvn -B install -Dmaven.javadoc.skip -DskipTests -Dspotbugs.skip=true -Dcheckstyle.skip=true
 
+      - name: Evaluate current JedisMock version
+        run: |
+          echo jm_version=$( mvn help:evaluate -Dexpression=project.version -q -DforceStdout ) >> $GITHUB_ENV 
+          cat $GITHUB_ENV
+
       - name: Build jm-test-server
-        run: mvn -B verify
+        run: mvn -B verify -Djedismock.version=${{ env.jm_version }}
         working-directory: native_tests/jm-test-server
 
       - name: Run jm-test-server in background
