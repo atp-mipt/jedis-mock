@@ -96,16 +96,14 @@ public class LPos extends AbstractRedisOperation {
 
     private static Map<String, Slice> getArgsWithValues(List<Slice> params, Set<String> argNames) {
         Map<String, Slice> argMap = new HashMap<>();
-        for (int i = 0; i < params.size();) {
+        for (int i = 0; i < params.size(); i++) {
             String parameter = params.get(i).toString().toLowerCase();
             if (argNames.contains(parameter)) {
-                if (i + 1 == params.size()) {
+                if (++i == params.size()) {
                     throw new IllegalArgumentException("Param " + parameter + " expected to have a value");
                 }
-                argMap.put(parameter, params.get(i + 1));
-                ++i;
+                argMap.put(parameter, params.get(i));
             }
-            ++i;
         }
         return argMap;
     }
