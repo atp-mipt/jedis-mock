@@ -12,6 +12,7 @@ import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.jse.CoerceJavaToLua;
 import org.luaj.vm2.lib.jse.JsePlatform;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -48,7 +49,19 @@ public class Eval extends AbstractRedisOperation {
             if (result.isnil()) {
                 return Response.error(SCRIPT_RUNTIME_ERROR);
             }
-            return Response.bulkString(Slice.create(result.tojstring()));
+            switch (result.typename()) {
+                case "string":
+                    return Response.bulkString(Slice.create(result.tojstring()));
+                case "int":
+                    return Response.integer(result.toint());
+                case "table":
+                    final ArrayList<Slice> list = new ArrayList<>();
+                    for (int i = 0; i < result.length(); i++) {
+                        list.add(Slice.create(result.get(i+1).tojstring()));
+                    }
+                    return Response.array(list);
+            }
+            return Response.error(SCRIPT_RUNTIME_ERROR);
         } catch (LuaError e) {
             return Response.error(SCRIPT_COMPILE_ERROR);
         }
