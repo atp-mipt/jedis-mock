@@ -80,7 +80,7 @@ public class Sort extends AbstractRedisOperation {
             }
 
             if (LIMIT_PARAM.equalsIgnoreCase(params.get(i).toString())) {
-                offset = Utils.convertToInteger(params.get(i + 1).toString());
+                offset = Math.max(Utils.convertToInteger(params.get(i + 1).toString()), 0);
                 count = Utils.convertToInteger(params.get(i + 2).toString());
                 i += 2;
             }
