@@ -58,4 +58,13 @@ public class SortTest {
 
         assertEquals(e.getMessage(), "ERR One or more scores can't be converted into double");
     }
+
+    @TestTemplate
+    public void whenUsingSort_EnsureHandlesLimit(Jedis jedis) {
+        List<String> sortedResult = Arrays.asList("1", "2", "3", "a", "b", "c", "c", "c");
+        assertEquals(sortedResult.subList(1, 4), jedis.sort(key, new SortingParams().alpha().limit(1, 3)));
+        assertEquals(sortedResult.subList(1, 8), jedis.sort(key, new SortingParams().alpha().limit(1, 100)));
+        assertEquals(sortedResult.subList(0, 4), jedis.sort(key, new SortingParams().alpha().limit(0, 4)));
+        assertEquals(sortedResult.subList(0, 4), jedis.sort(key, new SortingParams().alpha().limit(-100, 4)));
+    }
 }
