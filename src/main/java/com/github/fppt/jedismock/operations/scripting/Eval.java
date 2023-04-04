@@ -53,19 +53,7 @@ public class Eval extends AbstractRedisOperation {
             if (result.isnil()) {
                 return Response.error(SCRIPT_RUNTIME_ERROR);
             }
-            switch (result.typename()) {
-                case "string":
-                    return Response.bulkString(Slice.create(result.tojstring()));
-                case "number":
-                    return Response.doubleValue(result.todouble());
-                case "table":
-                    final ArrayList<Slice> list = new ArrayList<>();
-                    for (int i = 0; i < result.length(); i++) {
-                        list.add(Slice.create(result.get(i+1).tojstring()));
-                    }
-                    return Response.array(list);
-            }
-            return Response.error(SCRIPT_RUNTIME_ERROR);
+            return resolveResult(result);
         } catch (LuaError e) {
             return Response.error(SCRIPT_COMPILE_ERROR);
         }
@@ -73,5 +61,21 @@ public class Eval extends AbstractRedisOperation {
 
     private static LuaTable embedLuaListToValue(final List<LuaValue> luaValues) {
         return LuaValue.listOf(luaValues.toArray(new LuaValue[0]));
+    }
+
+    private Slice resolveResult(LuaValue result) {
+        switch (result.typename()) {
+            case "string":
+                return Response.bulkString(Slice.create(result.tojstring()));
+            case "number":
+                return Response.integer(result.tolong());
+            case "table":
+                final ArrayList<Slice> list = new ArrayList<>();
+                for (int i = 0; i < result.length(); i++) {
+                    list.add(resolveResult(result.get(i+1)));
+                }
+                return Response.array(list);
+        }
+        return Response.error(SCRIPT_RUNTIME_ERROR);
     }
 }

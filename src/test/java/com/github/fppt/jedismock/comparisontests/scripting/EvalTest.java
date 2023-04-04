@@ -33,10 +33,17 @@ public class EvalTest {
     }
 
     @TestTemplate
-    public void evalNumberTest(Jedis jedis) {
+    public void evalIntTest(Jedis jedis) {
         Object eval_return = jedis.eval("return 0",0);
         assertEquals(Long.class, eval_return.getClass());
         assertEquals(0L, eval_return);
+    }
+
+    @TestTemplate
+    public void evalLongTest(Jedis jedis) {
+        Object eval_return = jedis.eval("return 1.123",0);
+        assertEquals(Long.class, eval_return.getClass());
+        assertEquals(1L, eval_return);
     }
 
     @TestTemplate
@@ -68,12 +75,12 @@ public class EvalTest {
     @TestTemplate
     public void evalParametrizedReturnMultipleKeysArgsNumbersTest(Jedis jedis) {
         Object eval_return = jedis.eval(
-                "return { KEYS[1], KEYS[2], ARGV[1], ARGV[2], ARGV[3] }",
+                "return { KEYS[1], KEYS[2], tonumber(ARGV[1]) }",
                 2, "key1", "key2",
-                "arg1", "arg2", "arg3"
+                "1"
         );
         assertEquals(ArrayList.class, eval_return.getClass());
-        assertEquals(Arrays.asList("key1", "key2", 1L, 2L, 3L), eval_return);
+        assertEquals(Arrays.asList("key1", "key2", 1L), eval_return);
     }
 
     @TestTemplate
