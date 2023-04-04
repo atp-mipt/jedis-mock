@@ -4,6 +4,7 @@ import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.operations.AbstractRedisOperation;
 import com.github.fppt.jedismock.operations.RedisCommand;
 import com.github.fppt.jedismock.server.Response;
+import com.github.fppt.jedismock.storage.OperationExecutorState;
 import com.github.fppt.jedismock.storage.RedisBase;
 import org.luaj.vm2.Globals;
 import org.luaj.vm2.LuaError;
@@ -23,8 +24,11 @@ public class Eval extends AbstractRedisOperation {
     private static final String SCRIPT_RUNTIME_ERROR = "Error running script (call to function returned nil)";
     private final Globals globals = JsePlatform.standardGlobals();
 
-    public Eval(RedisBase base, List<Slice> params) {
+    private final OperationExecutorState state;
+
+    public Eval(final RedisBase base, final List<Slice> params, final OperationExecutorState state) {
         super(base, params);
+        this.state = state;
     }
 
     @Override
@@ -42,7 +46,7 @@ public class Eval extends AbstractRedisOperation {
                 .collect(Collectors.toList());
         globals.set("KEYS", embedLuaListToValue(args.subList(0, numKeys)));
         globals.set("ARGV", embedLuaListToValue(args.subList(numKeys, args.size())));
-        globals.set("redis", CoerceJavaToLua.coerce(new RedisCallback()));
+        globals.set("redis", CoerceJavaToLua.coerce(new RedisCallback(state)));
         try {
             final LuaValue luaScript = globals.load(script);
             final LuaValue result = luaScript.call();
@@ -52,8 +56,8 @@ public class Eval extends AbstractRedisOperation {
             switch (result.typename()) {
                 case "string":
                     return Response.bulkString(Slice.create(result.tojstring()));
-                case "int":
-                    return Response.integer(result.toint());
+                case "number":
+                    return Response.doubleValue(result.todouble());
                 case "table":
                     final ArrayList<Slice> list = new ArrayList<>();
                     for (int i = 0; i < result.length(); i++) {

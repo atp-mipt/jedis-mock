@@ -33,6 +33,13 @@ public class EvalTest {
     }
 
     @TestTemplate
+    public void evalNumberTest(Jedis jedis) {
+        Object eval_return = jedis.eval("return 0",0);
+        assertEquals(Long.class, eval_return.getClass());
+        assertEquals(0L, eval_return);
+    }
+
+    @TestTemplate
     public void evalTableOfStringsTest(Jedis jedis) {
         Object eval_return = jedis.eval("return { 'test' }", 0);
         assertEquals(ArrayList.class, eval_return.getClass());
@@ -59,8 +66,19 @@ public class EvalTest {
     }
 
     @TestTemplate
-    public void evalRedisEchoTest(Jedis jedis) {
-        jedis.eval("return redis.call('ECHO', 'echo')", 0);
+    public void evalParametrizedReturnMultipleKeysArgsNumbersTest(Jedis jedis) {
+        Object eval_return = jedis.eval(
+                "return { KEYS[1], KEYS[2], ARGV[1], ARGV[2], ARGV[3] }",
+                2, "key1", "key2",
+                "arg1", "arg2", "arg3"
+        );
+        assertEquals(ArrayList.class, eval_return.getClass());
+        assertEquals(Arrays.asList("key1", "key2", 1L, 2L, 3L), eval_return);
+    }
+
+    @TestTemplate
+    public void evalRedisSetTest(Jedis jedis) {
+        assertEquals("OK", jedis.eval("return redis.call('SET', 'test', 'hello')", 0));
     }
 
 }
