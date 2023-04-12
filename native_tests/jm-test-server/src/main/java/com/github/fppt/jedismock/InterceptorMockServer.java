@@ -41,27 +41,12 @@ public final class InterceptorMockServer {
                         // Currently it is supported only for RMHash.
                         // If you will add support for other data structures, insert their handling here
                         if (value instanceof RMHash) {
-                            return Response.bulkString("hashtable");
+                            return Response.bulkString(Slice.create("hashtable"));
                         } else if (value instanceof RMString) {
                             return Response.bulkString(Slice.create(" at: "));
                         }
                         return Response.bulkString(
                                 Slice.create("DEBUG OBJECT command for this data structure is not yet supported")
-                        );
-                    } else if ("object".equalsIgnoreCase(roName)
-                            && "encoding".equalsIgnoreCase(params.get(0).toString())
-                    ) {
-                        // Handling unsopported OBJECT ENCODING command
-                        RMDataStructure value = state.base().getValue(params.get(1));
-
-                        // Currently it is supported only for RMHash.
-                        // If you will add support for other data structures, insert their handling here
-                        if (value instanceof RMHash) {
-                            RMHash hash = (RMHash) value;
-                            return Response.bulkString(Slice.create(hash.getEncoding()));
-                        }
-                        return Response.bulkString(
-                                Slice.create("OBJECT ENCODING command for this data structure is not yet supported")
                         );
                     } else if ("object".equalsIgnoreCase(roName)
                             && "refcount".equalsIgnoreCase(params.get(0).toString())
