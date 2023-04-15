@@ -620,13 +620,14 @@ start_server {
             assert_encoding $type mylist
             check_random_access_consistency mylist
         }
-
-        test "Check if list is still ok after a DEBUG RELOAD - $type" {
-            r debug reload
-            assert_encoding $type mylist
-            check_numbered_list_consistency mylist
-            check_random_access_consistency mylist
-        }
+#        [[JEDIS-MOCK Do nothing as Jedis-mock does not support encodings
+#        test "Check if list is still ok after a DEBUG RELOAD - $type" {
+#            r debug reload
+#            assert_encoding $type mylist
+#            check_numbered_list_consistency mylist
+#            check_random_access_consistency mylist
+#        }
+#        JEDIS-MOCK]]
     }
 
     test {LLEN against non-list value error} {

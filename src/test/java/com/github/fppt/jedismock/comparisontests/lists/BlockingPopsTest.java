@@ -1,20 +1,26 @@
 package com.github.fppt.jedismock.comparisontests.lists;
 
 import com.github.fppt.jedismock.comparisontests.ComparisonBase;
+import com.github.fppt.jedismock.comparisontests.TestErrorMessages;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.Transaction;
+import redis.clients.jedis.exceptions.JedisDataException;
 
+import javax.swing.*;
+import java.time.Duration;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(ComparisonBase.class)
-public class AdvanceListOperationsTest {
+public class BlockingPopsTest {
 
     @BeforeEach
     public void setUp(Jedis jedis) {
@@ -154,5 +160,145 @@ public class AdvanceListOperationsTest {
         List<String> results = jedis.lrange(list2key, 0, -1);
         assertEquals(0, results.size());
         future.get(4, TimeUnit.SECONDS);
+    }
+
+    @TestTemplate
+    public void whenUsingBlpop_EnsureNotWokenByTransaction(Jedis jedis, HostAndPort hostAndPort) throws ExecutionException, InterruptedException, TimeoutException {
+        String listKey = "list_key";
+
+        Jedis blockedClient = new Jedis(hostAndPort.getHost(), hostAndPort.getPort());
+        ExecutorService blockingThread = Executors.newSingleThreadExecutor();
+        Future<?> future = blockingThread.submit(() -> {
+            List<String> result = blockedClient.blpop(0, listKey);
+            assertNotNull(result);
+            assertEquals(2, result.size());
+            assertEquals(listKey, result.get(0));
+            assertEquals("b", result.get(1));
+        });
+
+        Transaction t = jedis.multi();
+        t.lpush(listKey, "0");
+        t.del(listKey);
+        t.exec();
+        jedis.del(listKey);
+        jedis.lpush(listKey, "b");
+        future.get(5, TimeUnit.SECONDS);
+    }
+
+    @TestTemplate
+    public void whenUsingBlpop_EnsureDoesntBlockInsideTransaction(Jedis jedis) {
+        String key = "blpop_transaction_key";
+
+        Assertions.assertTimeoutPreemptively(Duration.ofSeconds(5), () -> {
+            jedis.del(key);
+            jedis.lpush(key, "foo");
+            jedis.lpush(key, "bar");
+
+            Transaction t = jedis.multi();
+
+            t.blpop(0, key);
+            t.blpop(0, key);
+            t.blpop(0, key);
+
+            List<Object> result = t.exec();
+
+            assertEquals(
+                    Arrays.asList(
+                            Arrays.asList(key, "bar"),
+                            Arrays.asList(key, "foo"),
+                            null
+                    ), result);
+
+        }, TestErrorMessages.DEADLOCK_ERROR_MESSAGE);
+    }
+
+    @TestTemplate
+    public void whenUsingBlpop_EnsureThrowsErrorOnNegativeTimeout(Jedis jedis) {
+        String key = "blpop_negative_timeout_key";
+
+        JedisDataException exception = Assertions.assertThrows(JedisDataException.class, () -> jedis.blpop(-5, key));
+        assertEquals("ERR timeout is negative", exception.getMessage());
+
+        exception = Assertions.assertThrows(JedisDataException.class, () -> jedis.blpop(-0.1, key));
+        assertEquals("ERR timeout is negative", exception.getMessage());
+    }
+
+    @TestTemplate
+    public void whenUsingBlpop_EnsureStillWaitsIfKeyIsNotList(Jedis jedis, HostAndPort hostAndPort) throws ExecutionException, InterruptedException, TimeoutException {
+        String key = "blpop_not_a_list_key";
+
+        Jedis blockedClient = new Jedis(hostAndPort.getHost(), hostAndPort.getPort());
+        ExecutorService blockingThread = Executors.newSingleThreadExecutor();
+
+        Future<?> future = blockingThread.submit(() -> {
+            List<String> result = blockedClient.blpop(0, key);
+            assertEquals(2, result.size());
+            assertEquals(key, result.get(0));
+            assertEquals("foo", result.get(1));
+        });
+
+        Thread.sleep(300); // wait for blpop to execute
+
+        Transaction t = jedis.multi();
+
+        t.rpush(key, "bar");
+        t.del(key);
+        t.set(key, "bar2");
+        t.exec();
+
+        jedis.del(key);
+        jedis.lpush(key, "foo");
+
+        future.get(5, TimeUnit.SECONDS);
+    }
+
+    @TestTemplate
+    public void whenUsingBRPopLPush_ensureBlocksIndefinitely(Jedis jedis, HostAndPort hostAndPort) throws InterruptedException, ExecutionException {
+        String fromKey = "brpoplpush_from";
+        String toKey = "brpoplpush_to";
+
+        Jedis blockingClient = new Jedis(hostAndPort);
+
+        ExecutorService e = Executors.newSingleThreadExecutor();
+
+        Future<?> future = e.submit(() -> {
+            String value = blockingClient.brpoplpush(fromKey, toKey, 0);
+            assertEquals("bar", value);
+        });
+
+        // wait to be sure we wait more than 0 seconds
+        Thread.sleep(1000);
+        jedis.rpush(fromKey, "bar");
+
+        future.get();
+    }
+
+    @TestTemplate
+    public void whenUsingBRPopLPush_ensureCircularWorks(Jedis jedis, HostAndPort hostAndPort) throws InterruptedException, ExecutionException {
+        String list1 = "circular_key_1";
+        String list2 = "circular_key_2";
+
+        Jedis blockingClient1 = new Jedis(hostAndPort);
+        Jedis blockingClient2 = new Jedis(hostAndPort);
+
+        ExecutorService e = Executors.newFixedThreadPool(2);
+
+        Future<?> future1 = e.submit(() -> {
+            blockingClient1.brpoplpush(list1, list2, 0);
+        });
+
+        Future<?> future2 = e.submit(() -> {
+            blockingClient2.brpoplpush(list2, list1, 0);
+        });
+
+        Thread.sleep(500);
+
+        jedis.rpush(list1, "bar");
+
+        future1.get();
+        future2.get();
+
+        Assertions.assertEquals(1, jedis.llen(list1));
+        Assertions.assertEquals(0, jedis.llen(list2));
     }
 }

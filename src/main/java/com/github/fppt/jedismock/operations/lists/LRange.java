@@ -34,9 +34,6 @@ class LRange extends AbstractRedisOperation {
         }
         if (end < 0) {
             end = list.size() + end;
-            if (end < 0) {
-                end = 0;
-            }
         }
         List<Slice> result = new ArrayList<>();
         for (int i = start; i <= end && i < list.size(); i++) {

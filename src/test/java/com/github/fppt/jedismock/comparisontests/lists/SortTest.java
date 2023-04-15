@@ -1,11 +1,14 @@
 package com.github.fppt.jedismock.comparisontests.lists;
 
+import com.github.dockerjava.zerodep.shaded.org.apache.hc.core5.net.Host;
 import com.github.fppt.jedismock.comparisontests.ComparisonBase;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.testcontainers.shaded.com.google.common.collect.Lists;
+import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.args.SortingOrder;
 import redis.clients.jedis.exceptions.JedisDataException;
@@ -13,6 +16,11 @@ import redis.clients.jedis.params.SortingParams;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -66,5 +74,25 @@ public class SortTest {
         assertEquals(sortedResult.subList(1, 8), jedis.sort(key, new SortingParams().alpha().limit(1, 100)));
         assertEquals(sortedResult.subList(0, 4), jedis.sort(key, new SortingParams().alpha().limit(0, 4)));
         assertEquals(sortedResult.subList(0, 4), jedis.sort(key, new SortingParams().alpha().limit(-100, 4)));
+    }
+
+    @TestTemplate
+    @Timeout(value = 3)
+    public void whenUsingSort_EnsureWakesOnStore(Jedis jedis, HostAndPort hostAndPort) throws InterruptedException, ExecutionException {
+        Jedis blockingClient = new Jedis(hostAndPort);
+        ExecutorService e = Executors.newSingleThreadExecutor();
+
+        Future<?> future = e.submit(() -> {
+            List<String> result = blockingClient.blpop(0, store_sort_key);
+
+            assertEquals(2, result.size());
+            assertEquals(store_sort_key, result.get(0));
+            assertEquals("1", result.get(1));
+        });
+
+        Thread.sleep(1000);
+
+        jedis.sort(numerical_sort_key, new SortingParams(), store_sort_key);
+        future.get();
     }
 }

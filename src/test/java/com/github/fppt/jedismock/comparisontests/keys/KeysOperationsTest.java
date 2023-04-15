@@ -116,4 +116,13 @@ public class KeysOperationsTest {
         assertEquals(2, results.size());
         assertTrue(results.contains("{hashslot}:one") && results.contains("{hashslot}:two"));
     }
+
+    @TestTemplate
+    public void test(Jedis jedis) {
+        String key = "kkkey";
+
+        jedis.lpush(key, "1", "2", "3");
+
+        jedis.set(key, "3");
+    }
 }

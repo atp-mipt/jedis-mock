@@ -19,9 +19,12 @@ abstract class ListPopper extends AbstractRedisOperation {
 
     protected final Slice response() {
         Slice key = params().get(0);
-        final RMList listDBObj = getListFromBaseOrCreateEmpty(key);
+        if (!base().exists(key)) {
+            return Response.NULL;
+        }
+        final RMList listDBObj = base().getList(key);
         final List<Slice> list = listDBObj.getStoredData();
-        if (list.isEmpty()) return Response.NULL;
+        Slice response;
         if (params().size() > 1) {
             //Count param
             Slice countParam = params().get(1);
@@ -34,10 +37,16 @@ abstract class ListPopper extends AbstractRedisOperation {
                 responseList.add(Response.bulkString(popper(list)));
                 count--;
             }
-            return Response.array(responseList);
+            response = Response.array(responseList);
         } else {
-            return Response.bulkString(popper(list));
+            response = Response.bulkString(popper(list));
         }
+
+        if (list.isEmpty()) {
+            base().deleteValue(key);
+        }
+
+        return response;
     }
 
 }

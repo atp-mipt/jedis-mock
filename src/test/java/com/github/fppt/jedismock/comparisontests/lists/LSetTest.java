@@ -10,6 +10,7 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisDataException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(ComparisonBase.class)
 public class LSetTest {
@@ -39,5 +40,13 @@ public class LSetTest {
     public void whenUsingLSet_EnsureErrorOnIndexOutOfBounds(Jedis jedis) {
         Assertions.assertThrows(JedisDataException.class, () -> jedis.lset(key, 10, "5"), "ERR index out of range");
         Assertions.assertThrows(JedisDataException.class, () -> jedis.lset(key, -10, "5"), "ERR index out of range");
+    }
+
+    @TestTemplate
+    @DisplayName("Check error on non existing key")
+    public void whenUsingLSet_EnsureErrorOnNonExistingKey(Jedis jedis) {
+        jedis.del(key);
+        JedisDataException exception = assertThrows(JedisDataException.class, () -> jedis.lset(key, 0, "1"));
+        assertEquals(exception.getMessage(), "ERR no such key");
     }
 }
