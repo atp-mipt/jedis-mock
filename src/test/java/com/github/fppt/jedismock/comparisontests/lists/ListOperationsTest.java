@@ -1,12 +1,15 @@
 package com.github.fppt.jedismock.comparisontests.lists;
 
 import com.github.fppt.jedismock.comparisontests.ComparisonBase;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisDataException;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static java.util.Arrays.asList;
@@ -132,5 +135,25 @@ public class ListOperationsTest {
         String key = "Another key";
         jedis.rpush(key, "1", "2", "3");
         assertThrows(JedisDataException.class, () -> jedis.get("Another key"));
+    }
+
+    @TestTemplate
+    public void whenUsingLRange_EnsureHandlesTooSmallEnd(Jedis jedis) {
+        String key = "lrange_key";
+        jedis.lpush(key, "1", "2", "3");
+
+        assertEquals(0, jedis.lrange(key, 0, -4).size());
+    }
+
+    @TestTemplate
+    public void whenUsingPop_EnsureDeletesKeyIfListIsEmpty(Jedis jedis) {
+        String key = "pop_empty_key";
+
+        jedis.lpush(key, "1", "2", "3");
+        assertTrue(jedis.exists(key));
+
+        jedis.rpop(key, 3);
+
+        assertFalse(jedis.exists(key));
     }
 }
