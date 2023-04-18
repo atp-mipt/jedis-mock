@@ -88,4 +88,14 @@ public class EvalTest {
         assertEquals("OK", jedis.eval("return redis.call('SET', 'test', 'hello')", 0));
     }
 
+    @TestTemplate
+    public void evalRedisDecrTest(Jedis jedis) {
+        jedis.eval("redis.call('SET', 'count', '1')", 0);
+        assertEquals(0L, jedis.eval("return redis.call('DECR', 'count')", 0));
+    }
+
+    @TestTemplate
+    public void evalRedisRecursiveTest(Jedis jedis) {
+        assertEquals(Arrays.asList(1L,2L,3L), jedis.eval("return redis.call('EVAL', 'return { 1, 2, 3 }', '0')", 0));
+    }
 }

@@ -50,20 +50,20 @@ public class Eval extends AbstractRedisOperation {
         try {
             final LuaValue luaScript = globals.load(script);
             final LuaValue result = luaScript.call();
-            if (result.isnil()) {
-                return Response.error(SCRIPT_RUNTIME_ERROR);
-            }
             return resolveResult(result);
         } catch (LuaError e) {
             return Response.error(SCRIPT_COMPILE_ERROR);
         }
     }
 
-    private static LuaTable embedLuaListToValue(final List<LuaValue> luaValues) {
+    public static LuaTable embedLuaListToValue(final List<LuaValue> luaValues) {
         return LuaValue.listOf(luaValues.toArray(new LuaValue[0]));
     }
 
     private Slice resolveResult(LuaValue result) {
+        if (result.isnil()) {
+            return Response.NULL;
+        }
         switch (result.typename()) {
             case "string":
                 return Response.bulkString(Slice.create(result.tojstring()));
