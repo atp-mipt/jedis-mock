@@ -9,7 +9,6 @@ import com.github.fppt.jedismock.storage.RedisBase;
 
 
 import java.util.List;
-import java.util.Set;
 
 
 @RedisCommand("sinterstore")
