@@ -129,6 +129,29 @@ public class SetOperationsTest {
     }
 
     @TestTemplate
+    public void whenUsingSInterStore_testIntersectionIsStorred(Jedis jedis) {
+        String key1 = "set1";
+        String key2 = "set2";
+        Set<String> mySet1 = new HashSet<>(Arrays.asList("a", "b", "c", "d"));
+        Set<String> mySet2 = new HashSet<>(Arrays.asList("b", "d", "e", "f"));
+
+        Set<String> expectedIntersection = new HashSet<>(Arrays.asList("b", "d"));
+
+        //Add everything from the sets
+        mySet1.forEach(value -> jedis.sadd(key1, value));
+        mySet2.forEach(value -> jedis.sadd(key2, value));
+
+        String destination = "set3";
+
+        Long elementsInIntersection = jedis.sinterstore(destination, key1, key2);
+        assertEquals(2, elementsInIntersection);
+
+        assertEquals(expectedIntersection, jedis.get(destination));
+    }
+
+    
+
+    @TestTemplate
     public void testFailingGetOperation(Jedis jedis) {
         jedis.sadd("my-set-key", "a", "b", "c", "d");
         assertTrue(
