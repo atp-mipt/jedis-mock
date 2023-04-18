@@ -146,7 +146,7 @@ public class SetOperationsTest {
         Long elementsInIntersection = jedis.sinterstore(destination, key1, key2);
         assertEquals(2, elementsInIntersection);
 
-        assertEquals(expectedIntersection, jedis.get(destination));
+        assertEquals(expectedIntersection, jedis.smembers(destination));
     }
 
     
