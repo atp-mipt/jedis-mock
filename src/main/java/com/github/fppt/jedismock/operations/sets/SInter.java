@@ -18,8 +18,7 @@ class SInter extends AbstractRedisOperation {
         super(base, params);
     }
 
-    @Override
-    protected Slice response() {
+    protected Set<Slice> getIntersection() {
         Slice key = params().get(0);
         RMSet setObj = getSetFromBaseOrCreateEmpty(key);
         Set<Slice> resultSoFar = setObj.getStoredData();
@@ -30,6 +29,11 @@ class SInter extends AbstractRedisOperation {
             resultSoFar.retainAll(secondSet);
         }
 
-        return Response.array(resultSoFar.stream().map(Response::bulkString).collect(toList()));
+        return resultSoFar;
+    }
+
+    @Override
+    protected Slice response() {
+        return Response.array(getIntersection().stream().map(Response::bulkString).collect(toList()));
     }
 }
