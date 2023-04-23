@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 @RedisCommand("eval")
 public class Eval extends AbstractRedisOperation {
     private static final String SCRIPT_PARAM_ERROR = "Wrong number of arguments for EVAL";
-    private static final String SCRIPT_COMPILE_ERROR = "Error compiling script (new function returned nil)";
     private static final String SCRIPT_RUNTIME_ERROR = "Error running script (call to function returned nil)";
     private final Globals globals = JsePlatform.standardGlobals();
 
@@ -38,22 +37,27 @@ public class Eval extends AbstractRedisOperation {
         }
         final String script = params().get(0).toString()
                 .replace("redis.", "redis:");
-        int numKeys = Integer.parseInt(params().get(1).toString());
-        final List<LuaValue> args = params()
-                .subList(2, params().size()).stream()
-                .map(Slice::toString)
-                .map(LuaValue::valueOf)
-                .collect(Collectors.toList());
-        globals.set("KEYS", embedLuaListToValue(args.subList(0, numKeys)));
-        globals.set("ARGV", embedLuaListToValue(args.subList(numKeys, args.size())));
+        int keysNum = Integer.parseInt(params().get(1).toString());
+        final List<LuaValue> args = getLuaValues(params().subList(2, params().size()));
+
+        globals.set("KEYS", embedLuaListToValue(args.subList(0, keysNum)));
+        globals.set("ARGV", embedLuaListToValue(args.subList(keysNum, args.size())));
         globals.set("redis", CoerceJavaToLua.coerce(new RedisCallback(state)));
+
         try {
             final LuaValue luaScript = globals.load(script);
             final LuaValue result = luaScript.call();
             return resolveResult(result);
         } catch (LuaError e) {
-            return Response.error(SCRIPT_COMPILE_ERROR);
+            return Response.error(String.format("Error running script: %s", e.getMessage()));
         }
+    }
+
+    private static List<LuaValue> getLuaValues(List<Slice> slices) {
+        return slices.stream()
+                .map(Slice::toString)
+                .map(LuaValue::valueOf)
+                .collect(Collectors.toList());
     }
 
     public static LuaTable embedLuaListToValue(final List<LuaValue> luaValues) {
@@ -70,12 +74,16 @@ public class Eval extends AbstractRedisOperation {
             case "number":
                 return Response.integer(result.tolong());
             case "table":
-                final ArrayList<Slice> list = new ArrayList<>();
-                for (int i = 0; i < result.length(); i++) {
-                    list.add(resolveResult(result.get(i+1)));
-                }
-                return Response.array(list);
+                return Response.array(luaTableToList(result));
         }
         return Response.error(SCRIPT_RUNTIME_ERROR);
+    }
+
+    private ArrayList<Slice> luaTableToList(LuaValue result) {
+        final ArrayList<Slice> list = new ArrayList<>();
+        for (int i = 0; i < result.length(); i++) {
+            list.add(resolveResult(result.get(i+1)));
+        }
+        return list;
     }
 }

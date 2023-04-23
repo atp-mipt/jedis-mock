@@ -5,10 +5,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.exceptions.JedisDataException;
 
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(ComparisonBase.class)
 public class EvalTest {
@@ -62,6 +63,14 @@ public class EvalTest {
     }
 
     @TestTemplate
+    public void evalDictTest(Jedis jedis) {
+        Object eval_return = jedis.eval("return { a = 1, 2 }", 0);
+        assertEquals(ArrayList.class, eval_return.getClass());
+        assertEquals(Long.class, ((List<?>)eval_return).get(0).getClass());
+        assertEquals(Collections.singletonList(2L), eval_return);
+    }
+
+    @TestTemplate
     public void evalParametrizedReturnMultipleKeysArgsTest(Jedis jedis) {
         Object eval_return = jedis.eval(
                 "return { KEYS[1], KEYS[2], ARGV[1], ARGV[2], ARGV[3] }",
@@ -96,6 +105,30 @@ public class EvalTest {
 
     @TestTemplate
     public void evalRedisRecursiveTest(Jedis jedis) {
-        assertEquals(Arrays.asList(1L,2L,3L), jedis.eval("return redis.call('EVAL', 'return { 1, 2, 3 }', '0')", 0));
+        Exception e = assertThrows(RuntimeException.class, () -> jedis.eval("return redis.call('EVAL', 'return { 1, 2, 3 }', '0')", 0));
+        assertNotNull(e);
     }
+
+    @TestTemplate
+    public void evalRedisReturnPcallResultsInExceptionTest(Jedis jedis) {
+        JedisDataException e = assertThrows(JedisDataException.class, () -> jedis.eval("return redis.pcall('RENAME','A','B')", 0));
+        assertNotNull(e);
+    }
+
+    @TestTemplate
+    public void evalRedisPCallCanHandleExceptionTest(Jedis jedis) {
+        assertEquals("Handled error from pcall", jedis.eval("" +
+                "local reply = redis.pcall('RENAME','A','B')\n" +
+                "if reply['err'] ~= nil then\n" +
+                "  return 'Handled error from pcall'" +
+                "end\n" +
+                "return reply",
+                0));
+    }
+
+    @TestTemplate
+    public void evalRedisPCallDoesNotThrowTest(Jedis jedis) {
+        assertNull(jedis.eval("redis.pcall('RENAME','A','B')", 0));
+    }
+
 }
