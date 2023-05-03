@@ -8,7 +8,6 @@ import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.storage.OperationExecutorState;
 import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
-import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.Protocol;
 import redis.clients.jedis.exceptions.*;
 import redis.clients.jedis.util.RedisInputStream;
@@ -25,7 +24,7 @@ import java.util.stream.Stream;
 
 import static com.github.fppt.jedismock.operations.scripting.Eval.embedLuaListToValue;
 
-public class RedisCallback {
+public class LuaRuntimeRedisCallback {
 
     public static final byte DOLLAR_BYTE = '$';
     public static final byte ASTERISK_BYTE = '*';
@@ -35,7 +34,7 @@ public class RedisCallback {
 
     private final OperationExecutorState state;
 
-    public RedisCallback(final OperationExecutorState state) {
+    public LuaRuntimeRedisCallback(final OperationExecutorState state) {
         this.state = state;
     }
 
@@ -87,7 +86,7 @@ public class RedisCallback {
     private LuaValue execute(final String operationName, final List<Slice> args) {
         final RedisOperation operation = CommandFactory.buildOperation(operationName.toLowerCase(), true, state, args);
         if (operation != null) {
-            //throwOnUnsupported(operation);
+            throwOnUnsupported(operation);
             return processResultSlice(operationName, operation.execute());
         }
         throw new RuntimeException("Operation not implemented!");
