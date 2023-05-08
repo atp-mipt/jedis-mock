@@ -31,7 +31,7 @@ public class RedisBase {
             new ExpiringKeyValueStorage(key -> watchedKeys
                     .getOrDefault(key, Collections.emptySet())
                     .forEach(OperationExecutorState::watchedKeyIsAffected));
-    private final Map<byte[], String> cachedLuaScripts = new HashMap<>();
+    private final Map<String, String> cachedLuaScripts = new HashMap<>();
 
     public Set<Slice> keys() {
         Set<Slice> slices = keyValueStorage.values().keySet();
@@ -300,11 +300,11 @@ public class RedisBase {
         }
     }
 
-    public String getCachedLuaScript(byte[] sha1) {
+    public String getCachedLuaScript(String sha1) {
         return cachedLuaScripts.get(sha1);
     }
 
-    public String addCachedLuaScript(byte[] sha1, String script) {
+    public String addCachedLuaScript(String sha1, String script) {
         return cachedLuaScripts.put(sha1, script);
     }
 }

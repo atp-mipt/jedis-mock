@@ -13,11 +13,12 @@ import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.jse.CoerceJavaToLua;
 import org.luaj.vm2.lib.jse.JsePlatform;
 
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.github.fppt.jedismock.operations.scripting.ScriptLoad.getScriptSHA;
 
 @RedisCommand("eval")
 public class Eval extends AbstractRedisOperation {
@@ -26,14 +27,12 @@ public class Eval extends AbstractRedisOperation {
     private final Globals globals = JsePlatform.standardGlobals();
 
     private final OperationExecutorState state;
-    private final MessageDigest sha1;
 
     public Eval(final RedisBase base, final List<Slice> params, final OperationExecutorState state)
             throws NoSuchAlgorithmException
     {
         super(base, params);
         this.state = state;
-        sha1 = MessageDigest.getInstance("SHA1");
     }
 
     @Override
@@ -44,7 +43,7 @@ public class Eval extends AbstractRedisOperation {
         final String script = params().get(0).toString()
                 .replace("redis.", "redis:");
 
-        cacheScript(script);
+        this.base().addCachedLuaScript(getScriptSHA(script), script);
 
         int keysNum = Integer.parseInt(params().get(1).toString());
         final List<LuaValue> args = getLuaValues(params().subList(2, params().size()));
@@ -60,11 +59,6 @@ public class Eval extends AbstractRedisOperation {
         } catch (LuaError e) {
             return Response.error(String.format("Error running script: %s", e.getMessage()));
         }
-    }
-
-    private void cacheScript(final String script) {
-        final byte[] scriptSHA1 = sha1.digest(script.getBytes());
-        this.base().addCachedLuaScript(scriptSHA1, script);
     }
 
     private static List<LuaValue> getLuaValues(List<Slice> slices) {
@@ -103,4 +97,6 @@ public class Eval extends AbstractRedisOperation {
         }
         return list;
     }
+
+
 }
