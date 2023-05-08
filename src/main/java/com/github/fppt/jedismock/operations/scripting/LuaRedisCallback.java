@@ -24,7 +24,7 @@ import java.util.stream.Stream;
 
 import static com.github.fppt.jedismock.operations.scripting.Eval.embedLuaListToValue;
 
-public class LuaRuntimeRedisCallback {
+public class LuaRedisCallback {
 
     public static final byte DOLLAR_BYTE = '$';
     public static final byte ASTERISK_BYTE = '*';
@@ -34,7 +34,7 @@ public class LuaRuntimeRedisCallback {
 
     private final OperationExecutorState state;
 
-    public LuaRuntimeRedisCallback(final OperationExecutorState state) {
+    public LuaRedisCallback(final OperationExecutorState state) {
         this.state = state;
     }
 

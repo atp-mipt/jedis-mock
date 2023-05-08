@@ -51,7 +51,7 @@ public class Eval extends AbstractRedisOperation {
 
         globals.set("KEYS", embedLuaListToValue(args.subList(0, keysNum)));
         globals.set("ARGV", embedLuaListToValue(args.subList(keysNum, args.size())));
-        globals.set("redis", CoerceJavaToLua.coerce(new LuaRuntimeRedisCallback(state)));
+        globals.set("redis", CoerceJavaToLua.coerce(new LuaRedisCallback(state)));
 
         try {
             final LuaValue luaScript = globals.load(script);
@@ -81,6 +81,9 @@ public class Eval extends AbstractRedisOperation {
     private Slice resolveResult(LuaValue result) {
         if (result.isnil()) {
             return Response.NULL;
+        }
+        if (result.typename().equals("table") && !result.get("err").isnil()) {
+            return Response.error(result.get("err").tojstring());
         }
         switch (result.typename()) {
             case "string":
