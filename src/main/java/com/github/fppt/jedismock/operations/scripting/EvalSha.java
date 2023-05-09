@@ -6,11 +6,9 @@ import com.github.fppt.jedismock.operations.RedisCommand;
 import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.storage.OperationExecutorState;
 import com.github.fppt.jedismock.storage.RedisBase;
-import org.luaj.vm2.LuaValue;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RedisCommand("evalsha")
 public class EvalSha extends AbstractRedisOperation {

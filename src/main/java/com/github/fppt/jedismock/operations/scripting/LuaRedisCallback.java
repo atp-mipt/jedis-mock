@@ -131,11 +131,11 @@ public class LuaRedisCallback {
                     method.setAccessible(true);
                     method.invoke(null, is);
                 } catch (InvocationTargetException e) {
-                    throw new RuntimeException(e.getMessage());
+                    throw new RuntimeException(e);
                 } catch (NoSuchMethodException | IllegalAccessException e) {
                     System.err.println(e.getMessage());
                 }
-                return LuaValue.NIL;
+                return LuaTable.NONE;
             default:
                 return LuaValue.NONE;
         }
