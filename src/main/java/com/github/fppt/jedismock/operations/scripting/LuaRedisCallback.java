@@ -12,6 +12,7 @@ import redis.clients.jedis.Protocol;
 import redis.clients.jedis.exceptions.JedisDataException;
 import redis.clients.jedis.util.RedisInputStream;
 
+import javax.annotation.Nullable;
 import java.io.ByteArrayInputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -148,11 +149,11 @@ public class LuaRedisCallback {
 
     private static byte[] processBulkReply(RedisInputStream is) {
         if (is == null) {
-            return null;
+            return new byte[0];
         }
         int len = is.readIntCrLf();
         if (len == -1) {
-            return null;
+            return new byte[0];
         } else {
             byte[] read = new byte[len];
 
@@ -176,11 +177,11 @@ public class LuaRedisCallback {
 
     private static List<LuaValue> processMultiBulkReply(RedisInputStream is) {
         if (is == null) {
-            return null;
+            return Collections.emptyList();
         }
         int num = is.readIntCrLf();
         if (num == -1) {
-            return null;
+            return Collections.emptyList();
         } else {
             List<LuaValue> ret = new ArrayList<>(num);
 
