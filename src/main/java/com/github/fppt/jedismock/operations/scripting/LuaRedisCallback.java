@@ -12,7 +12,6 @@ import redis.clients.jedis.Protocol;
 import redis.clients.jedis.exceptions.JedisDataException;
 import redis.clients.jedis.util.RedisInputStream;
 
-import javax.annotation.Nullable;
 import java.io.ByteArrayInputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
