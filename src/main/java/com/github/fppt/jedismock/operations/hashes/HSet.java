@@ -3,7 +3,6 @@ package com.github.fppt.jedismock.operations.hashes;
 import com.github.fppt.jedismock.operations.AbstractRedisOperation;
 import com.github.fppt.jedismock.operations.RedisCommand;
 import com.github.fppt.jedismock.server.Response;
-import com.github.fppt.jedismock.datastructures.RMHash;
 import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.storage.RedisBase;
 
@@ -34,13 +33,8 @@ class HSet extends AbstractRedisOperation {
         for(int i = 1; i < params().size(); i = i + 2){
             Slice field = params().get(i);
             Slice value = params().get(i+1);
-            if (value.length() > 1000) {
-                RMHash cls = base().getHash(hash);
-                cls.upgradeEncoding();
-            }
             Slice oldValue = hsetValue(hash, field, value);
-
-            if(oldValue == null) {
+            if (oldValue == null) {
                 count++;
             }
         }

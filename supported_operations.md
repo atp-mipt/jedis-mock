@@ -100,21 +100,21 @@
 :heavy_check_mark: brpop<br>
 :heavy_check_mark: brpoplpush<br>
 :heavy_check_mark: lindex<br>
-:x: linsert<br>
+:heavy_check_mark: linsert<br>
 :heavy_check_mark: llen<br>
 :x: lmove<br>
 :heavy_check_mark: lpop<br>
-:x: lpos<br>
+:heavy_check_mark: lpos<br>
 :heavy_check_mark: lpush<br>
 :heavy_check_mark: lpushx<br>
 :heavy_check_mark: lrange<br>
 :heavy_check_mark: lrem<br>
-:x: lset<br>
+:heavy_check_mark: lset<br>
 :heavy_check_mark: ltrim<br>
 :heavy_check_mark: rpop<br>
 :heavy_check_mark: rpoplpush<br>
 :heavy_check_mark: rpush<br>
-:x: rpushx<br>
+:heavy_check_mark: rpushx<br>
 
 ## Pub/Sub
 
