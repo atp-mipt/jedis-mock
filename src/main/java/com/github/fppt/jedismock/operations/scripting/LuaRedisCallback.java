@@ -9,7 +9,7 @@ import com.github.fppt.jedismock.storage.OperationExecutorState;
 import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
 import redis.clients.jedis.Protocol;
-import redis.clients.jedis.exceptions.*;
+import redis.clients.jedis.exceptions.JedisDataException;
 import redis.clients.jedis.util.RedisInputStream;
 
 import java.io.ByteArrayInputStream;
@@ -134,7 +134,8 @@ public class LuaRedisCallback {
                     if (e.getCause() instanceof RuntimeException) {
                         throw (RuntimeException) e.getCause();
                     }
-                } catch (NoSuchMethodException | IllegalAccessException ignore) {
+                } catch (NoSuchMethodException | IllegalAccessException e) {
+                    System.err.println(e.getMessage());
                 }
                 return null;
             default:
@@ -188,7 +189,8 @@ public class LuaRedisCallback {
             for(int i = 0; i < num; ++i) {
                 try {
                     ret.add(process(is));
-                } catch (JedisDataException ignore) {
+                } catch (JedisDataException e) {
+                    System.err.println(e.getMessage());
                 }
             }
 
