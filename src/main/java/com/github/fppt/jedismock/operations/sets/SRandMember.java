@@ -26,8 +26,9 @@ public class SRandMember extends AbstractRedisOperation {
     protected Slice response() {
         Slice key = params().get(0);
         RMSet set = base().getSet(key);
-        if (set == null)
+        if (set == null) {
             return Response.NULL;
+        }
         int number;
         if (params().size() > 1) {
             number = convertToInteger(params().get(1).toString());
