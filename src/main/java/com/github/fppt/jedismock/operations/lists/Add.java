@@ -1,18 +1,16 @@
 package com.github.fppt.jedismock.operations.lists;
 
 import com.github.fppt.jedismock.datastructures.RMList;
+import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.operations.AbstractRedisOperation;
 import com.github.fppt.jedismock.server.Response;
-import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.storage.OperationExecutorState;
 
 import java.util.List;
 
 abstract class Add extends AbstractRedisOperation {
-    private final Object lock;
     Add(OperationExecutorState state, List<Slice> params) {
         super(state.base(), params);
-        this.lock = state.lock();
     }
 
     abstract void addSliceToList(List<Slice> list, Slice slice);
@@ -28,8 +26,8 @@ abstract class Add extends AbstractRedisOperation {
 
         base().putValue(key, listDBObj);
 
-        //Notify all waiting operations
-        lock.notifyAll();
+        base().makeKeyReady(key);
+
         return Response.integer(list.size());
     }
 }

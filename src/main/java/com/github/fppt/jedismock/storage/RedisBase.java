@@ -10,15 +10,21 @@ import com.github.fppt.jedismock.datastructures.RMHash;
 import com.github.fppt.jedismock.datastructures.RMList;
 import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.datastructures.RMZSet;
+import com.github.fppt.jedismock.operations.BlockingRedisOperation;
+import com.github.fppt.jedismock.operations.RedisBlockedOperationExecution;
+import com.github.fppt.jedismock.operations.server.MockExecutor;
 import com.github.fppt.jedismock.server.RedisClient;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Created by Xiaolu on 2015/4/20.
@@ -32,6 +38,8 @@ public class RedisBase {
                     .getOrDefault(key, Collections.emptySet())
                     .forEach(OperationExecutorState::watchedKeyIsAffected));
     private final Map<String, String> cachedLuaScripts = new HashMap<>();
+
+    private final Map<Slice, Queue<RedisBlockedOperationExecution>> blockedOnKeyOperations = new HashMap<>();
 
     public Set<Slice> keys() {
         Set<Slice> slices = keyValueStorage.values().keySet();
@@ -315,5 +323,19 @@ public class RedisBase {
 
     public String addCachedLuaScript(String sha1, String script) {
         return cachedLuaScripts.put(sha1, script);
+    }
+
+    public Queue<RedisBlockedOperationExecution> getBlockedOperationsOnKey(Slice key) {
+        return blockedOnKeyOperations.getOrDefault(key, new ArrayDeque<>());
+    }
+
+    public void addBlockedOperation(List<Slice> keys, BlockingRedisOperation operation, CompletableFuture<Slice> promise) {
+        keys.forEach(key ->
+                blockedOnKeyOperations.computeIfAbsent(key, k -> new ArrayDeque<>()).add(new RedisBlockedOperationExecution(operation, promise))
+        );
+    }
+
+    public void makeKeyReady(Slice key) {
+        MockExecutor.addReadyKey(new MockExecutor.ReadyKey(key, this));
     }
 }

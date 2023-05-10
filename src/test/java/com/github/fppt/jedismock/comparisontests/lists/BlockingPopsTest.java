@@ -6,18 +6,29 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
+import redis.clients.jedis.CommandArguments;
+import redis.clients.jedis.CommandObject;
+import redis.clients.jedis.Connection;
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Transaction;
 import redis.clients.jedis.exceptions.JedisDataException;
 
-import javax.swing.*;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 @ExtendWith(ComparisonBase.class)
 public class BlockingPopsTest {
@@ -274,31 +285,64 @@ public class BlockingPopsTest {
     }
 
     @TestTemplate
-    public void whenUsingBRPopLPush_ensureCircularWorks(Jedis jedis, HostAndPort hostAndPort) throws InterruptedException, ExecutionException {
-        String list1 = "circular_key_1";
-        String list2 = "circular_key_2";
+    public void whenUsingBRPopLPush_ensureLinkedWorks(Jedis jedis, HostAndPort hostAndPort) throws InterruptedException, ExecutionException {
+        String circularKeyPrefix = "linkedKey_";
+        String destination = "dst";
 
-        Jedis blockingClient1 = new Jedis(hostAndPort);
-        Jedis blockingClient2 = new Jedis(hostAndPort);
+        int count = 20;
+        List<Future<String>> futures = new ArrayList<>(count);
 
-        ExecutorService e = Executors.newFixedThreadPool(2);
+        CountDownLatch latch = new CountDownLatch(count);
 
-        Future<?> future1 = e.submit(() -> {
-            blockingClient1.brpoplpush(list1, list2, 0);
-        });
+        for (int i = 0; i < count; ++i) {
+            Jedis blockingClient = new Jedis(new MyRedisConnection(hostAndPort, latch));
+            ExecutorService e = Executors.newSingleThreadExecutor();
+            String src = circularKeyPrefix + i;
+            String dst = i == count - 1 ? destination : circularKeyPrefix + (i + 1);
+            Future<String> future = e.submit(() -> blockingClient.brpoplpush(src, dst, 0));
+            futures.add(future);
+        }
 
-        Future<?> future2 = e.submit(() -> {
-            blockingClient2.brpoplpush(list2, list1, 0);
-        });
+        latch.await();
+        Thread.sleep(100);
+        jedis.rpush(circularKeyPrefix + 0, "msg");
 
-        Thread.sleep(500);
+        Assertions.assertEquals("msg", jedis.rpop(destination));
 
-        jedis.rpush(list1, "bar");
+        for (Future<String> x: futures) {
+            x.get();
+        }
+    }
 
-        future1.get();
-        future2.get();
+    public static class MyRedisConnection extends Connection {
+        private final CountDownLatch latch;
+        public MyRedisConnection(HostAndPort hostAndPort, CountDownLatch latch) {
+            super(hostAndPort);
+            this.latch = latch;
+        }
 
-        Assertions.assertEquals(1, jedis.llen(list1));
-        Assertions.assertEquals(0, jedis.llen(list2));
+        @Override
+        public Object executeCommand(CommandArguments args) {
+            sendCommand(args);
+            latch.countDown();
+            return getOne();
+        }
+
+        @Override
+        public <T> T executeCommand(CommandObject<T> commandObject) {
+            final CommandArguments args = commandObject.getArguments();
+            sendCommand(args);
+            latch.countDown();
+            if (!args.isBlocking()) {
+                return commandObject.getBuilder().build(getOne());
+            } else {
+                try {
+                    setTimeoutInfinite();
+                    return commandObject.getBuilder().build(getOne());
+                } finally {
+                    rollbackTimeout();
+                }
+            }
+        }
     }
 }
