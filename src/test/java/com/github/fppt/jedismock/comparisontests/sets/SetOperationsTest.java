@@ -149,6 +149,52 @@ public class SetOperationsTest {
         assertEquals(expectedIntersection, jedis.smembers(destination));
     }
 
+    @TestTemplate
+    public void sUnionTest(Jedis jedis) {
+        String key1 = "set1";
+        String key2 = "set2";
+        String key3 = "set3";
+        Set<String> mySet1 = new HashSet<>(Arrays.asList("a", "b", "c", "d"));
+        Set<String> mySet2 = new HashSet<>(Arrays.asList("c"));
+        Set<String> mySet3 = new HashSet<>(Arrays.asList("a", "c", "e", "f"));
+
+        Set<String> expectedUnion = new HashSet<>(Arrays.asList("a", "b", "c", "d", "e", "f"));
+
+        //Add everything from the sets
+        mySet1.forEach(value -> jedis.sadd(key1, value));
+        mySet2.forEach(value -> jedis.sadd(key2, value));
+        mySet3.forEach(value -> jedis.sadd(key3, value));
+
+
+        Set<String> result = jedis.sunion(key1, key2, key3);
+        assertEquals(6, result.size());
+        assertEquals(expectedUnion, result);
+    }
+
+    @TestTemplate
+    public void sUnionStoreTest(Jedis jedis) {
+        String key1 = "set1";
+        String key2 = "set2";
+        String key3 = "set3";
+        Set<String> mySet1 = new HashSet<>(Arrays.asList("a", "b", "c", "d"));
+        Set<String> mySet2 = new HashSet<>(Arrays.asList("c"));
+        Set<String> mySet3 = new HashSet<>(Arrays.asList("a", "c", "e", "f"));
+
+        Set<String> expectedUnion = new HashSet<>(Arrays.asList("a", "b", "c", "d", "e", "f"));
+
+        //Add everything from the sets
+        mySet1.forEach(value -> jedis.sadd(key1, value));
+        mySet2.forEach(value -> jedis.sadd(key2, value));
+        mySet3.forEach(value -> jedis.sadd(key3, value));
+
+        String destination = "set3";
+
+        Long elementsInUnion = jedis.sunionstore(destination, key1, key2, key3);
+        assertEquals(6, elementsInUnion);
+
+        assertEquals(expectedUnion, jedis.smembers(destination));
+    }
+
     
 
     @TestTemplate
