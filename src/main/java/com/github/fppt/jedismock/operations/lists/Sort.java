@@ -28,8 +28,6 @@ public class Sort extends AbstractRedisOperation {
     private static final String STORE_PARAM = "STORE";
     private static final String DESC_PARAM = "DESC";
 
-    private final Object lock;
-
     private boolean sortNumerically = true;
     private Slice storeTo = null;
     private int offset = 0;
@@ -38,7 +36,6 @@ public class Sort extends AbstractRedisOperation {
 
     public Sort(OperationExecutorState state, List<Slice> params) {
         super(state.base(), params);
-        this.lock = state.lock();
     }
 
     @Override
@@ -61,7 +58,7 @@ public class Sort extends AbstractRedisOperation {
 
         if (storeTo != null) {
             base().putValue(storeTo, new RMList(sorted));
-            lock.notifyAll();
+            base().makeKeyReady(storeTo);
             return Response.integer(sorted.size());
         }
 

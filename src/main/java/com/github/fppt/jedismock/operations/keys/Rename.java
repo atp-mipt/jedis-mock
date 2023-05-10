@@ -25,6 +25,7 @@ class Rename extends AbstractRedisOperation {
         base().deleteValue(newKey);
         base().putValue(newKey, value, ttl);
         base().deleteValue(key);
+        base().makeKeyReady(newKey);
         return true;
     }
 
