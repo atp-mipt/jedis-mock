@@ -29,7 +29,7 @@ public class CommandFactory {
     }
 
     public static RedisOperation buildOperation(String name, boolean transactional,
-                                                          OperationExecutorState state, List<Slice> params) {
+                                                OperationExecutorState state, List<Slice> params) {
         Class<? extends RedisOperation> commandClass = commands.get(transactional).get(name);
         if (commandClass != null) {
             try {
@@ -53,7 +53,14 @@ public class CommandFactory {
                 }
                 return constructor.newInstance(parameters);
             } catch (ReflectiveOperationException e) {
-                throw new IllegalStateException(e);
+                Throwable cause = e.getCause();
+                if (cause instanceof RuntimeException) {
+                    throw (RuntimeException) cause;
+                } else if (cause != null) {
+                    throw new IllegalStateException(cause);
+                } else {
+                    throw new IllegalStateException(e);
+                }
             }
         } else {
             return null;
