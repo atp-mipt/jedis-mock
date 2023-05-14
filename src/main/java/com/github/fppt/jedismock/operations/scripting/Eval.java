@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.github.fppt.jedismock.operations.scripting.ScriptLoad.getScriptSHA;
+import static com.github.fppt.jedismock.operations.scripting.Script.getScriptSHA;
 
 @RedisCommand("eval")
 public class Eval extends AbstractRedisOperation {

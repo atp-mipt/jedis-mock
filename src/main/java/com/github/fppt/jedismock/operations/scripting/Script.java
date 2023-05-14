@@ -9,21 +9,29 @@ import com.github.fppt.jedismock.storage.RedisBase;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+@RedisCommand("script")
+public class Script extends AbstractRedisOperation{
+    private static final String SCRIPT_PARAM_ERROR = "Wrong number of arguments for SCRIPT";
 
-@RedisCommand("scriptload")
-public class ScriptLoad extends AbstractRedisOperation{
-    private static final String SCRIPT_PARAM_ERROR = "Wrong number of arguments for SCRIPTLOAD";
-
-    public ScriptLoad(final RedisBase base, final List<Slice> params) {
+    public Script(final RedisBase base, final List<Slice> params) {
         super(base, params);
     }
 
     @Override
     protected Slice response() {
-        if (params().size() < 1) {
+        if (params().size() < 2) {
             return Response.error(SCRIPT_PARAM_ERROR);
         }
-        final String script = params().get(0).toString();
+        final String operation = params().get(0).toString();
+        final String script = params().get(1).toString();
+
+        if (operation.equals("LOAD")) {
+            return load(script);
+        }
+        return Response.error(String.format("Unsupported operation: script %s", operation));
+    }
+
+    private Slice load(String script) {
         final String scriptSHA = getScriptSHA(script);
         base().addCachedLuaScript(scriptSHA, script);
         return Response.bulkString(Slice.create(scriptSHA));

@@ -1,6 +1,7 @@
-package com.github.fppt.jedismock.operations.scripting;
+package com.github.fppt.jedismock.comparisontests.scripting;
 
 import com.github.fppt.jedismock.comparisontests.ComparisonBase;
+import com.github.fppt.jedismock.operations.scripting.Script;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,7 +39,7 @@ class EvalShaTest {
     public void evalShaWithScriptLoadingWorks(Jedis jedis) {
         String script = "return 'Hello, scripting!'";
         Object evalResult = jedis.eval(script, 0);
-        String sha = ScriptLoad.getScriptSHA(script);
+        String sha = Script.getScriptSHA(script);
         assertEquals(evalResult, jedis.evalsha(sha, 0));
     }
 
