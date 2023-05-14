@@ -50,7 +50,8 @@ jobs:
         run: |
           java -jar jm-test-server/target/jm-test-server-1.0-SNAPSHOT-jar-with-dependencies.jar &
           PID=$!
-          linux/runtest --host 127.0.0.1 --port 39807 --single unit/type/incr
+          cd linux
+          ./runtest --host 127.0.0.1 --port 39807 --single unit/type/incr
           kill $PID
         working-directory: native_tests
 
@@ -58,7 +59,8 @@ jobs:
         run: |
           java -jar jm-test-server/target/jm-test-server-1.0-SNAPSHOT-jar-with-dependencies.jar &
           PID=$!
-          linux/runtest --host 127.0.0.1 --port 39807 --single unit/type/hash
+          cd linux
+          ./runtest --host 127.0.0.1 --port 39807 --single unit/type/hash
           kill $PID
         working-directory: native_tests
 
@@ -66,8 +68,9 @@ jobs:
         run: |
           java -jar jm-test-server/target/jm-test-server-1.0-SNAPSHOT-jar-with-dependencies.jar &
           PID=$!
-          linux/runtest --host 127.0.0.1 --port 39807 --single unit/type/list
-          linux/runtest --host 127.0.0.1 --port 39807 --single unit/type/list-2
-          linux/runtest --host 127.0.0.1 --port 39807 --single unit/type/list-3
+          cd linux
+          ./runtest --host 127.0.0.1 --port 39807 --single unit/type/list
+          ./runtest --host 127.0.0.1 --port 39807 --single unit/type/list-2
+          ./runtest --host 127.0.0.1 --port 39807 --single unit/type/list-3
           kill $PID
         working-directory: native_tests
