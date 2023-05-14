@@ -2,12 +2,12 @@ package com.github.fppt.jedismock.comparisontests.lists;
 
 import com.github.fppt.jedismock.comparisontests.ComparisonBase;
 import com.github.fppt.jedismock.comparisontests.TestErrorMessages;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import redis.clients.jedis.CommandArguments;
-import redis.clients.jedis.CommandObject;
 import redis.clients.jedis.Connection;
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.Jedis;
@@ -33,22 +33,31 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 @ExtendWith(ComparisonBase.class)
 public class BlockingPopsTest {
 
+    private ExecutorService blockingThread;
+    private Jedis blockedClient;
+
     @BeforeEach
-    public void setUp(Jedis jedis) {
+    public void setUp(Jedis jedis, HostAndPort hostAndPort) {
         jedis.flushAll();
+        blockedClient = new Jedis(hostAndPort.getHost(), hostAndPort.getPort());
+        blockingThread = Executors.newSingleThreadExecutor();
+    }
+
+    @AfterEach
+    public void tearDown() {
+        blockedClient.close();
+        blockingThread.shutdownNow();
     }
 
     @TestTemplate
-    public void whenUsingBrpoplpush_EnsureItBlocksAndCorrectResultsAreReturned(Jedis jedis, HostAndPort hostAndPort) throws ExecutionException, InterruptedException {
+    public void whenUsingBrpoplpush_EnsureItBlocksAndCorrectResultsAreReturned(Jedis jedis) throws ExecutionException, InterruptedException {
         String list1key = "source list";
         String list2key = "target list";
 
         jedis.rpush(list2key, "a", "b", "c");
 
         //Block on performing the BRPOPLPUSH
-        Jedis blockedClient = new Jedis(hostAndPort.getHost(), hostAndPort.getPort());
-        ExecutorService blockingThread = Executors.newSingleThreadExecutor();
-        Future future = blockingThread.submit(() -> {
+        Future<?> future = blockingThread.submit(() -> {
             String result = blockedClient.brpoplpush(list1key, list2key, 500);
             assertEquals("3", result);
         });
@@ -78,12 +87,10 @@ public class BlockingPopsTest {
     }
 
     @TestTemplate
-    public void whenUsingBrpoplpush_EnsureClientCanStillGetOtherResponsesInTimelyManner(Jedis jedis, HostAndPort hostAndPort) {
+    public void whenUsingBrpoplpush_EnsureClientCanStillGetOtherResponsesInTimelyManner(Jedis jedis) {
         String list1key = "another another source list";
         String list2key = "another another target list";
 
-        Jedis blockedClient = new Jedis(hostAndPort.getHost(), hostAndPort.getPort());
-        ExecutorService blockingThread = Executors.newSingleThreadExecutor();
         blockingThread.submit(() -> {
             String result = blockedClient.brpoplpush(list1key, list2key, 500);
             assertEquals("3", result);
@@ -105,13 +112,11 @@ public class BlockingPopsTest {
     }
 
     @TestTemplate
-    public void whenUsingBlpop_EnsureItBlocksAndCorrectResultsAreReturned(Jedis jedis, HostAndPort hostAndPort) throws ExecutionException, InterruptedException {
+    public void whenUsingBlpop_EnsureItBlocksAndCorrectResultsAreReturned(Jedis jedis) throws ExecutionException, InterruptedException {
         String key = "list1_kfubdjkfnv";
         jedis.rpush(key, "d", "e", "f");
         //Block on performing the BLPOP
-        Jedis blockedClient = new Jedis(hostAndPort.getHost(), hostAndPort.getPort());
-        ExecutorService blockingThread = Executors.newSingleThreadExecutor();
-        Future future = blockingThread.submit(() -> {
+        Future<?> future = blockingThread.submit(() -> {
             List<String> result = blockedClient.blpop(10, key);
             assertEquals(2, result.size());
             assertEquals(key, result.get(0));
@@ -124,16 +129,14 @@ public class BlockingPopsTest {
     }
 
     @TestTemplate
-    public void whenUsingBlpop_EnsureItBlocksAndCorrectResultsAreReturnedOnMultipleList(Jedis jedis, HostAndPort hostAndPort) throws ExecutionException, InterruptedException {
+    public void whenUsingBlpop_EnsureItBlocksAndCorrectResultsAreReturnedOnMultipleList(Jedis jedis) throws ExecutionException, InterruptedException {
         String list1key = "list1_dkjfnvdk";
         String list2key = "list2_kjvnddkf";
         String list3key = "list3_oerurthv";
 
 
         //Block on performing the BLPOP
-        Jedis blockedClient = new Jedis(hostAndPort.getHost(), hostAndPort.getPort());
-        ExecutorService blockingThread = Executors.newSingleThreadExecutor();
-        Future future = blockingThread.submit(() -> {
+        Future<?> future = blockingThread.submit(() -> {
             List<String> result = blockedClient.blpop(10, list1key, list2key, list3key);
             assertEquals(list2key, result.get(0));
             assertEquals("a", result.get(1));
@@ -151,7 +154,7 @@ public class BlockingPopsTest {
     }
 
     @TestTemplate
-    public void whenUsingBlpop_EnsureItTimeout(Jedis jedis, HostAndPort hostAndPort) throws ExecutionException, InterruptedException, TimeoutException {
+    public void whenUsingBlpop_EnsureItTimeout(Jedis jedis) throws ExecutionException, InterruptedException, TimeoutException {
         String list1key = "list1_kdjfnvdsu";
         String list2key = "list2_mbhkdushy";
         String list3key = "list3_qzkmpthju";
@@ -160,9 +163,7 @@ public class BlockingPopsTest {
         jedis.lrange(list2key, 0, -1);
 
         //Block on performing the BLPOP
-        Jedis blockedClient = new Jedis(hostAndPort.getHost(), hostAndPort.getPort());
-        ExecutorService blockingThread = Executors.newSingleThreadExecutor();
-        Future future = blockingThread.submit(() -> {
+        Future<?> future = blockingThread.submit(() -> {
             List<String> result = blockedClient.blpop(1, list1key, list2key, list3key);
             assertNull(result);
         });
@@ -174,11 +175,9 @@ public class BlockingPopsTest {
     }
 
     @TestTemplate
-    public void whenUsingBlpop_EnsureNotWokenByTransaction(Jedis jedis, HostAndPort hostAndPort) throws ExecutionException, InterruptedException, TimeoutException {
+    public void whenUsingBlpop_EnsureNotWokenByTransaction(Jedis jedis) throws ExecutionException, InterruptedException, TimeoutException {
         String listKey = "list_key";
 
-        Jedis blockedClient = new Jedis(hostAndPort.getHost(), hostAndPort.getPort());
-        ExecutorService blockingThread = Executors.newSingleThreadExecutor();
         Future<?> future = blockingThread.submit(() -> {
             List<String> result = blockedClient.blpop(0, listKey);
             assertNotNull(result);
@@ -235,11 +234,9 @@ public class BlockingPopsTest {
     }
 
     @TestTemplate
-    public void whenUsingBlpop_EnsureStillWaitsIfKeyIsNotList(Jedis jedis, HostAndPort hostAndPort) throws ExecutionException, InterruptedException, TimeoutException {
+    public void whenUsingBlpop_EnsureStillWaitsIfKeyIsNotList(Jedis jedis) throws ExecutionException, InterruptedException, TimeoutException {
         String key = "blpop_not_a_list_key";
 
-        Jedis blockedClient = new Jedis(hostAndPort.getHost(), hostAndPort.getPort());
-        ExecutorService blockingThread = Executors.newSingleThreadExecutor();
 
         Future<?> future = blockingThread.submit(() -> {
             List<String> result = blockedClient.blpop(0, key);
@@ -264,16 +261,13 @@ public class BlockingPopsTest {
     }
 
     @TestTemplate
-    public void whenUsingBRPopLPush_ensureBlocksIndefinitely(Jedis jedis, HostAndPort hostAndPort) throws InterruptedException, ExecutionException {
+    public void whenUsingBRPopLPush_ensureBlocksIndefinitely(Jedis jedis) throws InterruptedException, ExecutionException {
         String fromKey = "brpoplpush_from";
         String toKey = "brpoplpush_to";
 
-        Jedis blockingClient = new Jedis(hostAndPort);
 
-        ExecutorService e = Executors.newSingleThreadExecutor();
-
-        Future<?> future = e.submit(() -> {
-            String value = blockingClient.brpoplpush(fromKey, toKey, 0);
+        Future<?> future = blockingThread.submit(() -> {
+            String value = blockedClient.brpoplpush(fromKey, toKey, 0);
             assertEquals("bar", value);
         });
 
@@ -293,56 +287,39 @@ public class BlockingPopsTest {
         List<Future<String>> futures = new ArrayList<>(count);
 
         CountDownLatch latch = new CountDownLatch(count);
-
-        for (int i = 0; i < count; ++i) {
-            Jedis blockingClient = new Jedis(new MyRedisConnection(hostAndPort, latch));
-            ExecutorService e = Executors.newSingleThreadExecutor();
-            String src = circularKeyPrefix + i;
-            String dst = i == count - 1 ? destination : circularKeyPrefix + (i + 1);
-            Future<String> future = e.submit(() -> blockingClient.brpoplpush(src, dst, 0));
-            futures.add(future);
-        }
-
-        latch.await();
-        Thread.sleep(100);
-        jedis.rpush(circularKeyPrefix + 0, "msg");
-
-        Assertions.assertEquals("msg", jedis.rpop(destination));
-
-        for (Future<String> x: futures) {
-            x.get();
+        ExecutorService e = Executors.newCachedThreadPool();
+        try {
+            for (int i = 0; i < count; ++i) {
+                Jedis blockingClient = new Jedis(new SynchronizingRedisConnection(hostAndPort, latch));
+                String src = circularKeyPrefix + i;
+                String dst = i == count - 1 ? destination : circularKeyPrefix + (i + 1);
+                Future<String> future = e.submit(() -> blockingClient.brpoplpush(src, dst, 0));
+                futures.add(future);
+            }
+            latch.await();
+            Thread.sleep(100);
+            jedis.rpush(circularKeyPrefix + 0, "msg");
+            Assertions.assertEquals("msg", jedis.rpop(destination));
+            for (Future<String> x : futures) {
+                x.get();
+            }
+        } finally {
+            e.shutdownNow();
         }
     }
 
-    public static class MyRedisConnection extends Connection {
+    public static class SynchronizingRedisConnection extends Connection {
         private final CountDownLatch latch;
-        public MyRedisConnection(HostAndPort hostAndPort, CountDownLatch latch) {
+
+        public SynchronizingRedisConnection(HostAndPort hostAndPort, CountDownLatch latch) {
             super(hostAndPort);
             this.latch = latch;
         }
 
         @Override
-        public Object executeCommand(CommandArguments args) {
-            sendCommand(args);
+        public void sendCommand(final CommandArguments args) {
+            super.sendCommand(args);
             latch.countDown();
-            return getOne();
-        }
-
-        @Override
-        public <T> T executeCommand(CommandObject<T> commandObject) {
-            final CommandArguments args = commandObject.getArguments();
-            sendCommand(args);
-            latch.countDown();
-            if (!args.isBlocking()) {
-                return commandObject.getBuilder().build(getOne());
-            } else {
-                try {
-                    setTimeoutInfinite();
-                    return commandObject.getBuilder().build(getOne());
-                } finally {
-                    rollbackTimeout();
-                }
-            }
         }
     }
 }
