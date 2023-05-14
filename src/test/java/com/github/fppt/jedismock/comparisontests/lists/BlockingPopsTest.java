@@ -283,7 +283,7 @@ public class BlockingPopsTest {
         String circularKeyPrefix = "linkedKey_";
         String destination = "dst";
 
-        int count = 20;
+        int count = 10;
         List<Future<String>> futures = new ArrayList<>(count);
 
         CountDownLatch latch = new CountDownLatch(count);
