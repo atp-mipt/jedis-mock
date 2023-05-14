@@ -1,13 +1,12 @@
 package com.github.fppt.jedismock.operations.lists;
 
+import com.github.fppt.jedismock.datastructures.RMList;
 import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.operations.BlockingRedisOperation;
 import com.github.fppt.jedismock.operations.RedisCommand;
 import com.github.fppt.jedismock.server.Response;
-import com.github.fppt.jedismock.server.SliceParser;
 import com.github.fppt.jedismock.storage.OperationExecutorState;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -23,23 +22,18 @@ class BRPopLPush extends RPopLPush implements BlockingRedisOperation {
         this.isTransactionModeOn = state.isTransactionModeOn();
     }
 
-    private long getCount(Slice source){
-        Slice index = Slice.create("0");
-        List<Slice> commands = Arrays.asList(source, index, index);
-        Slice result = new LRange(base(), commands).execute();
-        return SliceParser.consumeCount(result.data());
+    private boolean isEmptyList(Slice source) {
+        final RMList list = getListFromBaseOrCreateEmpty(source);
+        return list.getStoredData().isEmpty();
     }
 
     @Override
     protected Slice response() {
-        long count = getCount(params().get(0));
-
         // If method executed not inside transaction, it means canBeExecuted was called and count != 0
         // if inside transaction - means we need to response with null if not able to rpoplpush
-        if (count == 0) {
+        if (isEmptyList(params().get(0))) {
             return Response.NULL;
         }
-
         return super.response();
     }
 
@@ -52,7 +46,7 @@ class BRPopLPush extends RPopLPush implements BlockingRedisOperation {
             throw new IllegalArgumentException("ERR timeout is negative");
         }
 
-        return isTransactionModeOn || getCount(source) != 0;
+        return isTransactionModeOn || !isEmptyList(source);
     }
 
     @Override
