@@ -12,6 +12,8 @@ import java.util.Set;
 
 import static java.util.stream.Collectors.toList;
 
+import java.util.HashSet;
+
 @RedisCommand("sunion")
 class SUnion extends AbstractRedisOperation {
     SUnion(RedisBase base, List<Slice> params) {
@@ -21,7 +23,7 @@ class SUnion extends AbstractRedisOperation {
     protected Set<Slice> getUnion() {
         Slice key = params().get(0);
         RMSet setObj = getSetFromBaseOrCreateEmpty(key);
-        Set<Slice> resultSoFar = setObj.getStoredData();
+        Set<Slice> resultSoFar = new HashSet<Slice>(setObj.getStoredData());
 
         for(int i = 1; i < params().size(); i++){
             RMSet secondSetObj = getSetFromBaseOrCreateEmpty(params().get(i));

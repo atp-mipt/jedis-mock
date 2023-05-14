@@ -11,21 +11,21 @@ import com.github.fppt.jedismock.storage.RedisBase;
 import java.util.List;
 
 
-@RedisCommand("sinterstore")
-class SInterStore extends AbstractRedisOperation {
-    SInterStore(RedisBase base, List<Slice> params) {
+@RedisCommand("sdiffstore")
+class SDiffStore extends AbstractRedisOperation {
+    SDiffStore(RedisBase base, List<Slice> params) {
         super(base, params);
     }
 
     @Override
     protected Slice response() {
         Slice key = params().get(0);
-        SInter sInter = new SInter(base(), params().subList(1, params().size()));
-        RMSet result = new RMSet(sInter.getIntersection());
-        
+        SDiff sDiff = new SDiff(base(), params().subList(1, params().size()));
+        RMSet result = new RMSet(sDiff.getDifference());
+
         // delete dstkey if some params key dont exist
-        for(int i = 1; i < params().size(); i++){
-            RMSet obj = base().getSet(params().get(i));
+        if(params().size() > 1){
+            RMSet obj = base().getSet(params().get(1));
             if(obj == null) {
                 base().deleteValue(key);
                 return Response.integer(0);
