@@ -48,5 +48,4 @@ class EvalShaTest {
         RuntimeException e = assertThrows(RuntimeException.class, () -> jedis.evalsha("", 0));
         assertEquals("NOSCRIPT No matching script. Please use EVAL.", e.getMessage());
     }
-
 }

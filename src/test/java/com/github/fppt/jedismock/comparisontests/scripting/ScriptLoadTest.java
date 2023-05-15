@@ -6,7 +6,10 @@ import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import redis.clients.jedis.Jedis;
 
+import java.util.Arrays;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(ComparisonBase.class)
 class ScriptLoadTest {
@@ -22,6 +25,7 @@ class ScriptLoadTest {
         Object response = jedis.evalsha(sha);
         assertEquals(String.class, response.getClass());
         assertEquals("Hello", response);
+        assertTrue(jedis.scriptExists(sha));
     }
 
     @TestTemplate
@@ -31,5 +35,15 @@ class ScriptLoadTest {
         Object response = jedis.evalsha(sha, 0, supposedReturn);
         assertEquals(String.class, response.getClass());
         assertEquals(supposedReturn, response);
+        assertTrue(jedis.scriptExists(sha));
+    }
+
+    @TestTemplate
+    public void scriptFlushRemovesScripts(Jedis jedis) {
+        String s1 = jedis.scriptLoad("return 1");
+        String s2 = jedis.scriptLoad("return 2");
+        assertEquals(Arrays.asList(true, true), jedis.scriptExists(s1, s2));
+        jedis.scriptFlush();
+        assertEquals(Arrays.asList(false, false), jedis.scriptExists(s1, s2));
     }
 }

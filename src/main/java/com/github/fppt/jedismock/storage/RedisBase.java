@@ -304,6 +304,15 @@ public class RedisBase {
         return cachedLuaScripts.get(sha1);
     }
 
+    public boolean cachedLuaScriptExists(String sha1) {
+        return cachedLuaScripts.containsKey(sha1);
+    }
+
+    public void flushCachedLuaScrips() {
+        cachedLuaScripts.clear();
+    }
+
+
     public String addCachedLuaScript(String sha1, String script) {
         return cachedLuaScripts.put(sha1, script);
     }

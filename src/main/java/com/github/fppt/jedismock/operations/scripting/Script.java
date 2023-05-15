@@ -8,9 +8,11 @@ import com.github.fppt.jedismock.storage.RedisBase;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.List;
+
 @RedisCommand("script")
-public class Script extends AbstractRedisOperation{
+public class Script extends AbstractRedisOperation {
     private static final String SCRIPT_PARAM_ERROR = "Wrong number of arguments for SCRIPT";
 
     public Script(final RedisBase base, final List<Slice> params) {
@@ -19,19 +21,33 @@ public class Script extends AbstractRedisOperation{
 
     @Override
     protected Slice response() {
-        if (params().size() < 2) {
-            return Response.error(SCRIPT_PARAM_ERROR);
-        }
         final String operation = params().get(0).toString();
-        final String script = params().get(1).toString();
-
-        if (operation.equals("LOAD")) {
-            return load(script);
+        if ("LOAD".equalsIgnoreCase(operation)) {
+            return load();
+        } else if ("EXISTS".equalsIgnoreCase(operation)) {
+            return exists();
+        } else if ("FLUSH".equalsIgnoreCase(operation)) {
+            base().flushCachedLuaScrips();
+            return Response.OK;
         }
         return Response.error(String.format("Unsupported operation: script %s", operation));
     }
 
-    private Slice load(String script) {
+    private Slice exists() {
+        List<Slice> result = new ArrayList<>();
+        for (int i = 1; i < params().size(); i++) {
+            result.add(
+                    Response.integer(
+                            base().cachedLuaScriptExists(params().get(i).toString()) ? 1 : 0));
+        }
+        return Response.array(result);
+    }
+
+    private Slice load() {
+        if (params().size() < 2) {
+            return Response.error(SCRIPT_PARAM_ERROR);
+        }
+        final String script = params().get(1).toString();
         final String scriptSHA = getScriptSHA(script);
         base().addCachedLuaScript(scriptSHA, script);
         return Response.bulkString(Slice.create(scriptSHA));
@@ -46,6 +62,7 @@ public class Script extends AbstractRedisOperation{
             throw new RuntimeException(e);
         }
     }
+
     private static String byteArrayToHexString(byte[] b) {
         StringBuilder result = new StringBuilder();
         for (byte value : b) {
