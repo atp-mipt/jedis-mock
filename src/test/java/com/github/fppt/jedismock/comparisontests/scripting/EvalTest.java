@@ -63,6 +63,16 @@ public class EvalTest {
     }
 
     @TestTemplate
+    public void evalDeepListTest(Jedis jedis) {
+        Object eval_return = jedis.eval("return { 'test', 2, {'test', 2} }", 0);
+        assertEquals(ArrayList.class, eval_return.getClass());
+        assertEquals(String.class, ((List<?>)eval_return).get(0).getClass());
+        assertEquals(Long.class, ((List<?>)eval_return).get(1).getClass());
+        assertEquals(ArrayList.class, ((List<?>)eval_return).get(2).getClass());
+        assertEquals(Arrays.asList("test",2L, Arrays.asList("test", 2L)), eval_return);
+    }
+
+    @TestTemplate
     public void evalDictTest(Jedis jedis) {
         Object eval_return = jedis.eval("return { a = 1, 2 }", 0);
         assertEquals(ArrayList.class, eval_return.getClass());

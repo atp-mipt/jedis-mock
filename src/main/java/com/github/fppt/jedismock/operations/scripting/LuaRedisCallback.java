@@ -8,13 +8,11 @@ import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.storage.OperationExecutorState;
 import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
-import redis.clients.jedis.Protocol;
 import redis.clients.jedis.exceptions.JedisDataException;
-import redis.clients.jedis.util.RedisInputStream;   
+import redis.clients.jedis.exceptions.JedisNoScriptException;
+import redis.clients.jedis.util.RedisInputStream;
 
 import java.io.ByteArrayInputStream;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -31,6 +29,7 @@ public class LuaRedisCallback {
     public static final byte PLUS_BYTE = '+';
     public static final byte MINUS_BYTE = '-';
     public static final byte COLON_BYTE = ':';
+    private static final String NOSCRIPT_PREFIX = "NOSCRIPT ";
 
     private final OperationExecutorState state;
 
@@ -126,21 +125,21 @@ public class LuaRedisCallback {
             case COLON_BYTE:
                 return LuaValue.valueOf(processInteger(is));
             case MINUS_BYTE:
-                try {
-                    Method method = Protocol.class.getDeclaredMethod("processError", RedisInputStream.class);
-                    method.setAccessible(true);
-                    method.invoke(null, is);
-                } catch (InvocationTargetException e) {
-                    throw new RuntimeException(e);
-                } catch (NoSuchMethodException | IllegalAccessException e) {
-                    System.err.println(e.getMessage());
-                }
+                processError(is);
                 return LuaTable.NONE;
             default:
                 return LuaValue.NONE;
         }
 
     }
+
+    private static void processError(final RedisInputStream is) {
+        String message = is.readLine();
+        if (message.startsWith(NOSCRIPT_PREFIX)) {
+            throw new JedisNoScriptException(message);
+        }
+        throw new JedisDataException(message);
+}
 
     private static byte[] processStatusCodeReply(RedisInputStream is) {
         return is.readLineBytes();
