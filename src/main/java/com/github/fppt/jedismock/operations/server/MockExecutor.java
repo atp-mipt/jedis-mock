@@ -34,6 +34,7 @@ public class MockExecutor {
      */
     public static Slice proceed(OperationExecutorState state, String name, List<Slice> commandParams) {
         CompletableFuture<Slice> promise = new CompletableFuture<>();
+        LOG.info("Creating promise {} for operation {} with params {}", promise, name, commandParams);
         synchronized (state.lock()) {
             processOperations(state, name, commandParams, promise);
             processReadyKeys();
@@ -71,8 +72,10 @@ public class MockExecutor {
                     }
 
                     try {
+                        LOG.info("Completing promise {}", execution.getPromise());
                         execution.getPromise().complete(execution.getOperation().execute());
                     } catch (Exception e) {
+                        LOG.info("Completing promise {} with error {}", execution.getPromise(), e.getMessage());
                         execution.getPromise().complete(Response.error(e.getMessage()));
                     }
                 }
@@ -109,6 +112,7 @@ public class MockExecutor {
                 timeoutsExecutorService.schedule(
                         () -> {
                             synchronized (state.lock()) {
+                                LOG.info("Completing promise {} by timeout", promise);
                                 promise.complete(blockingOperation.timeoutResponse());
                             }
                         },
@@ -118,6 +122,7 @@ public class MockExecutor {
                 state.base().addBlockedOperation(blockingOperation.getBlockedOnKeys(), blockingOperation, promise);
                 return;
             }
+            LOG.info("Completing promise {} of operation {} with params {}", promise, name, commandParams);
             promise.complete(Response.clientResponse(name, operation.execute()));
         } catch (Exception e) {
             LOG.error("Malformed request", e);

@@ -51,9 +51,11 @@ public class RedisClient implements Runnable {
     }
 
     public void run() {
+        LOG.info("Accepted new connection {}", this);
         while (running.get() && !socket.isClosed() && !Thread.interrupted()) {
             Optional<RedisCommand> command = nextCommand();
             if (command.isPresent()) {
+                LOG.info("Executing command {}", command.get());
                 Slice response = executor.execCommand(command.get());
                 sendResponse(response, command.toString());
             }

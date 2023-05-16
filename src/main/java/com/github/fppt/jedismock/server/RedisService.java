@@ -38,6 +38,7 @@ public class RedisService implements Callable<Void> {
     public Void call() throws IOException {
         while (!server.isClosed()) {
             Socket socket = server.accept();
+
             RedisClient rc = new RedisClient(redisBases, socket, options, clients::remove);
             clients.add(rc);
             threadPool.submit(rc);
