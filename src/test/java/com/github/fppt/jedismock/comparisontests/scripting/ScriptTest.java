@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(ComparisonBase.class)
-class ScriptLoadTest {
+class ScriptTest {
 
     @BeforeEach
     public void setUp(Jedis jedis) {
