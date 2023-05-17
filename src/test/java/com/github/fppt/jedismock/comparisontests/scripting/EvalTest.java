@@ -158,8 +158,8 @@ public class EvalTest {
 
     @TestTemplate
     public void rpushRest(Jedis jedis) {
-        String script = "redis.call('RPUSH', 'mylist', 1)" ;
+        String script = "redis.call('SADD', 'myset', 1)" ;
         jedis.eval(script, 0);
-        assertEquals(Collections.singletonList("1"), jedis.lrange("mylist", 0, -1));
+        assertEquals("1", jedis.spop("myset"));
     }
 }
