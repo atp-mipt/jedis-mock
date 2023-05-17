@@ -62,9 +62,8 @@ public class Eval extends AbstractRedisOperation {
         globals.set("_mock", CoerceJavaToLua.coerce(new LuaRedisCallback(state)));
 
         try {
-            final LuaValue luaScript = globals.load(script);
-            final Varargs result = luaScript.invoke();
-            return resolveResult(result.arg(1));
+            final LuaValue result = globals.load(script).call();
+            return resolveResult(result);
         } catch (LuaError e) {
             return Response.error(String.format("Error running script: %s", e.getMessage()));
         }
