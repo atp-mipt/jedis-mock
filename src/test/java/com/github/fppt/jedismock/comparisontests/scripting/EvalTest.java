@@ -155,4 +155,11 @@ public class EvalTest {
         assertEquals(Arrays.asList("1", "2", "3", "5", "8", "13", "21", "34", "55"),
                 jedis.lrange("mylist", 0, -1));
     }
+
+    @TestTemplate
+    public void rpushRest(Jedis jedis) {
+        String script = "redis.call('RPUSH', 'mylist', 1)" ;
+        jedis.eval(script, 0);
+        assertEquals(Collections.singletonList("1"), jedis.lrange("mylist", 0, -1));
+    }
 }
