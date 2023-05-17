@@ -4,7 +4,6 @@ package com.github.fppt.jedismock.operations.scripting;
 import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.operations.CommandFactory;
 import com.github.fppt.jedismock.operations.RedisOperation;
-import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.storage.OperationExecutorState;
 import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
@@ -24,11 +23,6 @@ import static com.github.fppt.jedismock.operations.scripting.Eval.embedLuaListTo
 
 public class LuaRedisCallback {
 
-    public static final byte DOLLAR_BYTE = '$';
-    public static final byte ASTERISK_BYTE = '*';
-    public static final byte PLUS_BYTE = '+';
-    public static final byte MINUS_BYTE = '-';
-    public static final byte COLON_BYTE = ':';
     private static final String NOSCRIPT_PREFIX = "NOSCRIPT ";
 
     private final OperationExecutorState state;
@@ -40,9 +34,11 @@ public class LuaRedisCallback {
     public LuaValue call(final String operationName) {
         return execute(operationName, Collections.emptyList());
     }
+
     public LuaValue call(final String operationName, final String rawArg) {
         return execute(operationName, Collections.singletonList(Slice.create(rawArg)));
     }
+
     public LuaValue call(final String operationName, final String rawArg1, final String rawArg2) {
         final List<Slice> args = Stream.of(rawArg1, rawArg2)
                 .map(Slice::create).collect(Collectors.toList());
@@ -86,18 +82,15 @@ public class LuaRedisCallback {
         final RedisOperation operation = CommandFactory.buildOperation(operationName.toLowerCase(), true, state, args);
         if (operation != null) {
             throwOnUnsupported(operation);
-            return processResultSlice(operationName, operation.execute());
+            Slice result = operation.execute();
+            if (result == null) {
+                return LuaValue.NONE;
+            } else {
+                byte[] data = result.data();
+                return toLuaValue(new RedisInputStream(new ByteArrayInputStream(data)));
+            }
         }
         throw new RuntimeException("Operation not implemented!");
-    }
-
-    private static LuaValue processResultSlice(String operationName, Slice result) {
-        if (result != null) {
-            byte[] data = Response.clientResponse(operationName, result).data();
-            return process(getRedisInputStream(data));
-        } else {
-            return LuaValue.NONE;
-        }
     }
 
     private static void throwOnUnsupported(RedisOperation operation) {
@@ -106,63 +99,47 @@ public class LuaRedisCallback {
         }
     }
 
-    private static RedisInputStream getRedisInputStream(byte[] data) {
-        return Stream.of(data)
-                .map(ByteArrayInputStream::new)
-                .map(RedisInputStream::new)
-                .collect(Collectors.toList()).get(0);
-    }
-
-    private static LuaValue process(final RedisInputStream is) {
+    private static LuaValue toLuaValue(final RedisInputStream is) {
         byte b = is.readByte();
         switch (b) {
-            case PLUS_BYTE:
+            case '+':
                 return LuaValue.valueOf(processStatusCodeReply(is));
-            case DOLLAR_BYTE:
+            case '$':
                 return LuaValue.valueOf(processBulkReply(is));
-            case ASTERISK_BYTE:
+            case '*':
                 return embedLuaListToValue(processMultiBulkReply(is));
-            case COLON_BYTE:
+            case ':':
                 return LuaValue.valueOf(processInteger(is));
-            case MINUS_BYTE:
-                processError(is);
-                return LuaTable.NONE;
+            case '-':
+                String message = is.readLine();
+                if (message.startsWith(NOSCRIPT_PREFIX)) {
+                    throw new JedisNoScriptException(message);
+                } else {
+                    throw new JedisDataException(message);
+                }
             default:
                 return LuaValue.NONE;
         }
 
     }
 
-    private static void processError(final RedisInputStream is) {
-        String message = is.readLine();
-        if (message.startsWith(NOSCRIPT_PREFIX)) {
-            throw new JedisNoScriptException(message);
-        }
-        throw new JedisDataException(message);
-}
-
     private static byte[] processStatusCodeReply(RedisInputStream is) {
         return is.readLineBytes();
     }
 
     private static byte[] processBulkReply(RedisInputStream is) {
-        if (is == null) {
-            return new byte[0];
-        }
         int len = is.readIntCrLf();
-        if (len == -1) {
+        if (len <= 0) {
             return new byte[0];
         } else {
             byte[] read = new byte[len];
-
             int size;
-            for(int offset = 0; offset < len; offset += size) {
+            for (int offset = 0; offset < len; offset += size) {
                 size = is.read(read, offset, len - offset);
                 if (size == -1) {
                     throw new RuntimeException("It seems like server has closed the connection.");
                 }
             }
-
             is.readByte();
             is.readByte();
             return read;
@@ -174,25 +151,19 @@ public class LuaRedisCallback {
     }
 
     private static List<LuaValue> processMultiBulkReply(RedisInputStream is) {
-        if (is == null) {
-            return Collections.emptyList();
-        }
         int num = is.readIntCrLf();
-        if (num == -1) {
+        if (num <= 0) {
             return Collections.emptyList();
         } else {
             List<LuaValue> ret = new ArrayList<>(num);
-
-            for(int i = 0; i < num; ++i) {
+            for (int i = 0; i < num; ++i) {
                 try {
-                    ret.add(process(is));
+                    ret.add(toLuaValue(is));
                 } catch (JedisDataException e) {
                     System.err.println(e.getMessage());
                 }
             }
-
             return ret;
         }
     }
-
 }

@@ -28,21 +28,21 @@ public class EvalTest {
 
     @TestTemplate
     public void evalParametrizedTest(Jedis jedis) {
-        Object eval_return = jedis.eval("return ARGV[1]",0, "Hello");
+        Object eval_return = jedis.eval("return ARGV[1]", 0, "Hello");
         assertEquals(String.class, eval_return.getClass());
         assertEquals("Hello", eval_return);
     }
 
     @TestTemplate
     public void evalIntTest(Jedis jedis) {
-        Object eval_return = jedis.eval("return 0",0);
+        Object eval_return = jedis.eval("return 0", 0);
         assertEquals(Long.class, eval_return.getClass());
         assertEquals(0L, eval_return);
     }
 
     @TestTemplate
     public void evalLongTest(Jedis jedis) {
-        Object eval_return = jedis.eval("return 1.123",0);
+        Object eval_return = jedis.eval("return 1.123", 0);
         assertEquals(Long.class, eval_return.getClass());
         assertEquals(1L, eval_return);
     }
@@ -58,25 +58,25 @@ public class EvalTest {
     public void evalTableOfLongTest(Jedis jedis) {
         Object eval_return = jedis.eval("return { 1, 2, 3 }", 0);
         assertEquals(ArrayList.class, eval_return.getClass());
-        assertEquals(Long.class, ((List<?>)eval_return).get(0).getClass());
-        assertEquals(Arrays.asList(1L,2L,3L), eval_return);
+        assertEquals(Long.class, ((List<?>) eval_return).get(0).getClass());
+        assertEquals(Arrays.asList(1L, 2L, 3L), eval_return);
     }
 
     @TestTemplate
     public void evalDeepListTest(Jedis jedis) {
         Object eval_return = jedis.eval("return { 'test', 2, {'test', 2} }", 0);
         assertEquals(ArrayList.class, eval_return.getClass());
-        assertEquals(String.class, ((List<?>)eval_return).get(0).getClass());
-        assertEquals(Long.class, ((List<?>)eval_return).get(1).getClass());
-        assertEquals(ArrayList.class, ((List<?>)eval_return).get(2).getClass());
-        assertEquals(Arrays.asList("test",2L, Arrays.asList("test", 2L)), eval_return);
+        assertEquals(String.class, ((List<?>) eval_return).get(0).getClass());
+        assertEquals(Long.class, ((List<?>) eval_return).get(1).getClass());
+        assertEquals(ArrayList.class, ((List<?>) eval_return).get(2).getClass());
+        assertEquals(Arrays.asList("test", 2L, Arrays.asList("test", 2L)), eval_return);
     }
 
     @TestTemplate
     public void evalDictTest(Jedis jedis) {
         Object eval_return = jedis.eval("return { a = 1, 2 }", 0);
         assertEquals(ArrayList.class, eval_return.getClass());
-        assertEquals(Long.class, ((List<?>)eval_return).get(0).getClass());
+        assertEquals(Long.class, ((List<?>) eval_return).get(0).getClass());
         assertEquals(Collections.singletonList(2L), eval_return);
     }
 
@@ -128,11 +128,11 @@ public class EvalTest {
     @TestTemplate
     public void evalRedisPCallCanHandleExceptionTest(Jedis jedis) {
         assertEquals("Handled error from pcall", jedis.eval("" +
-                "local reply = redis.pcall('RENAME','A','B')\n" +
-                "if reply['err'] ~= nil then\n" +
-                "  return 'Handled error from pcall'" +
-                "end\n" +
-                "return reply",
+                        "local reply = redis.pcall('RENAME','A','B')\n" +
+                        "if reply['err'] ~= nil then\n" +
+                        "  return 'Handled error from pcall'" +
+                        "end\n" +
+                        "return reply",
                 0));
     }
 
@@ -141,4 +141,18 @@ public class EvalTest {
         assertNull(jedis.eval("redis.pcall('RENAME','A','B')", 0));
     }
 
+    @TestTemplate
+    public void fibonacciScript(Jedis jedis) {
+        String script =
+                "local a, b = 0, 1\n" +
+                "for i = 2, ARGV[1] do\n" +
+                "  local temp = a + b\n" +
+                "  a = b\n" +
+                "  b = temp\n" +
+                "  redis.call('RPUSH',KEYS[1], temp)\n" +
+                "end\n" ;
+        jedis.eval(script, 1, "mylist", "10");
+        assertEquals(Arrays.asList("1", "2", "3", "5", "8", "13", "21", "34", "55"),
+                jedis.lrange("mylist", 0, -1));
+    }
 }
