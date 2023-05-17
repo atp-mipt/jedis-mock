@@ -52,7 +52,7 @@ public class Eval extends AbstractRedisOperation {
                 "}\n" +
                 params().get(0).toString();
 
-        this.base().addCachedLuaScript(getScriptSHA(script), script);
+        this.base().addCachedLuaScript(getScriptSHA(params().get(0).toString()), script);
 
         int keysNum = Integer.parseInt(params().get(1).toString());
         final List<LuaValue> args = getLuaValues(params().subList(2, params().size()));
