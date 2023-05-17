@@ -23,6 +23,7 @@ import static com.github.fppt.jedismock.operations.scripting.Script.getScriptSHA
 
 @RedisCommand("eval")
 public class Eval extends AbstractRedisOperation {
+
     private static final String SCRIPT_PARAM_ERROR = "Wrong number of arguments for EVAL";
     private static final String SCRIPT_RUNTIME_ERROR = "Error running script (call to function returned nil)";
     private final Globals globals = JsePlatform.standardGlobals();
@@ -30,8 +31,7 @@ public class Eval extends AbstractRedisOperation {
     private final OperationExecutorState state;
 
     public Eval(final RedisBase base, final List<Slice> params, final OperationExecutorState state)
-            throws NoSuchAlgorithmException
-    {
+            throws NoSuchAlgorithmException {
         super(base, params);
         this.state = state;
     }
@@ -41,8 +41,16 @@ public class Eval extends AbstractRedisOperation {
         if (params().size() < 2) {
             return Response.error(SCRIPT_PARAM_ERROR);
         }
-        final String script = params().get(0).toString()
-                .replace("redis.", "redis:");
+        final String script = "local redis = {\n" +
+                "  call = function(...)\n" +
+                "    return _mock:call({...})\n" +
+                "  end,\n" +
+                "  \n" +
+                "  pcall = function(...)\n" +
+                "    return _mock:pcall({...})\n" +
+                "  end,\n" +
+                "}\n" +
+                params().get(0).toString();
 
         this.base().addCachedLuaScript(getScriptSHA(script), script);
 
@@ -51,8 +59,8 @@ public class Eval extends AbstractRedisOperation {
 
         globals.set("KEYS", embedLuaListToValue(args.subList(0, keysNum)));
         globals.set("ARGV", embedLuaListToValue(args.subList(keysNum, args.size())));
-        globals.set("redis", CoerceJavaToLua.coerce(new LuaRedisCallback(state)));
-        System.out.println(">"+Thread.currentThread().getName());
+        globals.set("_mock", CoerceJavaToLua.coerce(new LuaRedisCallback(state)));
+
         try {
             final LuaValue luaScript = globals.load(script);
             final Varargs result = luaScript.invoke();
@@ -94,7 +102,7 @@ public class Eval extends AbstractRedisOperation {
     private ArrayList<Slice> luaTableToList(LuaValue result) {
         final ArrayList<Slice> list = new ArrayList<>();
         for (int i = 0; i < result.length(); i++) {
-            list.add(resolveResult(result.get(i+1)));
+            list.add(resolveResult(result.get(i + 1)));
         }
         return list;
     }

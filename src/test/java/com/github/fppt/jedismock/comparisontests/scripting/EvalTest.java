@@ -13,7 +13,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(ComparisonBase.class)
 public class EvalTest {
-
     @BeforeEach
     public void setUp(Jedis jedis) {
         jedis.flushAll();
@@ -157,9 +156,9 @@ public class EvalTest {
     }
 
     @TestTemplate
-    public void rpushRest(Jedis jedis) {
-        String script = "return redis.call('SADD', 'myset', 1)" ;
+    public void manyArgumentsTest(Jedis jedis) {
+        String script = "return redis.call('SADD', 'myset', 1, 2, 3, 4, 5, 6)" ;
         jedis.eval(script, 0);
-        assertEquals("1", jedis.spop("myset"));
+        assertEquals(6, jedis.scard("myset"));
     }
 }

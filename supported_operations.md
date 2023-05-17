@@ -127,9 +127,9 @@
 
 ## Scripting
 
-:x: eval<br>
-:x: evalsha<br>
-:x: script<br>
+:heavy_check_mark: eval<br>
+:heavy_check_mark: evalsha<br>
+:heavy_check_mark: script<br>
 
 ## Server
 

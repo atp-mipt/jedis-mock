@@ -1,6 +1,5 @@
 package com.github.fppt.jedismock.operations.scripting;
 
-
 import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.operations.CommandFactory;
 import com.github.fppt.jedismock.operations.RedisOperation;
@@ -15,14 +14,10 @@ import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.github.fppt.jedismock.operations.scripting.Eval.embedLuaListToValue;
 
 public class LuaRedisCallback {
-
     private static final String NOSCRIPT_PREFIX = "NOSCRIPT ";
 
     private final OperationExecutorState state;
@@ -30,47 +25,17 @@ public class LuaRedisCallback {
     public LuaRedisCallback(final OperationExecutorState state) {
         this.state = state;
     }
-
-    public LuaValue call(final String operationName) {
-        return execute(operationName, Collections.emptyList());
+    public LuaValue call(LuaValue args) {
+        String operationName = args.get(1).tojstring();
+        List<Slice> a = new ArrayList<>();
+        for (int i = 2; i <= args.length(); i++) {
+            a.add(Slice.create(args.get(i).tojstring()));
+        }
+        return execute(operationName, a);
     }
-
-    public LuaValue call(final String operationName, final String rawArg) {
-        return execute(operationName, Collections.singletonList(Slice.create(rawArg)));
-    }
-
-    public LuaValue call(final String operationName, final String rawArg1, final String rawArg2) {
-        final List<Slice> args = Stream.of(rawArg1, rawArg2)
-                .map(Slice::create).collect(Collectors.toList());
-        return execute(operationName, args);
-    }
-
-    public LuaValue call(final String operationName, final String rawArg1, final String rawArg2, final String rawArg3) {
-        final List<Slice> args = Stream.of(rawArg1, rawArg2, rawArg3)
-                .map(Slice::create).collect(Collectors.toList());
-        return execute(operationName, args);
-    }
-
-    public LuaValue pcall(final String operationName) {
-        return pcallWrap(() -> call(operationName));
-    }
-
-    public LuaValue pcall(final String operationName, final String rawArg1) {
-        return pcallWrap(() -> call(operationName, rawArg1));
-    }
-
-    public LuaValue pcall(final String operationName, final String rawArg1, final String rawArg2) {
-        return pcallWrap(() -> call(operationName, rawArg1, rawArg2));
-    }
-
-    public LuaValue pcall(final String operationName, final String rawArg1, final String rawArg2, final String rawArg3) {
-        return pcallWrap(() -> call(operationName, rawArg1, rawArg2, rawArg3));
-    }
-
-
-    private static LuaValue pcallWrap(Callable<LuaValue> call) {
+    public LuaValue pcall(LuaValue args){
         try {
-            return call.call();
+            return call(args);
         } catch (final Exception e) {
             LuaTable errorTable = new LuaTable();
             errorTable.set(LuaValue.valueOf("err"), LuaValue.valueOf(e.getMessage()));
@@ -79,7 +44,6 @@ public class LuaRedisCallback {
     }
 
     private LuaValue execute(final String operationName, final List<Slice> args) {
-        System.out.println(Thread.currentThread().getName());
         final RedisOperation operation = CommandFactory.buildOperation(operationName.toLowerCase(), true, state, args);
         if (operation != null) {
             throwOnUnsupported(operation);
