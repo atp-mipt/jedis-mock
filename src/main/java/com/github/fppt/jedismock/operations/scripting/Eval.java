@@ -10,6 +10,7 @@ import org.luaj.vm2.Globals;
 import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
+import org.luaj.vm2.Varargs;
 import org.luaj.vm2.lib.jse.CoerceJavaToLua;
 import org.luaj.vm2.lib.jse.JsePlatform;
 
@@ -54,8 +55,8 @@ public class Eval extends AbstractRedisOperation {
 
         try {
             final LuaValue luaScript = globals.load(script);
-            final LuaValue result = luaScript.call();
-            return resolveResult(result);
+            final Varargs result = luaScript.invoke();
+            return resolveResult(result.arg(1));
         } catch (LuaError e) {
             return Response.error(String.format("Error running script: %s", e.getMessage()));
         }
