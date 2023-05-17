@@ -158,7 +158,7 @@ public class EvalTest {
 
     @TestTemplate
     public void rpushRest(Jedis jedis) {
-        String script = "redis.call('SADD', 'myset', 1)" ;
+        String script = "return redis.call('SADD', 'myset', 1)" ;
         jedis.eval(script, 0);
         assertEquals("1", jedis.spop("myset"));
     }
