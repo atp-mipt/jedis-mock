@@ -52,7 +52,7 @@ public class Eval extends AbstractRedisOperation {
         globals.set("KEYS", embedLuaListToValue(args.subList(0, keysNum)));
         globals.set("ARGV", embedLuaListToValue(args.subList(keysNum, args.size())));
         globals.set("redis", CoerceJavaToLua.coerce(new LuaRedisCallback(state)));
-
+        System.out.println(">"+Thread.currentThread().getName());
         try {
             final LuaValue luaScript = globals.load(script);
             final Varargs result = luaScript.invoke();

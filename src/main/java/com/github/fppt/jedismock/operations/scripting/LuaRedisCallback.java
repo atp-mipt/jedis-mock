@@ -79,6 +79,7 @@ public class LuaRedisCallback {
     }
 
     private LuaValue execute(final String operationName, final List<Slice> args) {
+        System.out.println(Thread.currentThread().getName());
         final RedisOperation operation = CommandFactory.buildOperation(operationName.toLowerCase(), true, state, args);
         if (operation != null) {
             throwOnUnsupported(operation);
