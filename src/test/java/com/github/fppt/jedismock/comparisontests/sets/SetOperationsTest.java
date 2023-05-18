@@ -96,6 +96,15 @@ public class SetOperationsTest {
     }
 
     @TestTemplate
+    public void poppingManyKeys(Jedis jedis) {
+        String key = "my-set-key-spop";
+        jedis.sadd(key, "a", "b", "c", "d");
+        assertEquals(3,
+                jedis.spop(key, 3).size());
+        assertEquals(1, jedis.scard(key));
+    }
+
+    @TestTemplate
     public void ensureSismemberReturnsCorrectValues(Jedis jedis) {
         String key = "my-set-key-sismember";
         jedis.sadd(key, "A", "B");
@@ -256,7 +265,7 @@ public class SetOperationsTest {
 
         assertEquals(expectedDifference, jedis.smembers(destination));
     }
-    
+
 
     @TestTemplate
     public void testFailingGetOperation(Jedis jedis) {
