@@ -11,14 +11,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 abstract class ListPopper extends AbstractRedisOperation {
-    private final Slice key;
-    final List<Slice> list;
+    private Slice key;
+    private List<Slice> list;
 
     ListPopper(RedisBase base, List<Slice> params) {
         super(base, params);
-        key = params.get(0);
-        RMList listDBObj = getListFromBaseOrCreateEmpty(key);
-        list = listDBObj.getStoredData();
     }
 
     abstract Slice popper(List<Slice> list);
@@ -32,7 +29,9 @@ abstract class ListPopper extends AbstractRedisOperation {
     }
 
     protected final Slice response() {
-
+        key = params().get(0);
+        RMList listDBObj = getListFromBaseOrCreateEmpty(key);
+        list = listDBObj.getStoredData();
 
         if (list.isEmpty()) return Response.NULL;
         if (params().size() > 1) {
