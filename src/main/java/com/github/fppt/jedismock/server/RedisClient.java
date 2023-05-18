@@ -1,6 +1,7 @@
 package com.github.fppt.jedismock.server;
 
 import com.github.fppt.jedismock.datastructures.Slice;
+import com.github.fppt.jedismock.exception.EOFException;
 import com.github.fppt.jedismock.storage.OperationExecutorState;
 import com.github.fppt.jedismock.storage.RedisBase;
 import com.github.fppt.jedismock.commands.RedisCommand;
@@ -53,6 +54,13 @@ public class RedisClient implements Runnable {
     public void run() {
         LOG.info("Accepted new connection {}", this);
         while (running.get() && !socket.isClosed() && !Thread.interrupted()) {
+            if (!hasData()) {
+                try {
+                    Thread.sleep(50);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
             Optional<RedisCommand> command = nextCommand();
             if (command.isPresent()) {
                 LOG.info("Executing command {}", command.get());
@@ -73,6 +81,9 @@ public class RedisClient implements Runnable {
             return Optional.of(RedisCommandParser.parse(in));
         } catch (ParseErrorException e) {
             return Optional.empty(); // This simply means there is no next command
+        } catch (EOFException e) {
+//            close();
+            return Optional.empty();
         }
     }
 
@@ -106,5 +117,13 @@ public class RedisClient implements Runnable {
 
     ServiceOptions options() {
         return options;
+    }
+
+    private boolean hasData() {
+        try {
+            return in.available() != 0;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
