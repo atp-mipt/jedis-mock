@@ -282,4 +282,25 @@ public class SetOperationsTest {
         byte[] newMsg = jedis.spop("foo".getBytes());
         assertArrayEquals(msg, newMsg);
     }
+
+    @TestTemplate
+    public void testSMoveExistingElement(Jedis jedis) {
+        jedis.sadd("myset", "one", "two");
+        jedis.sadd("myotherset", "three");
+        assertEquals(1, jedis.smove("myset", "myotherset", "two"));
+        assertEquals(Collections.singleton("one"), jedis.smembers("myset"));
+        assertEquals(new HashSet<>(Arrays.asList("two", "three")),
+                jedis.smembers("myotherset"));
+    }
+
+    @TestTemplate
+    public void testSMoveNonExistingElement(Jedis jedis) {
+        jedis.sadd("myset", "one", "two");
+        jedis.sadd("myotherset", "three");
+        assertEquals(0, jedis.smove("myset", "myotherset", "four"));
+        assertEquals(new HashSet<>(Arrays.asList("one", "two")),
+                jedis.smembers("myset"));
+        assertEquals(Collections.singleton("three"),
+                jedis.smembers("myotherset"));
+    }
 }
