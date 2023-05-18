@@ -308,6 +308,10 @@ public class RedisBase {
         }
     }
 
+    public void markKeyModified(Slice key) {
+        watchedKeys.getOrDefault(key, new HashSet<>()).forEach(OperationExecutorState::watchedKeyIsAffected);
+    }
+
     public String getCachedLuaScript(String sha1) {
         return cachedLuaScripts.get(sha1);
     }
