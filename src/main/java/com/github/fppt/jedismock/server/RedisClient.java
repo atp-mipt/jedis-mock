@@ -55,11 +55,7 @@ public class RedisClient implements Runnable {
         LOG.info("Accepted new connection {}", this);
         while (running.get() && !socket.isClosed() && !Thread.interrupted()) {
             if (!hasData()) {
-                try {
-                    Thread.sleep(50);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
+                Thread.yield();
             }
             Optional<RedisCommand> command = nextCommand();
             if (command.isPresent()) {

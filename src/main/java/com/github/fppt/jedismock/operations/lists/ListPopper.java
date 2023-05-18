@@ -25,6 +25,7 @@ abstract class ListPopper extends AbstractRedisOperation {
 
     private Slice pop() {
         Slice result = popper(list);
+        base().markKeyModified(key);
         if (list.isEmpty()) {
             base().deleteValue(key);
         }
@@ -32,8 +33,6 @@ abstract class ListPopper extends AbstractRedisOperation {
     }
 
     protected final Slice response() {
-
-
         if (list.isEmpty()) return Response.NULL;
         if (params().size() > 1) {
             //Count param
