@@ -32,19 +32,19 @@ abstract class BPop extends AbstractRedisOperation {
             throw new IndexOutOfBoundsException("require at least 2 params");
         }
         List<Slice> keys = params().subList(0, size - 1);
-        double timeout = convertToDouble(params().get(size - 1).toString());
+        long timeoutNanos = (long) (convertToDouble(params().get(size - 1).toString()) * 1_000_000_000L);
 
-        if (timeout < 0) {
+        if (timeoutNanos < 0) {
             throw new IllegalArgumentException("ERR timeout is negative");
         }
 
         Slice source = getKey(keys, true);
 
-        long waitEnd = System.nanoTime() + (long) (timeout * 1_000_000_000L);
-        long waitTime;
+        long waitEnd = System.nanoTime() + timeoutNanos;
+        long waitTimeNanos;
         try {
-            while (source == null && !isInTransaction && (waitTime = timeout == 0 ? 0 : (waitEnd - System.nanoTime()) / 1_000_000L) >= 0) {
-                lock.wait(waitTime);
+            while (source == null && !isInTransaction && (waitTimeNanos = timeoutNanos == 0 ? 0 : waitEnd - System.nanoTime()) >= 0) {
+                lock.wait(waitTimeNanos / 1_000_000, (int) waitTimeNanos % 1_000_000);
                 source = getKey(keys, false);
             }
         } catch (InterruptedException e) {

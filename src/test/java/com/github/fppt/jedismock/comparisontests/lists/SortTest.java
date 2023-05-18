@@ -92,5 +92,7 @@ public class SortTest {
 
         jedis.sort(numerical_sort_key, new SortingParams(), store_sort_key);
         future.get();
+        e.shutdownNow();
+        blockingClient.close();
     }
 }

@@ -11,8 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 abstract class ListPopper extends AbstractRedisOperation {
-    private Slice key;
-    private List<Slice> list;
 
     ListPopper(RedisBase base, List<Slice> params) {
         super(base, params);
@@ -20,8 +18,9 @@ abstract class ListPopper extends AbstractRedisOperation {
 
     abstract Slice popper(List<Slice> list);
 
-    private Slice pop() {
+    private Slice pop(Slice key, List<Slice> list) {
         Slice result = popper(list);
+        base().markKeyModified(key);
         if (list.isEmpty()) {
             base().deleteValue(key);
         }
@@ -29,9 +28,9 @@ abstract class ListPopper extends AbstractRedisOperation {
     }
 
     protected final Slice response() {
-        key = params().get(0);
+        Slice key = params().get(0);
         RMList listDBObj = getListFromBaseOrCreateEmpty(key);
-        list = listDBObj.getStoredData();
+        List<Slice> list = listDBObj.getStoredData();
 
         if (list.isEmpty()) return Response.NULL;
         if (params().size() > 1) {
@@ -43,12 +42,12 @@ abstract class ListPopper extends AbstractRedisOperation {
             }
             List<Slice> responseList = new ArrayList<>();
             while (count > 0 && list.size() > 0) {
-                responseList.add(Response.bulkString(pop()));
+                responseList.add(Response.bulkString(pop(key, list)));
                 count--;
             }
             return Response.array(responseList);
         } else {
-            return Response.bulkString(pop());
+            return Response.bulkString(pop(key, list));
         }
     }
 

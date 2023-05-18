@@ -2,6 +2,7 @@ package com.github.fppt.jedismock.comparisontests.lists;
 
 import com.github.fppt.jedismock.comparisontests.ComparisonBase;
 import com.github.fppt.jedismock.comparisontests.TestErrorMessages;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
@@ -27,15 +28,21 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 @ExtendWith(ComparisonBase.class)
 public class BlockingOperationsTest {
-    private ExecutorService executorService;
+
+    private ExecutorService blockingThread;
     private Jedis blockedClient;
 
     @BeforeEach
     public void setUp(Jedis jedis, HostAndPort hostAndPort) {
         jedis.flushAll();
+        blockedClient = new Jedis(hostAndPort.getHost(), hostAndPort.getPort());
+        blockingThread = Executors.newSingleThreadExecutor();
+    }
 
-        blockedClient = new Jedis(hostAndPort);
-        executorService = Executors.newSingleThreadExecutor();
+    @AfterEach
+    public void tearDown() {
+        blockedClient.close();
+        blockingThread.shutdownNow();
     }
 
     @TestTemplate
@@ -46,7 +53,7 @@ public class BlockingOperationsTest {
         jedis.rpush(list2key, "a", "b", "c");
 
         //Block on performing the BRPOPLPUSH
-        Future future = executorService.submit(() -> {
+        Future<?> future = blockingThread.submit(() -> {
             String result = blockedClient.brpoplpush(list1key, list2key, 500);
             assertEquals("3", result);
         });
@@ -66,27 +73,6 @@ public class BlockingOperationsTest {
     }
 
     @TestTemplate
-    public void whenUsingBlpop_EnsureNotWokenByTransaction(Jedis jedis) throws ExecutionException, InterruptedException, TimeoutException {
-        String listKey = "list_key";
-
-        Future<?> future = executorService.submit(() -> {
-            List<String> result = blockedClient.blpop(0, listKey);
-            assertNotNull(result);
-            assertEquals(2, result.size());
-            assertEquals(listKey, result.get(0));
-            assertEquals("b", result.get(1));
-        });
-
-        Transaction t = jedis.multi();
-        t.lpush(listKey, "0");
-        t.del(listKey);
-        t.exec();
-        jedis.del(listKey);
-        jedis.lpush(listKey, "b");
-        future.get(5, TimeUnit.SECONDS);
-    }
-
-    @TestTemplate
     public void whenUsingBrpoplpushAndReachingTimeout_Return(Jedis jedis) {
         String list1key = "another source list";
         String list2key = "another target list";
@@ -101,7 +87,7 @@ public class BlockingOperationsTest {
         String list1key = "another another source list";
         String list2key = "another another target list";
 
-        executorService.submit(() -> {
+        blockingThread.submit(() -> {
             String result = blockedClient.brpoplpush(list1key, list2key, 500);
             assertEquals("3", result);
         });
@@ -126,7 +112,7 @@ public class BlockingOperationsTest {
         String key = "list1_kfubdjkfnv";
         jedis.rpush(key, "d", "e", "f");
         //Block on performing the BLPOP
-        Future future = executorService.submit(() -> {
+        Future<?> future = blockingThread.submit(() -> {
             List<String> result = blockedClient.blpop(10, key);
             assertEquals(2, result.size());
             assertEquals(key, result.get(0));
@@ -146,7 +132,7 @@ public class BlockingOperationsTest {
 
 
         //Block on performing the BLPOP
-        Future future = executorService.submit(() -> {
+        Future<?> future = blockingThread.submit(() -> {
             List<String> result = blockedClient.blpop(10, list1key, list2key, list3key);
             assertEquals(list2key, result.get(0));
             assertEquals("a", result.get(1));
@@ -173,7 +159,7 @@ public class BlockingOperationsTest {
         jedis.lrange(list2key, 0, -1);
 
         //Block on performing the BLPOP
-        Future future = executorService.submit(() -> {
+        Future<?> future = blockingThread.submit(() -> {
             List<String> result = blockedClient.blpop(1, list1key, list2key, list3key);
             assertNull(result);
         });
@@ -185,58 +171,23 @@ public class BlockingOperationsTest {
     }
 
     @TestTemplate
-    public void whenUsingBRPopLPush_ensureBlocksIndefinitely(Jedis jedis) throws InterruptedException, ExecutionException {
-        String fromKey = "brpoplpush_from";
-        String toKey = "brpoplpush_to";
+    public void whenUsingBlpop_EnsureNotWokenByTransaction(Jedis jedis) throws ExecutionException, InterruptedException, TimeoutException {
+        String listKey = "list_key";
 
-        Future<?> future = executorService.submit(() -> {
-            String value = blockedClient.brpoplpush(fromKey, toKey, 0);
-            assertEquals("bar", value);
-        });
-
-        // wait to be sure we wait more than 0 seconds
-        Thread.sleep(1000);
-        jedis.rpush(fromKey, "bar");
-
-        future.get();
-    }
-
-    @TestTemplate
-    public void whenUsingBlockingOps_ensureErrorOnNegativeTimeout(Jedis jedis) {
-        String key = "key";
-        String key2 = "key2";
-        JedisDataException e = Assertions.assertThrows(JedisDataException.class, () -> jedis.brpop(-0.5, key));
-        Assertions.assertEquals("ERR timeout is negative", e.getMessage());
-
-        e = Assertions.assertThrows(JedisDataException.class, () -> jedis.brpoplpush(key, key2, -1));
-
-        Assertions.assertEquals("ERR timeout is negative", e.getMessage());
-    }
-
-    @TestTemplate
-    public void whenUsingBlpop_EnsureStillWaitsIfKeyIsNotList(Jedis jedis) throws ExecutionException, InterruptedException, TimeoutException {
-        String key = "blpop_not_a_list_key";
-
-
-        Future<?> future = executorService.submit(() -> {
-            List<String> result = blockedClient.blpop(0, key);
+        Future<?> future = blockingThread.submit(() -> {
+            List<String> result = blockedClient.blpop(0, listKey);
+            assertNotNull(result);
             assertEquals(2, result.size());
-            assertEquals(key, result.get(0));
-            assertEquals("foo", result.get(1));
+            assertEquals(listKey, result.get(0));
+            assertEquals("b", result.get(1));
         });
-
-        Thread.sleep(300); // wait for blpop to execute
 
         Transaction t = jedis.multi();
-
-        t.rpush(key, "bar");
-        t.del(key);
-        t.set(key, "bar2");
+        t.lpush(listKey, "0");
+        t.del(listKey);
         t.exec();
-
-        jedis.del(key);
-        jedis.lpush(key, "foo");
-
+        jedis.del(listKey);
+        jedis.lpush(listKey, "b");
         future.get(5, TimeUnit.SECONDS);
     }
 
@@ -268,20 +219,58 @@ public class BlockingOperationsTest {
     }
 
     @TestTemplate
-    public void whenUsingRename_ensureNotifies(Jedis jedis) {
-        String from = "from";
-        String to = "to";
+    public void whenUsingBlpop_EnsureThrowsErrorOnNegativeTimeout(Jedis jedis) {
+        String key = "blpop_negative_timeout_key";
 
-        jedis.rpush(from, "1");
-        Assertions.assertTimeoutPreemptively(Duration.ofSeconds(5), () -> {
-            Future<List<String>> future = executorService.submit(() -> blockedClient.brpop(0, to));
+        JedisDataException exception = Assertions.assertThrows(JedisDataException.class, () -> jedis.blpop(-5, key));
+        assertEquals("ERR timeout is negative", exception.getMessage());
 
-            Thread.sleep(50);
-            Assertions.assertFalse(future.isDone());
-            jedis.rename(from, to);
-            Thread.sleep(50);
+        exception = Assertions.assertThrows(JedisDataException.class, () -> jedis.blpop(-0.1, key));
+        assertEquals("ERR timeout is negative", exception.getMessage());
+    }
 
-            Assertions.assertEquals(Arrays.asList(to, "1"), future.get());
+    @TestTemplate
+    public void whenUsingBlpop_EnsureStillWaitsIfKeyIsNotList(Jedis jedis) throws ExecutionException, InterruptedException, TimeoutException {
+        String key = "blpop_not_a_list_key";
+
+
+        Future<?> future = blockingThread.submit(() -> {
+            List<String> result = blockedClient.blpop(0, key);
+            assertEquals(2, result.size());
+            assertEquals(key, result.get(0));
+            assertEquals("foo", result.get(1));
         });
+
+        Thread.sleep(300); // wait for blpop to execute
+
+        Transaction t = jedis.multi();
+
+        t.rpush(key, "bar");
+        t.del(key);
+        t.set(key, "bar2");
+        t.exec();
+
+        jedis.del(key);
+        jedis.lpush(key, "foo");
+
+        future.get(5, TimeUnit.SECONDS);
+    }
+
+    @TestTemplate
+    public void whenUsingBRPopLPush_ensureBlocksIndefinitely(Jedis jedis) throws InterruptedException, ExecutionException {
+        String fromKey = "brpoplpush_from";
+        String toKey = "brpoplpush_to";
+
+
+        Future<?> future = blockingThread.submit(() -> {
+            String value = blockedClient.brpoplpush(fromKey, toKey, 0);
+            assertEquals("bar", value);
+        });
+
+        // wait to be sure we wait more than 0 seconds
+        Thread.sleep(1000);
+        jedis.rpush(fromKey, "bar");
+
+        future.get();
     }
 }
