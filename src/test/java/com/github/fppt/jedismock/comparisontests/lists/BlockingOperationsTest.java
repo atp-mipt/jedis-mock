@@ -266,4 +266,22 @@ public class BlockingOperationsTest {
 
         }, TestErrorMessages.DEADLOCK_ERROR_MESSAGE);
     }
+
+    @TestTemplate
+    public void whenUsingRename_ensureNotifies(Jedis jedis) {
+        String from = "from";
+        String to = "to";
+
+        jedis.rpush(from, "1");
+        Assertions.assertTimeoutPreemptively(Duration.ofSeconds(5), () -> {
+            Future<List<String>> future = executorService.submit(() -> blockedClient.brpop(0, to));
+
+            Thread.sleep(50);
+            Assertions.assertFalse(future.isDone());
+            jedis.rename(from, to);
+            Thread.sleep(50);
+
+            Assertions.assertEquals(Arrays.asList(to, "1"), future.get());
+        });
+    }
 }
