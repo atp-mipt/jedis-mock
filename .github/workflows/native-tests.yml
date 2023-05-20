@@ -28,7 +28,7 @@ jobs:
           restore-keys: ${{ runner.os }}-maven-
 
       - name: Fast build and install JedisMock
-        run: mvn -B install -Dmaven.javadoc.skip -DskipTests -Dspotbugs.skip=true -Dcheckstyle.skip=true
+        run: mvn -B install -Dmaven.javadoc.skip -DskipTests -Dspotbugs.skip -Dcheckstyle.skip -Dpmd.skip -Dcpd.skip
 
       - name: Evaluate current JedisMock version
         run: |
