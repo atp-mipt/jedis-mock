@@ -1,38 +1,16 @@
 package com.github.fppt.jedismock.operations.sets;
 
-import com.github.fppt.jedismock.datastructures.RMSet;
-import com.github.fppt.jedismock.operations.AbstractRedisOperation;
-import com.github.fppt.jedismock.operations.RedisCommand;
-import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.datastructures.Slice;
+import com.github.fppt.jedismock.operations.RedisCommand;
 import com.github.fppt.jedismock.storage.RedisBase;
-
 
 import java.util.List;
 
 
 @RedisCommand("sinterstore")
-class SInterStore extends AbstractRedisOperation {
+class SInterStore extends SStore {
     SInterStore(RedisBase base, List<Slice> params) {
-        super(base, params);
-    }
-
-    @Override
-    protected Slice response() {
-        Slice key = params().get(0);
-        SInter sInter = new SInter(base(), params().subList(1, params().size()));
-        RMSet result = new RMSet(sInter.getIntersection());
-        
-        // delete dstkey if some params key dont exist
-        for(int i = 1; i < params().size(); i++){
-            RMSet obj = base().getSet(params().get(i));
-            if(obj == null) {
-                base().deleteValue(key);
-                return Response.integer(0);
-            }
-        }
-        base().putValue(key, result);
-
-        return Response.integer(result.getStoredData().size());
+        super(base, params,
+                (b, p) -> new SInter(b, p).getIntersection());
     }
 }

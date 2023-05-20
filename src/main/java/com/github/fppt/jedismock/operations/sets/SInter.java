@@ -20,18 +20,18 @@ class SInter extends AbstractRedisOperation {
         super(base, params);
     }
 
-    protected Set<Slice> getIntersection() {
+    final Set<Slice> getIntersection() {
         Slice key = params().get(0);
         RMSet setObj = getSetFromBaseOrCreateEmpty(key);
-        Set<Slice> resultSoFar = new HashSet<Slice>(setObj.getStoredData());
+        Set<Slice> result = new HashSet<>(setObj.getStoredData());
 
         for(int i = 1; i < params().size(); i++){
             RMSet secondSetObj = getSetFromBaseOrCreateEmpty(params().get(i));
             Set<Slice> secondSet = secondSetObj.getStoredData();
-            resultSoFar.retainAll(secondSet);
+            result.retainAll(secondSet);
         }
 
-        return resultSoFar;
+        return result;
     }
 
     @Override

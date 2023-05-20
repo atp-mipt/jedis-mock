@@ -20,10 +20,10 @@ class SUnion extends AbstractRedisOperation {
         super(base, params);
     }
 
-    protected Set<Slice> getUnion() {
+    final Set<Slice> getUnion() {
         Slice key = params().get(0);
         RMSet setObj = getSetFromBaseOrCreateEmpty(key);
-        Set<Slice> resultSoFar = new HashSet<Slice>(setObj.getStoredData());
+        Set<Slice> resultSoFar = new HashSet<>(setObj.getStoredData());
 
         for(int i = 1; i < params().size(); i++){
             RMSet secondSetObj = getSetFromBaseOrCreateEmpty(params().get(i));

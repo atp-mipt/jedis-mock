@@ -27,14 +27,10 @@ public class SMove extends AbstractRedisOperation {
             throw new WrongValueTypeException("WRONGTYPE dest is not a set");
         }
 
-        final int result = new SRem(base(), Arrays.asList(src, member)).internalRemove();
+        final int result = new SRem(base(), Arrays.asList(src, member)).remove();
 
-        if (result > 0) {
-            Slice isMember = new SIsMember(base(), Arrays.asList(dest, member)).execute();
-            // only add if element is not already present in dest
-            if (isMember.toString().contains("0")) {
-                new SAdd(base(), Arrays.asList(dest, member)).execute();
-            }
+        if (result > 0 && !getSetFromBaseOrCreateEmpty(dest).getStoredData().contains(member)) {
+            new SAdd(base(), Arrays.asList(dest, member)).execute();
         }
         return Response.integer(result);
     }

@@ -18,11 +18,11 @@ class SRem extends AbstractRedisOperation {
         super(base, params);
     }
 
-    int internalRemove() {
+    final int remove() {
         Slice key = params().get(0);
         RMSet setDBObj = getSetFromBaseOrCreateEmpty(key);
         Set<Slice> set = setDBObj.getStoredData();
-        if(set == null) {
+        if (set == null) {
             return 0;
         }
         int count = 0;
@@ -38,6 +38,6 @@ class SRem extends AbstractRedisOperation {
     }
 
     protected Slice response() {
-        return Response.integer(internalRemove());
+        return Response.integer(remove());
     }
 }

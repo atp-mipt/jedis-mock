@@ -20,18 +20,18 @@ class SDiff extends AbstractRedisOperation {
         super(base, params);
     }
 
-    protected Set<Slice> getDifference() {
+    final Set<Slice> getDifference() {
         Slice key = params().get(0);
         RMSet setObj = getSetFromBaseOrCreateEmpty(key);
-        Set<Slice> resultSoFar = new HashSet<Slice>(setObj.getStoredData());
+        Set<Slice> result = new HashSet<>(setObj.getStoredData());
 
         for(int i = 1; i < params().size(); i++){
             RMSet secondSetObj = getSetFromBaseOrCreateEmpty(params().get(i));
             Set<Slice> secondSet = secondSetObj.getStoredData();
-            resultSoFar.removeAll(secondSet);
+            result.removeAll(secondSet);
         }
 
-        return resultSoFar;
+        return result;
     }
 
     @Override
