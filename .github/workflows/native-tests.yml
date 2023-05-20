@@ -56,4 +56,5 @@ jobs:
           ./runtest --host 127.0.0.1 --port 39807 --single unit/type/hash
           ./runtest --host 127.0.0.1 --port 39807 --single unit/type/list-2
           ./runtest --host 127.0.0.1 --port 39807 --single unit/type/list-3
+          ./runtest --host 127.0.0.1 --port 39807 --single unit/type/set
         working-directory: native_tests/linux
