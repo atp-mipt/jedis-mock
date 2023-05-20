@@ -96,6 +96,15 @@ public class SetOperationsTest {
     }
 
     @TestTemplate
+    public void poppingManyKeys(Jedis jedis) {
+        String key = "my-set-key-spop";
+        jedis.sadd(key, "a", "b", "c", "d");
+        assertEquals(3,
+                jedis.spop(key, 3).size());
+        assertEquals(1, jedis.scard(key));
+    }
+
+    @TestTemplate
     public void ensureSismemberReturnsCorrectValues(Jedis jedis) {
         String key = "my-set-key-sismember";
         jedis.sadd(key, "A", "B");
@@ -272,5 +281,26 @@ public class SetOperationsTest {
         jedis.sadd("foo".getBytes(), msg);
         byte[] newMsg = jedis.spop("foo".getBytes());
         assertArrayEquals(msg, newMsg);
+    }
+
+    @TestTemplate
+    public void testSMoveExistingElement(Jedis jedis) {
+        jedis.sadd("myset", "one", "two");
+        jedis.sadd("myotherset", "three");
+        assertEquals(1, jedis.smove("myset", "myotherset", "two"));
+        assertEquals(Collections.singleton("one"), jedis.smembers("myset"));
+        assertEquals(new HashSet<>(Arrays.asList("two", "three")),
+                jedis.smembers("myotherset"));
+    }
+
+    @TestTemplate
+    public void testSMoveNonExistingElement(Jedis jedis) {
+        jedis.sadd("myset", "one", "two");
+        jedis.sadd("myotherset", "three");
+        assertEquals(0, jedis.smove("myset", "myotherset", "four"));
+        assertEquals(new HashSet<>(Arrays.asList("one", "two")),
+                jedis.smembers("myset"));
+        assertEquals(Collections.singleton("three"),
+                jedis.smembers("myotherset"));
     }
 }

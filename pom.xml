@@ -44,7 +44,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <junit.version>5.9.1</junit.version>
         <jedis.version>4.3.0</jedis.version>
-        <testcontainers.version>1.18.0</testcontainers.version>
+        <testcontainers.version>1.18.1</testcontainers.version>
         <spotbugs.version>4.7.2.1</spotbugs.version>
         <slf4j.version>2.0.7</slf4j.version>
     </properties>
@@ -72,7 +72,7 @@
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
             <version>${jedis.version}</version>
-            <scope>test</scope>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>io.lettuce</groupId>
@@ -98,6 +98,11 @@
             <artifactId>mockito-core</artifactId>
             <version>4.11.0</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.luaj</groupId>
+            <artifactId>luaj-jse</artifactId>
+            <version>3.0.1</version>
         </dependency>
 		<dependency>
             <groupId>nl.jqno.equalsverifier</groupId>
@@ -198,7 +203,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-pmd-plugin</artifactId>
-                <version>3.20.0</version>
+                <version>3.21.0</version>
                 <configuration>
                     <verbose>true</verbose>
                     <rulesets>
