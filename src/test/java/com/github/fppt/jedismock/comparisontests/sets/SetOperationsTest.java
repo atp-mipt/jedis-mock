@@ -303,4 +303,21 @@ public class SetOperationsTest {
         assertEquals(Collections.singleton("three"),
                 jedis.smembers("myotherset"));
     }
+
+    @TestTemplate
+    public void testSMoveWrongTypesSrcDest(Jedis jedis) {
+
+        String key1 = "key1";
+        String key2 = "key2";
+        
+        jedis.set(key1, "a");
+        jedis.sadd(key2, "b");
+
+        assertTrue(
+                assertThrows(JedisDataException.class, () -> jedis.smove(key1, key2, "a"))
+                        .getMessage().startsWith("WRONGTYPE"));
+        assertTrue(
+                assertThrows(JedisDataException.class, () -> jedis.smove(key2, key1, "a"))
+                        .getMessage().startsWith("WRONGTYPE"));
+    }
 }

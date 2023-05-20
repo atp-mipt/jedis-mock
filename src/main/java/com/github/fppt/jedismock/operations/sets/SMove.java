@@ -1,6 +1,7 @@
 package com.github.fppt.jedismock.operations.sets;
 
 import com.github.fppt.jedismock.datastructures.Slice;
+import com.github.fppt.jedismock.exception.WrongValueTypeException;
 import com.github.fppt.jedismock.operations.AbstractRedisOperation;
 import com.github.fppt.jedismock.operations.RedisCommand;
 import com.github.fppt.jedismock.server.Response;
@@ -20,11 +21,20 @@ public class SMove extends AbstractRedisOperation {
         Slice src = params().get(0);
         Slice dest = params().get(1);
         Slice member = params().get(2);
-        final int result =
-                new SRem(base(), Arrays.asList(src, member)).internalRemove();
+
+        // check destination type BEFORE deleting from src
+        if (base().getValue(dest) != null && base().getSet(dest) == null) {
+            throw new WrongValueTypeException("WRONGTYPE dest is not a set");
+        }
+
+        final int result = new SRem(base(), Arrays.asList(src, member)).internalRemove();
 
         if (result > 0) {
-            new SAdd(base(), Arrays.asList(dest, member)).execute();
+            Slice isMember = new SIsMember(base(), Arrays.asList(dest, member)).execute();
+            // only add if element is not already present in dest
+            if (isMember.toString().contains("0")) {
+                new SAdd(base(), Arrays.asList(dest, member)).execute();
+            }
         }
         return Response.integer(result);
     }
