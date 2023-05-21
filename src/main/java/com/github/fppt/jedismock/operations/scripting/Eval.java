@@ -13,6 +13,12 @@ import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.jse.CoerceJavaToLua;
 import org.luaj.vm2.lib.jse.JsePlatform;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,8 +31,8 @@ public class Eval extends AbstractRedisOperation {
 
     private static final String SCRIPT_PARAM_ERROR = "Wrong number of arguments for EVAL";
     private static final String SCRIPT_RUNTIME_ERROR = "Error running script (call to function returned nil)";
+    private static final String REDIS_LUA = loadResource();
     private final Globals globals = JsePlatform.standardGlobals();
-
     private final OperationExecutorState state;
 
     public Eval(final RedisBase base, final List<Slice> params, final OperationExecutorState state)
@@ -40,34 +46,26 @@ public class Eval extends AbstractRedisOperation {
         if (params().size() < 2) {
             return Response.error(SCRIPT_PARAM_ERROR);
         }
-        final String script = "local redis = {\n" +
-                "  call = function(...)\n" +
-                "    return _mock:call({...})\n" +
-                "  end,\n" +
-                "  \n" +
-                "  pcall = function(...)\n" +
-                "    return _mock:pcall({...})\n" +
-                "  end,\n" +
-                "  sha1hex = function(x)\n" +
-                "    return _mock:sha1hex(x)\n" +
-                "  end,\n" +
-                "}\n" +
-                params().get(0).toString();
 
-        this.base().addCachedLuaScript(getScriptSHA(params().get(0).toString()), script);
+        final String script = params().get(0).toString();
+
+        this.base().addCachedLuaScript(getScriptSHA(script), script);
 
         int keysNum = Integer.parseInt(params().get(1).toString());
         final List<LuaValue> args = getLuaValues(params().subList(2, params().size()));
 
+        globals.set("redis", globals.load(REDIS_LUA).call());
         globals.set("KEYS", embedLuaListToValue(args.subList(0, keysNum)));
         globals.set("ARGV", embedLuaListToValue(args.subList(keysNum, args.size())));
         globals.set("_mock", CoerceJavaToLua.coerce(new LuaRedisCallback(state)));
-
+        int selected = state.getSelected();
         try {
             final LuaValue result = globals.load(script).call();
             return resolveResult(result);
         } catch (LuaError e) {
             return Response.error(String.format("Error running script: %s", e.getMessage()));
+        } finally {
+            state.changeActiveRedisBase(selected);
         }
     }
 
@@ -115,4 +113,12 @@ public class Eval extends AbstractRedisOperation {
     }
 
 
+    private static String loadResource() {
+        URL filePath = Eval.class.getResource("/redis.lua");
+        try {
+            return new String(Files.readAllBytes(Paths.get(filePath.toURI())), StandardCharsets.UTF_8);
+        } catch (IOException | URISyntaxException e) {
+            throw new IllegalStateException(e);
+        }
+    }
 }
