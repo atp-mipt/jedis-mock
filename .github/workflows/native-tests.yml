@@ -56,17 +56,17 @@ jobs:
         run: chmod +x native_tests/testnative
 
       - name: incr
-        run: testnative unit/type/incr
+        run: ./testnative unit/type/incr
         working-directory: native_tests
 
       - name: hash
-        run: testnative unit/type/hash
+        run: ./testnative unit/type/hash
         working-directory: native_tests
 
       - name: list
-        run: testnative unit/type/list-2 unit/type/list unit/type/list-3
+        run: ./testnative unit/type/list-2 unit/type/list unit/type/list-3
         working-directory: native_tests
 
       - name: set
-        run: testnative unit/type/set
+        run: ./testnative unit/type/set
         working-directory: native_tests
