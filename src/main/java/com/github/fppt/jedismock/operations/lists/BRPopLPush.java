@@ -34,10 +34,10 @@ class BRPopLPush extends RPopLPush {
         long waitEnd = System.nanoTime() + timeoutNanos;
         long waitTimeNanos;
         count = getCount(source);
-
-
         try {
-            while (count == 0L && !isInTransaction && (waitTimeNanos = timeoutNanos == 0 ? 0 : waitEnd - System.nanoTime()) >= 0) {
+            while (count == 0L &&
+                    !isInTransaction &&
+                    (waitTimeNanos = timeoutNanos == 0 ? 0 : waitEnd - System.nanoTime()) >= 0) {
                 lock.wait(waitTimeNanos / 1_000_000, (int) waitTimeNanos % 1_000_000);
                 count = getCount(source);
             }

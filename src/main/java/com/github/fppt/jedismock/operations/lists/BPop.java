@@ -43,7 +43,9 @@ abstract class BPop extends AbstractRedisOperation {
         long waitEnd = System.nanoTime() + timeoutNanos;
         long waitTimeNanos;
         try {
-            while (source == null && !isInTransaction && (waitTimeNanos = timeoutNanos == 0 ? 0 : waitEnd - System.nanoTime()) >= 0) {
+            while (source == null &&
+                    !isInTransaction &&
+                    (waitTimeNanos = timeoutNanos == 0 ? 0 : waitEnd - System.nanoTime()) >= 0) {
                 lock.wait(waitTimeNanos / 1_000_000, (int) waitTimeNanos % 1_000_000);
                 source = getKey(keys, false);
             }
