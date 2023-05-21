@@ -13,12 +13,10 @@ import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.jse.CoerceJavaToLua;
 import org.luaj.vm2.lib.jse.JsePlatform;
 
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
@@ -114,10 +112,10 @@ public class Eval extends AbstractRedisOperation {
 
 
     private static String loadResource() {
-        URL filePath = Eval.class.getResource("/redis.lua");
-        try {
-            return new String(Files.readAllBytes(Paths.get(filePath.toURI())), StandardCharsets.UTF_8);
-        } catch (IOException | URISyntaxException e) {
+        try (InputStream in = Eval.class.getResourceAsStream("/redis.lua");
+             BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
+            return reader.lines().collect(Collectors.joining("\n"));
+        } catch (IOException e) {
             throw new IllegalStateException(e);
         }
     }

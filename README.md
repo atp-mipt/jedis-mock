@@ -90,7 +90,7 @@ try (Jedis jedis = new Jedis(server.getHost(), server.getBindPort())) {
 server.stop();
 ```
 
-WARNING: if you are going to mutate the shared state, synchronize on `state.lock()` first!
+:warning: if you are going to mutate the shared state, synchronize on `state.lock()` first!
 (See how it's done in [`MockExecutor#proceed`](src/main/java/com/github/fppt/jedismock/operations/server/MockExecutor.java#L23)). 
 
 ## Fault tolerance testing
@@ -114,7 +114,7 @@ try (Jedis jedis = new Jedis(server.getHost(),
 
 ## Lua scripting support
 
-JedisMock supports Lua scripting (`EVAL`, `EVALSHA`, `SCRIPT LOAD/EXISTS/FLUSH` commands) via [luaj](https://github.com/luaj/luaj). In order to support these commands, [Jedis](https://github.com/redis/jedis) must be on the classpath as well. It is in the `provided` scope of Maven dependencies for JedisMock in order not to clash with the versions of Jedis you might be using. If you are experiencing "class not found" errors when running `EVAL`, [add Jedis dependency](https://github.com/redis/jedis#getting-started) to your test scope. 
+JedisMock supports Lua scripting (`EVAL`, `EVALSHA`, `SCRIPT LOAD/EXISTS/FLUSH` commands) via [luaj](https://github.com/luaj/luaj).  
 
 ```java
 String script =
@@ -129,6 +129,10 @@ jedis.eval(script, 1, "mylist", "10");
 //Yields first 10 Fibonacci numbers
 jedis.lrange("mylist", 0, -1));        
 ```
+
+:warning: Lua language capabilities are restricted to what is provided by current LuaJ version. Methods provided by `redis` global object are currently restricted to what was available in Redis version 2.6.0 (see [redis.lua](src/main/resources/redis.lua)). 
+
+Feel free to report an issue if you have any problems with Lua scripting in Jedis-Mock.
 
 ## Supported and Missing Operations
 
