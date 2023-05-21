@@ -60,13 +60,16 @@ jobs:
         working-directory: native_tests
 
       - name: hash
+        if: always()
         run: ./testnative unit/type/hash
         working-directory: native_tests
 
       - name: list
+        if: always()
         run: ./testnative unit/type/list-2 unit/type/list unit/type/list-3
         working-directory: native_tests
 
       - name: set
+        if: always()
         run: ./testnative unit/type/set
         working-directory: native_tests
