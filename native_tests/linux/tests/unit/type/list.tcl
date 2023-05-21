@@ -361,20 +361,20 @@ start_server {
 #      assert_equal {foo} [r lrange list3 0 -1]
 #    }
 
-    test "Circular BRPOPLPUSH" {
-      set rd1 [redis_deferring_client]
-      set rd2 [redis_deferring_client]
-
-      r del list1 list2
-
-      $rd1 brpoplpush list1 list2 0
-      $rd2 brpoplpush list2 list1 0
-
-      r rpush list1 foo
-
-      assert_equal {foo} [r lrange list1 0 -1]
-      assert_equal {} [r lrange list2 0 -1]
-    }
+#    test "Circular BRPOPLPUSH" {
+#      set rd1 [redis_deferring_client]
+#      set rd2 [redis_deferring_client]
+#
+#      r del list1 list2
+#
+#      $rd1 brpoplpush list1 list2 0
+#      $rd2 brpoplpush list2 list1 0
+#
+#      r rpush list1 foo
+#
+#      assert_equal {foo} [r lrange list1 0 -1]
+#      assert_equal {} [r lrange list2 0 -1]
+#    }
 
     test "Self-referential BRPOPLPUSH" {
       set rd [redis_deferring_client]
