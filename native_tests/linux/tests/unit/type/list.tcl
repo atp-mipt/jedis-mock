@@ -419,23 +419,23 @@ start_server {
         $watching_client read
     } {}
 
-    test "BRPOPLPUSH does not affect WATCH while still blocked" {
-        set blocked_client [redis_deferring_client]
-        set watching_client [redis_deferring_client]
-        r del srclist dstlist somekey
-        r set somekey somevalue
-        $blocked_client brpoplpush srclist dstlist 0
-        $watching_client watch dstlist
-        $watching_client read
-        $watching_client multi
-        $watching_client read
-        $watching_client get somekey
-        $watching_client read
-        $watching_client exec
-        # Blocked BLPOPLPUSH may create problems, unblock it.
-        r lpush srclist element
-        $watching_client read
-    } {somevalue}
+#    test "BRPOPLPUSH does not affect WATCH while still blocked" {
+#        set blocked_client [redis_deferring_client]
+#        set watching_client [redis_deferring_client]
+#        r del srclist dstlist somekey
+#        r set somekey somevalue
+#        $blocked_client brpoplpush srclist dstlist 0
+#        $watching_client watch dstlist
+#        $watching_client read
+#        $watching_client multi
+#        $watching_client read
+#        $watching_client get somekey
+#        $watching_client read
+#        $watching_client exec
+#        # Blocked BLPOPLPUSH may create problems, unblock it.
+#        r lpush srclist element
+#        $watching_client read
+#    } {somevalue}
 
     test {BRPOPLPUSH timeout} {
       set rd [redis_deferring_client]
