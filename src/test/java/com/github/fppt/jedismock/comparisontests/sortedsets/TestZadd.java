@@ -1,7 +1,6 @@
 package com.github.fppt.jedismock.comparisontests.sortedsets;
 
 import com.github.fppt.jedismock.comparisontests.ComparisonBase;
-import com.github.fppt.jedismock.exception.ArgumentException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
