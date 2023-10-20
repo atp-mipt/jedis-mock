@@ -7,17 +7,14 @@ import com.github.fppt.jedismock.storage.RedisBase;
 import java.util.List;
 
 @RedisCommand("zpopmax")
-public class ZPopMax extends AbstractByScoreOperation {
-    private final ZPopMin zPopMin;
+public class ZPopMax extends ZPop {
 
     ZPopMax(RedisBase base, List<Slice> params) {
-        super(base, params);
-        this.zPopMin = new ZPopMin(base, params());
-        zPopMin.setRev(true);
+        super(base, params, true);
     }
 
     @Override
     protected Slice response() {
-        return zPopMin.response();
+        return new ZPop(base(), params(), true).execute();
     }
 }

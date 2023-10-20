@@ -21,18 +21,22 @@ public class ZIncrBy extends AbstractByScoreOperation {
             throw new ArgumentException("ERR wrong number of arguments for 'zincrby' command");
         }
 
+        return Response.bulkString(Slice.create(String.valueOf(Math.round(getNewScore()))));
+    }
+
+    protected double getNewScore() {
         Slice key = params().get(0);
         String increment = params().get(1).toString();
         Slice member = params().get(2);
         final RMZSet mapDBObj = getZSetFromBaseOrCreateEmpty(key);
         double score = (mapDBObj.getScore(member) == null) ? 0d :
-                                                             mapDBObj.getScore(member);
+                mapDBObj.getScore(member);
 
         double newScore = getSum(score, increment);
 
         mapDBObj.put(member, newScore);
         base().putValue(key, mapDBObj);
-        return Response.doubleValue(newScore);
+        return newScore;
     }
 
     private Double getSum(Double score, String increment) {

@@ -37,7 +37,7 @@ public abstract class AbstractByScoreOperation extends AbstractRedisOperation {
 
             return Double.parseDouble(value);
         } catch (NumberFormatException e) {
-            throw new WrongValueTypeException("*not*float*");
+            throw new WrongValueTypeException("*ERR*not*float*");
 //            throw new WrongValueTypeException("Valid start must be a number or start with '" + EXCLUSIVE_PREFIX + "' or be equal to '"
 //                    + LOWEST_POSSIBLE_SCORE + "'");
         }

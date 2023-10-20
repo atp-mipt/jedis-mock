@@ -182,26 +182,26 @@
 
 ## Sorted Sets
 
-:x: bzpopmax<br>
-:x: bzpopmin<br>
+:heavy_check_mark: bzpopmax<br>
+:heavy_check_mark: bzpopmin<br>
 :heavy_check_mark: zadd<br>
 :heavy_check_mark: zcard<br>
 :heavy_check_mark: zcount<br>
 :x: zdiff<br>
-:x: zdiffstore<br>
-:x: zincrby<br>
+:heavy_check_mark: zdiffstore<br>
+:heavy_check_mark: zincrby<br>
 :x: zinter<br>
 :x: zinterstore<br>
 :x: zlexcount<br>
 :x: zmscore<br>
-:x: zpopmax<br>
-:x: zpopmin<br>
+:heavy_check_mark: zpopmax<br>
+:heavy_check_mark: zpopmin<br>
 :x: zrandmember<br>
 :heavy_check_mark: zrange<br>
 :heavy_check_mark: zrangebylex<br>
 :heavy_check_mark: zrangebyscore<br>
 :x: zrangestore<br>
-:x: zrank<br>
+:heavy_check_mark: zrank<br>
 :heavy_check_mark: zrem<br>
 :x: zremrangebylex<br>
 :x: zremrangebyrank<br>
@@ -209,7 +209,7 @@
 :heavy_check_mark: zrevrange<br>
 :heavy_check_mark: zrevrangebylex<br>
 :heavy_check_mark: zrevrangebyscore<br>
-:x: zrevrank<br>
+:heavy_check_mark: zrevrank<br>
 :x: zscan<br>
 :heavy_check_mark: zscore<br>
 :x: zunion<br>
