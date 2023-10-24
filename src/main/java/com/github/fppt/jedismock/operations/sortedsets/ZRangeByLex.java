@@ -52,7 +52,7 @@ class ZRangeByLex extends AbstractRedisOperation {
         }
     }
 
-    private Slice buildErrorResponse(String param) {
+    protected Slice buildErrorResponse(String param) {
         return Response.error("Valid " + param + " must start with '" + INCLUSIVE_PREFIX + "' or '"
                 + EXCLUSIVE_PREFIX + "' or unbounded");
     }

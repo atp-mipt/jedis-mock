@@ -4,7 +4,6 @@ import com.github.fppt.jedismock.comparisontests.ComparisonBase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
-import redis.clients.jedis.CommandArguments;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.params.ZAddParams;
 import redis.clients.jedis.resps.Tuple;
@@ -15,18 +14,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(ComparisonBase.class)
 public class TestZadd {
-    static class ZaddParamsExt extends ZAddParams {
-        public ZAddParams incr() {
-            addParam("incr");
-            return this;
-        }
-
-        public void addParams(CommandArguments args) {
-            if (this.contains("incr")) {
-                args.add("incr");
-            }
-        }
-    }
 
     @BeforeEach
     public void setUp(Jedis jedis) {
@@ -209,34 +196,18 @@ public class TestZadd {
         assertEquals(200, jedis.zscore(key, "b"));
     }
 
-//    @TestTemplate
-//    public void testZAddIncrLikeIncrBy(Jedis jedis) {
-//
-//        String key = "mykey";
-//        Map<String, Double> members = new HashMap<>();
-//        members.put("x", 10d);
-//        members.put("y", 20d);
-//        members.put("z", 30d);
-//        jedis.zadd(key, members);
-//        jedis.zadd(key, 15, "x", new ZaddParamsExt().incr());
-//
-//        assertEquals(25, jedis.zscore(key, "x"));
-//    }
-
     @TestTemplate
-    public void testZAddIncrMoreArgs(Jedis jedis) {
+    public void testZAddIncrLikeIncrBy(Jedis jedis) {
 
         String key = "mykey";
-        Map<String, Double> members1 = new HashMap<>();
-        members1.put("x", 10d);
-        members1.put("y", 20d);
-        members1.put("z", 30d);
-        jedis.zadd(key, members1);
-        Map<String, Double> members2 = new HashMap<>();
-        members2.put("x", 15d);
-        members2.put("y", 10d);
-        assertThrows(RuntimeException.class,
-                () -> jedis.zadd(key, members2, new ZaddParamsExt().incr()));
+        Map<String, Double> members = new HashMap<>();
+        members.put("x", 10d);
+        members.put("y", 20d);
+        members.put("z", 30d);
+        jedis.zadd(key, members);
+        jedis.zaddIncr(key, 15, "x", new ZAddParams());
+
+        assertEquals(25, jedis.zscore(key, "x"));
     }
 
     @TestTemplate
@@ -262,4 +233,26 @@ public class TestZadd {
         assertEquals(2, jedis.zadd(key, members3, new ZAddParams().ch()));
     }
 
+    @TestTemplate
+    public void testZAddGTXXCH(Jedis jedis) {
+
+        String key = "mykey";
+        Map<String, Double> members1 = new HashMap<>();
+        members1.put("x", 10d);
+        members1.put("y", 20d);
+        members1.put("z", 30d);
+        jedis.zadd(key, members1);
+
+        Map<String, Double> members2 = new HashMap<>();
+        members2.put("foo", 5d);
+        members2.put("x", 11d);
+        members2.put("y", 21d);
+        members2.put("z", 29d);
+        assertEquals(2, jedis.zadd(key, members2, new ZAddParams().gt().xx().ch()));
+
+        assertEquals(3, jedis.zcard(key));
+        assertEquals(11, jedis.zscore(key, "x"));
+        assertEquals(21, jedis.zscore(key, "y"));
+        assertEquals(30, jedis.zscore(key, "z"));
+    }
 }

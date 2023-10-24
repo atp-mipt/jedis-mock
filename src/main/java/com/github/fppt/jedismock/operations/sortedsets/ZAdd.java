@@ -32,20 +32,11 @@ class ZAdd extends AbstractByScoreOperation {
     @Override
     protected Slice response() {
         int index = 1;
-        if (checkXXAndNX(params().get(index))) {
-            index++;
-        }
-        if (checkLTAndGT(params().get(index))) {
-            index++;
-        }
-        if (checkCH(params().get(index))) {
-            index++;
-        }
-        if (checkINCR(params().get(index))) {
-            index++;
+        while (parseParams(params().get(index))){
+           index++;
         }
 
-        if (flagNX && (flagGT || flagLT)) {
+        if (flagNX && (flagGT || flagLT || flagXX)) {
             throw new ArgumentException("ERR syntax error");
         }
 
@@ -62,9 +53,7 @@ class ZAdd extends AbstractByScoreOperation {
         newParams.add(params().get(index));
         newParams.add(params().get(index + 1));
         ZIncrBy zIncrBy = new ZIncrBy(base(), newParams);
-
-        double result = zIncrBy.getNewScore();
-        return Response.doubleValue(result);
+        return zIncrBy.response();
     }
 
     private Slice adding(int index) {
@@ -115,44 +104,33 @@ class ZAdd extends AbstractByScoreOperation {
                         Response.integer(countAdd);
     }
 
-    private boolean checkCH(Slice arg) {
+    private boolean parseParams(Slice arg) {
+        boolean result = false;
         if (IS_CH.equalsIgnoreCase(arg.toString())) {
             flagCH = true;
-            return true;
+            result = true;
         }
-        return false;
-    }
-
-    private boolean checkINCR(Slice arg) {
         if (IS_INCR.equalsIgnoreCase(arg.toString())) {
             flagIncr = true;
-            return true;
+            result = true;
         }
-        return false;
-    }
-
-    private boolean checkLTAndGT(Slice arg) {
         if (IS_LT.equalsIgnoreCase(arg.toString())) {
             flagLT = true;
-            return true;
+            result = true;
         }
         if (IS_GT.equalsIgnoreCase(arg.toString())) {
             flagGT = true;
-            return true;
+            result = true;
         }
-        return false;
-    }
-
-    private boolean checkXXAndNX(Slice arg) {
         if (IS_XX.equalsIgnoreCase(arg.toString())) {
             flagXX = true;
-            return true;
+            result = true;
         }
         if (IS_NX.equalsIgnoreCase(arg.toString())) {
             flagNX = true;
-            return true;
+            result = true;
         }
-        return false;
+        return result;
     }
 
 }
