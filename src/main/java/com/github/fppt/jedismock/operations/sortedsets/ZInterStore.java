@@ -7,10 +7,10 @@ import com.github.fppt.jedismock.storage.RedisBase;
 
 import java.util.List;
 
-@RedisCommand("zdiffstore")
-class ZDiffStore extends AbstractZDiff {
+@RedisCommand("zinterstore")
+class ZInterStore extends AbstractZInter {
 
-    ZDiffStore(RedisBase base, List<Slice> params) {
+    ZInterStore(RedisBase base, List<Slice> params) {
         super(base, params);
     }
 
@@ -18,5 +18,4 @@ class ZDiffStore extends AbstractZDiff {
     protected Slice response() {
         return Response.integer(getResultSize());
     }
-
 }
