@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class LinkedMapIteratorTests {
     @Test
-    void createSimpleIterator() {
+    void createSimpleIterator() throws WrongKeyException {
         LinkedMap<Integer, Integer> map = new LinkedMap<>();
 
         map.append(1, 2);
@@ -31,7 +31,7 @@ public class LinkedMapIteratorTests {
     }
 
     @Test
-    void createComplexIterator() {
+    void createComplexIterator() throws WrongKeyException {
         LinkedMap<Integer, Integer> map = new LinkedMap<>();
 
         map.append(1, 2);
@@ -81,7 +81,7 @@ public class LinkedMapIteratorTests {
     }
 
     @Test
-    void removeTest() {
+    void removeTest() throws WrongKeyException {
         LinkedMap<Integer, Integer> map = new LinkedMap<>();
 
         map.append(1, 2);
@@ -111,7 +111,7 @@ public class LinkedMapIteratorTests {
     }
 
     @Test
-    void removeHeadTest() {
+    void removeHeadTest() throws WrongKeyException {
         LinkedMap<Integer, Integer> map = new LinkedMap<>();
 
         map.append(1, 2);

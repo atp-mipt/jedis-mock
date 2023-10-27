@@ -7,10 +7,10 @@ import java.util.NoSuchElementException;
 /**
  * Iterator for {@link com.github.fppt.jedismock.linkedMap.LinkedMap LinkedMap}
  *
- * @param <K> keys type
+ * @param <K> keys type, must implement {@link java.lang.Comparable Comparable}
  * @param <V> values type
  */
-public class LinkedMapIterator<K, V> implements Iterator<Map.Entry<K, V>> {
+public class LinkedMapIterator<K extends Comparable<K>, V> implements Iterator<Map.Entry<K, V>> {
     /**
      * Iterator takes place before this key. If is {@code null} then iterator takes place before the head of the map.
      */
