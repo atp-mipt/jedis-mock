@@ -7,10 +7,10 @@ import java.util.Map;
  * An associative array with O(1) get, delete operations.<br>
  * Can be interpreted as a sequence of nodes that allows to iterate map.
  *
- * @param <K> keys type
+ * @param <K> keys type, must implement {@link java.lang.Comparable Comparable}
  * @param <V> values type
  */
-public class LinkedMap<K, V> implements Iterable<Map.Entry<K, V>> {
+public class LinkedMap<K extends Comparable<K>, V> implements Iterable<Map.Entry<K, V>> {
     /**
      * A node that replaces value in {@code HashMap}. Contains additional data of next and previous nodes.
      */
@@ -50,14 +50,19 @@ public class LinkedMap<K, V> implements Iterable<Map.Entry<K, V>> {
      * @param key the key with which the specified value is to be associated
      * @param value the value to be associated with the specified key
      */
-    public void append(K key, V value) { // TODO exception when exists??
-        map.put(key, new LinkedMapNode(value).setPrev(tail));
-
+    public void append(K key, V value) throws WrongKeyException {
         if (size == 0) {
             head = key; // the map is empty, so the first appended element becomes the head
         } else {
+            if (tail.compareTo(key) >= 0) {
+                throw new WrongKeyException("Key " + key + " is less than " + tail);
+            }
+
             map.get(tail).setNext(key); // the map is not empty, so we have to update the reference
         }
+
+        map.put(key, new LinkedMapNode(value).setPrev(tail));
+
 
         ++size;
         tail = key;
