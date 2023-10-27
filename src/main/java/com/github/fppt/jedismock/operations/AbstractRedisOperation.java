@@ -1,6 +1,7 @@
 package com.github.fppt.jedismock.operations;
 
 import com.github.fppt.jedismock.datastructures.RMList;
+import com.github.fppt.jedismock.datastructures.RMStream;
 import com.github.fppt.jedismock.datastructures.RMZSet;
 import com.github.fppt.jedismock.datastructures.RMSet;
 import com.github.fppt.jedismock.datastructures.Slice;
@@ -49,6 +50,11 @@ public abstract class AbstractRedisOperation implements RedisOperation {
         return data;
     }
 
+    public RMStream getStreamFromBaseOrCreateEmpty(Slice key) {
+        RMStream data = base().getStream(key);
+        return data == null ? new RMStream() : data;
+    }
+
     public RMZSet getZSetFromBaseOrCreateEmpty(Slice key) {
         RMZSet data = base().getZSet(key);
         if(data == null) {
@@ -63,7 +69,7 @@ public abstract class AbstractRedisOperation implements RedisOperation {
             doOptionalWork();
             return response();
         } catch (IndexOutOfBoundsException e){
-            throw new IllegalArgumentException("Recieved wrong number of arguments when executing command [" + getClass().getSimpleName() + "]", e);
+            throw new IllegalArgumentException("Received wrong number of arguments when executing command [" + getClass().getSimpleName() + "]", e);
         }
     }
 }
