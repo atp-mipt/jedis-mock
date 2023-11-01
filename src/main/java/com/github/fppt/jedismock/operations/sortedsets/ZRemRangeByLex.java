@@ -1,15 +1,15 @@
 package com.github.fppt.jedismock.operations.sortedsets;
 
-import com.github.fppt.jedismock.operations.RedisCommand;
 import com.github.fppt.jedismock.datastructures.Slice;
+import com.github.fppt.jedismock.operations.RedisCommand;
 import com.github.fppt.jedismock.storage.RedisBase;
 
 import java.util.List;
 
-@RedisCommand("zremrangebyscore")
-public class ZRemRangeByScore extends AbstractZRangeByScore {
+@RedisCommand("zremrangebylex")
+class ZRemRangeByLex extends AbstractZRangeByLex {
 
-    ZRemRangeByScore(RedisBase base, List<Slice> params) {
+    ZRemRangeByLex(RedisBase base, List<Slice> params) {
         super(base, params);
     }
 
@@ -22,4 +22,6 @@ public class ZRemRangeByScore extends AbstractZRangeByScore {
         final Slice end = params().get(2);
         return remRangeFromKey(getRange(start, end));
     }
+
+
 }

@@ -40,7 +40,7 @@ class ZPop extends AbstractByScoreOperation {
         for (int i = 0; i < count && !mapDBObj.isEmpty(); i++) {
             ZSetEntry entry = mapDBObj.entries(isRev).first();
             result.addAll(Stream.of(entry.getValue(),
-                            Slice.create(Integer.toString((int) Math.round(entry.getScore()))))
+                            Slice.create(String.format("%.0f", entry.getScore())))
                     .map(Response::bulkString)
                     .collect(Collectors.toList()));
             mapDBObj.remove(entry.getValue());

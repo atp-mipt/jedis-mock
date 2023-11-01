@@ -1,27 +1,35 @@
 package com.github.fppt.jedismock.operations.sortedsets;
 
 import com.github.fppt.jedismock.datastructures.Slice;
-import com.github.fppt.jedismock.operations.AbstractRedisOperation;
+import com.github.fppt.jedismock.datastructures.ZSetEntry;
 import com.github.fppt.jedismock.operations.RedisCommand;
+import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.storage.RedisBase;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NavigableSet;
 
 @RedisCommand("zrevrange")
-class ZRevRange extends AbstractRedisOperation {
-    private static final String IS_REV = "REV";
-    private final ZRange zRange;
+class ZRevRange extends AbstractZRangeByIndex {
 
     ZRevRange(RedisBase base, List<Slice> params) {
         super(base, params);
-        List<Slice> updatedParams = new ArrayList<>(params);
-        updatedParams.add(Slice.create(IS_REV));
-        this.zRange = new ZRange(base, updatedParams);
     }
 
     @Override
     protected Slice response() {
-        return zRange.response();
+        key = params().get(0);
+        mapDBObj = getZSetFromBaseOrCreateEmpty(key);
+        isRev = true;
+        if (checkWrongIndex()) {
+            return Response.array(new ArrayList<>());
+        }
+
+        NavigableSet<ZSetEntry> entries = getRange(Slice.create(String.valueOf(endIndex)), Slice.create(String.valueOf(startIndex)));
+        if (entries.isEmpty()) {
+            return Response.array(new ArrayList<>());
+        }
+        return getSliceFromRange(entries);
     }
 }

@@ -63,23 +63,4 @@ public class TestZRemRangeByRank {
         assertEquals(5, jedis.zremrangeByRank(ZSET_KEY, 0, 4));
         assertFalse(jedis.exists(ZSET_KEY));
     }
-//
-//    @TestTemplate
-//    public void testZRemRangeByRank(Jedis jedis) {
-//        assertEquals(3, jedis.zremrangeByRank(ZSET_KEY, 1, 3));
-//        assertEquals(Arrays.asList("a", "e"), jedis.zrange(ZSET_KEY, 0, -1));
-//    }
-//
-//    @TestTemplate
-//    public void testZRemRangeByRank(Jedis jedis) {
-//        assertEquals(3, jedis.zremrangeByRank(ZSET_KEY, 1, 3));
-//        assertEquals(Arrays.asList("a", "e"), jedis.zrange(ZSET_KEY, 0, -1));
-//    }
-//
-//    @TestTemplate
-//    public void testZRemRangeByRank(Jedis jedis) {
-//        assertEquals(3, jedis.zremrangeByRank(ZSET_KEY, 1, 3));
-//        assertEquals(Arrays.asList("a", "e"), jedis.zrange(ZSET_KEY, 0, -1));
-//    }
-
 }
