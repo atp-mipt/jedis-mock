@@ -28,6 +28,6 @@ class ZScore extends AbstractRedisOperation {
 
         Double score = mapDBObj.getScore(val);
 
-        return score == null ? Response.NULL : Response.bulkString(Slice.create(String.format("%f", score)));
+        return score == null ? Response.NULL : Response.bulkString(Slice.create(String.format("%.0f", score)));
     }
 }

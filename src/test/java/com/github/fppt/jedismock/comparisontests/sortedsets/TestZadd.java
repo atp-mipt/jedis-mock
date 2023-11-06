@@ -15,6 +15,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(ComparisonBase.class)
 public class TestZadd {
 
+    private static final String ZSET_KEY = "myzset";
+
     @BeforeEach
     public void setUp(Jedis jedis) {
         jedis.flushAll();
@@ -22,15 +24,14 @@ public class TestZadd {
 
     @TestTemplate
     public void zaddAddsKey(Jedis jedis) {
-        String key = "mykey";
         double score = 10;
         String value = "myvalue";
 
-        long result = jedis.zadd(key, score, value);
+        long result = jedis.zadd(ZSET_KEY, score, value);
 
         assertEquals(1L, result);
 
-        List<String> results = jedis.zrange(key, 0, -1);
+        List<String> results = jedis.zrange(ZSET_KEY, 0, -1);
 
         assertEquals(1, results.size());
         assertEquals(value, results.get(0));
@@ -38,16 +39,15 @@ public class TestZadd {
 
     @TestTemplate
     public void zaddAddsKeys(Jedis jedis) {
-        String key = "mykey";
         Map<String, Double> members = new HashMap<>();
         members.put("myvalue1", 10d);
         members.put("myvalue2", 20d);
 
-        long result = jedis.zadd(key, members);
+        long result = jedis.zadd(ZSET_KEY, members);
 
         assertEquals(2L, result);
 
-        List<String> results = jedis.zrange(key, 0, -1);
+        List<String> results = jedis.zrange(ZSET_KEY, 0, -1);
 
         assertEquals(2, results.size());
         assertEquals("myvalue1", results.get(0));
@@ -64,28 +64,24 @@ public class TestZadd {
 
     @TestTemplate
     public void testBasicZAddAndScoreUpdate(Jedis jedis) {
-        String key = "mykey";
+        jedis.zadd(ZSET_KEY, 10d, "x");
+        jedis.zadd(ZSET_KEY, 20d, "y");
+        jedis.zadd(ZSET_KEY, 30d, "z");
+        assertEquals(Arrays.asList("x", "y", "z"), jedis.zrange(ZSET_KEY, 0, -1));
 
-        jedis.zadd(key, 10d, "x");
-        jedis.zadd(key, 20d, "y");
-        jedis.zadd(key, 30d, "z");
-        assertEquals(Arrays.asList("x", "y", "z"), jedis.zrange(key, 0, -1));
-
-        jedis.zadd(key, 1d, "y");
-        assertEquals(Arrays.asList("y", "x", "z"), jedis.zrange(key, 0, -1));
+        jedis.zadd(ZSET_KEY, 1d, "y");
+        assertEquals(Arrays.asList("y", "x", "z"), jedis.zrange(ZSET_KEY, 0, -1));
     }
 
     @TestTemplate
     public void testZAddKeys(Jedis jedis) {
-
-        String key = "mykey";
         Map<String, Double> members = new HashMap<>();
         members.put("a", 10d);
         members.put("b", 20d);
         members.put("c", 30d);
 
-        long result = jedis.zadd(key, members);
-        List<Tuple> results = jedis.zrangeWithScores(key, 0, -1);
+        long result = jedis.zadd(ZSET_KEY, members);
+        List<Tuple> results = jedis.zrangeWithScores(ZSET_KEY, 0, -1);
 
         assertEquals(result, results.size());
         assertEquals(new Tuple("a", 10.0), results.get(0));
@@ -95,164 +91,170 @@ public class TestZadd {
 
     @TestTemplate
     public void testZAddXXWithoutKey(Jedis jedis) {
-        String key = "mykey";
-
-        long result = jedis.zadd(key, 10, "x", new ZAddParams().xx());
+        long result = jedis.zadd(ZSET_KEY, 10, "x", new ZAddParams().xx());
 
         assertEquals(0, result);
-        assertEquals("none", jedis.type(key));
+        assertEquals("none", jedis.type(ZSET_KEY));
     }
 
     @TestTemplate
     public void testZAddXXToExistKey(Jedis jedis) {
-        String key = "mykey";
-
-        jedis.zadd(key, 10, "x");
-        long result = jedis.zadd(key, 20, "y", new ZAddParams().xx());
+        jedis.zadd(ZSET_KEY, 10, "x");
+        long result = jedis.zadd(ZSET_KEY, 20, "y", new ZAddParams().xx());
 
         assertEquals(0, result);
-        assertEquals(1, jedis.zcard(key));
+        assertEquals(1, jedis.zcard(ZSET_KEY));
     }
 
     @TestTemplate
     public void testZAddGetNumberAddedElements(Jedis jedis) {
-        String key = "mykey";
-
-        jedis.zadd(key, 10, "x");
+        jedis.zadd(ZSET_KEY, 10, "x");
         Map<String, Double> members = new HashMap<>();
         members.put("x", 10d);
         members.put("y", 20d);
         members.put("z", 30d);
-        long result = jedis.zadd(key, members);
+        long result = jedis.zadd(ZSET_KEY, members);
 
         assertEquals(2, result);
     }
 
     @TestTemplate
     public void testZAddXXUpdateExistingScores(Jedis jedis) {
-
-        String key = "mykey";
         Map<String, Double> members1 = new HashMap<>();
         members1.put("x", 10d);
         members1.put("y", 20d);
         members1.put("z", 30d);
-        jedis.zadd(key, members1);
+        jedis.zadd(ZSET_KEY, members1);
 
         Map<String, Double> members2 = new HashMap<>();
         members2.put("foo", 5d);
         members2.put("x", 11d);
         members2.put("y", 21d);
         members2.put("zap", 40d);
-        jedis.zadd(key, members2, new ZAddParams().xx());
+        jedis.zadd(ZSET_KEY, members2, new ZAddParams().xx());
 
-        assertEquals(3, jedis.zcard(key));
-        assertEquals(11, jedis.zscore(key, "x"));
-        assertEquals(21, jedis.zscore(key, "y"));
+        assertEquals(3, jedis.zcard(ZSET_KEY));
+        assertEquals(11, jedis.zscore(ZSET_KEY, "x"));
+        assertEquals(21, jedis.zscore(ZSET_KEY, "y"));
     }
 
     @TestTemplate
     public void testZAddXXandNX(Jedis jedis) {
-
-        String key = "mykey";
         assertThrows(RuntimeException.class,
-                () -> jedis.zadd(key, 10, "x", new ZAddParams().xx().nx()));
+                () -> jedis.zadd(ZSET_KEY, 10, "x", new ZAddParams().xx().nx()));
     }
 
     @TestTemplate
     public void testZAddNXWithNonExistingKey(Jedis jedis) {
-        String key = "mykey";
-
         Map<String, Double> members = new HashMap<>();
         members.put("x", 10d);
         members.put("y", 20d);
         members.put("z", 30d);
 
-        jedis.zadd(key, members, new ZAddParams().nx());
+        jedis.zadd(ZSET_KEY, members, new ZAddParams().nx());
 
-        assertEquals(3, jedis.zcard(key));
+        assertEquals(3, jedis.zcard(ZSET_KEY));
     }
 
     @TestTemplate
     public void testZAddNXOnlyAddNewElements(Jedis jedis) {
-
-        String key = "mykey";
         Map<String, Double> members1 = new HashMap<>();
         members1.put("x", 10d);
         members1.put("y", 20d);
         members1.put("z", 30d);
-        jedis.zadd(key, members1);
+        jedis.zadd(ZSET_KEY, members1);
         Map<String, Double> members2 = new HashMap<>();
         members2.put("x", 11d);
         members2.put("y", 21d);
         members2.put("a", 100d);
         members2.put("b", 200d);
 
-        long result = jedis.zadd(key, members2, new ZAddParams().nx());
+        long result = jedis.zadd(ZSET_KEY, members2, new ZAddParams().nx());
 
         assertEquals(2, result);
-        assertEquals(10, jedis.zscore(key, "x"));
-        assertEquals(20, jedis.zscore(key, "y"));
-        assertEquals(100, jedis.zscore(key, "a"));
-        assertEquals(200, jedis.zscore(key, "b"));
+        assertEquals(10, jedis.zscore(ZSET_KEY, "x"));
+        assertEquals(20, jedis.zscore(ZSET_KEY, "y"));
+        assertEquals(100, jedis.zscore(ZSET_KEY, "a"));
+        assertEquals(200, jedis.zscore(ZSET_KEY, "b"));
     }
 
     @TestTemplate
     public void testZAddIncrLikeIncrBy(Jedis jedis) {
-
-        String key = "mykey";
         Map<String, Double> members = new HashMap<>();
         members.put("x", 10d);
         members.put("y", 20d);
         members.put("z", 30d);
-        jedis.zadd(key, members);
-        jedis.zaddIncr(key, 15, "x", new ZAddParams());
+        jedis.zadd(ZSET_KEY, members);
+        jedis.zaddIncr(ZSET_KEY, 15, "x", new ZAddParams());
 
-        assertEquals(25, jedis.zscore(key, "x"));
+        assertEquals(25, jedis.zscore(ZSET_KEY, "x"));
     }
 
     @TestTemplate
     public void testZAddCHGetNumberChangedElements(Jedis jedis) {
-
-        String key = "mykey";
         Map<String, Double> members1 = new HashMap<>();
         members1.put("x", 10d);
         members1.put("y", 20d);
         members1.put("z", 30d);
-        jedis.zadd(key, members1);
+        jedis.zadd(ZSET_KEY, members1);
 
         Map<String, Double> members2 = new HashMap<>();
         members2.put("x", 11d);
         members2.put("y", 21d);
         members2.put("z", 30d);
-        assertEquals(0, jedis.zadd(key, members2));
+        assertEquals(0, jedis.zadd(ZSET_KEY, members2));
 
         Map<String, Double> members3 = new HashMap<>();
         members3.put("x", 12d);
         members3.put("y", 22d);
         members3.put("z", 30d);
-        assertEquals(2, jedis.zadd(key, members3, new ZAddParams().ch()));
+        assertEquals(2, jedis.zadd(ZSET_KEY, members3, new ZAddParams().ch()));
     }
 
     @TestTemplate
     public void testZAddGTXXCH(Jedis jedis) {
-
-        String key = "mykey";
         Map<String, Double> members1 = new HashMap<>();
         members1.put("x", 10d);
         members1.put("y", 20d);
         members1.put("z", 30d);
-        jedis.zadd(key, members1);
+        jedis.zadd(ZSET_KEY, members1);
 
         Map<String, Double> members2 = new HashMap<>();
         members2.put("foo", 5d);
         members2.put("x", 11d);
         members2.put("y", 21d);
         members2.put("z", 29d);
-        assertEquals(2, jedis.zadd(key, members2, new ZAddParams().gt().xx().ch()));
+        assertEquals(2, jedis.zadd(ZSET_KEY, members2, new ZAddParams().gt().xx().ch()));
 
-        assertEquals(3, jedis.zcard(key));
-        assertEquals(11, jedis.zscore(key, "x"));
-        assertEquals(21, jedis.zscore(key, "y"));
-        assertEquals(30, jedis.zscore(key, "z"));
+        assertEquals(3, jedis.zcard(ZSET_KEY));
+        assertEquals(11, jedis.zscore(ZSET_KEY, "x"));
+        assertEquals(21, jedis.zscore(ZSET_KEY, "y"));
+        assertEquals(30, jedis.zscore(ZSET_KEY, "z"));
     }
+
+    @TestTemplate
+    public void testZAddIncrLTIfScoreNotUpdate(Jedis jedis) {
+        jedis.zadd(ZSET_KEY, 28, "x");
+
+        assertNull(jedis.zaddIncr(ZSET_KEY, 1, "x", new ZAddParams().lt()));
+        assertEquals(28, jedis.zscore(ZSET_KEY, "x"));
+    }
+
+    @TestTemplate
+    public void testZAddIncrGTIfScoreNotUpdate(Jedis jedis) {
+        jedis.zadd(ZSET_KEY, 28, "x");
+
+        assertNull(jedis.zaddIncr(ZSET_KEY, -1, "x", new ZAddParams().gt()));
+        assertEquals(28, jedis.zscore(ZSET_KEY, "x"));
+    }
+
+//    @TestTemplate
+//    public void testZAddMissingArg(Jedis jedis) {
+//        Map<String, Double> members1 = new HashMap<>();
+//        members1.put("x", 10d);
+//        members1.put("y", 20d);
+//        members1.put("z", 30d);
+//        members1.put("", 40d);
+//        assertThrows(RuntimeException.class, () -> jedis.zadd(ZSET_KEY, members1));
+//    }
 }

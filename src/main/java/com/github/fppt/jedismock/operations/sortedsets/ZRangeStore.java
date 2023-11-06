@@ -28,32 +28,32 @@ class ZRangeStore extends AbstractZRangeByIndex {
             ZRangeByScore zRangeByScore = new ZRangeByScore(base(), params());
             zRangeByScore.key = key;
             zRangeByScore.mapDBObj = mapDBObj;
-            return saveToNewKey(keyDest, zRangeByScore.getRange(params().get(1), params().get(2)));
+            return saveToNewKey(keyDest, zRangeByScore.getRange(getStartBound(params().get(1)), getEndBound(params().get(2))));
         }
         if (isByScore) {
             ZRevRangeByScore zRevRangeByScore = new ZRevRangeByScore(base(), params());
             zRevRangeByScore.key = key;
             zRevRangeByScore.mapDBObj = mapDBObj;
-            return saveToNewKey(keyDest, zRevRangeByScore.getRange(params().get(1), params().get(2)));
+            return saveToNewKey(keyDest, zRevRangeByScore.getRange(getStartBound(params().get(1)), getEndBound(params().get(2))));
         }
         if (isByLex && !isRev) {
             ZRangeByLex zRangeByLex = new ZRangeByLex(base(), params());
             zRangeByLex.key = key;
             zRangeByLex.mapDBObj = mapDBObj;
-            return saveToNewKey(keyDest, zRangeByLex.getRange(params().get(1), params().get(2)));
+            return saveToNewKey(keyDest, zRangeByLex.getRange(getStartBound(params().get(1)), getEndBound(params().get(2))));
         }
         if (isByLex) {
             ZRevRangeByLex zRevRangeByLex = new ZRevRangeByLex(base(), params());
             zRevRangeByLex.key = key;
             zRevRangeByLex.mapDBObj = mapDBObj;
-            return saveToNewKey(keyDest, zRevRangeByLex.getRange(params().get(1), params().get(2)));
+            return saveToNewKey(keyDest, zRevRangeByLex.getRange(getStartBound(params().get(1)), getEndBound(params().get(2))));
         }
 
         if (checkWrongIndex()) {
             return Response.integer(0);
         }
 
-        NavigableSet<ZSetEntry> entries = getRange(Slice.create(String.valueOf(startIndex)), Slice.create(String.valueOf(endIndex)));
+        NavigableSet<ZSetEntry> entries = getRange(getStartBound(Slice.create(String.valueOf(startIndex))), getStartBound(Slice.create(String.valueOf(endIndex))));
         if (entries.isEmpty()) {
             return Response.integer(0);
         }

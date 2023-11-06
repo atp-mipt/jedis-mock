@@ -39,23 +39,4 @@ public class ZIncrBy extends AbstractByScoreOperation {
         return newScore;
     }
 
-    private Double getSum(Double score, String increment) {
-        if ("+inf".equalsIgnoreCase(increment)) {
-            if (score == Double.NEGATIVE_INFINITY) {
-                throw new ArgumentException("ERR resulting score is not a number (NaN)");
-            } else {
-                return Double.POSITIVE_INFINITY;
-            }
-        } else if ("-inf".equalsIgnoreCase(increment)) {
-            if (score == Double.POSITIVE_INFINITY) {
-                throw new ArgumentException("ERR resulting score is not a number (NaN)");
-            } else {
-                return Double.NEGATIVE_INFINITY;
-            }
-        } else if (score.isInfinite()) {
-            return score;
-        } else {
-            return score + toDouble(increment);
-        }
-    }
 }

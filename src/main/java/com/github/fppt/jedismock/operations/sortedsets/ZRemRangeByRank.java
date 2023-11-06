@@ -23,7 +23,7 @@ public class ZRemRangeByRank extends AbstractZRangeByIndex {
             return Response.integer(0);
         }
 
-        return remRangeFromKey(getRange(Slice.create(String.valueOf(startIndex)), Slice.create(String.valueOf(endIndex))));
+        return remRangeFromKey(getRange(getStartBound(Slice.create(String.valueOf(startIndex))), getStartBound(Slice.create(String.valueOf(endIndex)))));
     }
 
 }

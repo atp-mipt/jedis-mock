@@ -280,4 +280,10 @@ public class TestZRangeByScore {
         assertEquals(Collections.emptyList(), jedis.zrangeByScore(ZSET_KEY, "2.4", "(2.6"));
         assertEquals(Collections.emptyList(), jedis.zrangeByScore(ZSET_KEY, "(2.4", "(2.6"));
     }
+
+    @TestTemplate
+    void testZRangeByScoreNonValueMin(Jedis jedis) {
+        assertThrows(RuntimeException.class,
+                () -> jedis.zrangeByScore("fooz", "str", "2.6"));
+    }
 }

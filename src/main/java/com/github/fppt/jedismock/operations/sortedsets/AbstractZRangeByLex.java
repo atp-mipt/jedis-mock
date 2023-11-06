@@ -55,7 +55,7 @@ abstract class AbstractZRangeByLex extends AbstractZRange {
     }
 
     protected Slice buildErrorResponse(String param) {
-        return Response.error("Valid " + param + " must start with '" + INCLUSIVE_PREFIX + "' or '"
+        return Response.error("*ERR*not*string*: Valid " + param + " must start with '" + INCLUSIVE_PREFIX + "' or '"
                 + EXCLUSIVE_PREFIX + "' or unbounded");
     }
 

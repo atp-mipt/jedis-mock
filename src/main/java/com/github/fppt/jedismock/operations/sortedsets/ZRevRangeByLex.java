@@ -27,6 +27,6 @@ class ZRevRangeByLex extends AbstractZRangeByLex {
         if (invalidateEnd(end.toString())) {
             return buildErrorResponse("end");
         }
-        return getSliceFromRange(getRange(start, end));
+        return getSliceFromRange(getRange(getStartBound(start), getEndBound(end)));
     }
 }

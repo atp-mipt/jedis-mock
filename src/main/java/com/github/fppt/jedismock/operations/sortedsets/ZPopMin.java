@@ -2,6 +2,7 @@ package com.github.fppt.jedismock.operations.sortedsets;
 
 import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.operations.RedisCommand;
+import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.storage.RedisBase;
 
 import java.util.List;
@@ -10,12 +11,12 @@ import java.util.List;
 public class ZPopMin extends ZPop {
 
     ZPopMin(RedisBase base, List<Slice> params) {
-        super(base, params,false);
+        super(base, params, false);
     }
 
     @Override
     protected Slice response() {
-        return new ZPop(base(), params(), false).execute();
+        return Response.array(pop());
     }
 
 }

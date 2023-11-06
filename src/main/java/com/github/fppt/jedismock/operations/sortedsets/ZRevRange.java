@@ -26,7 +26,7 @@ class ZRevRange extends AbstractZRangeByIndex {
             return Response.array(new ArrayList<>());
         }
 
-        NavigableSet<ZSetEntry> entries = getRange(Slice.create(String.valueOf(endIndex)), Slice.create(String.valueOf(startIndex)));
+        NavigableSet<ZSetEntry> entries = getRange(getStartBound(Slice.create(String.valueOf(endIndex))), getEndBound(Slice.create(String.valueOf(startIndex))));
         if (entries.isEmpty()) {
             return Response.array(new ArrayList<>());
         }
