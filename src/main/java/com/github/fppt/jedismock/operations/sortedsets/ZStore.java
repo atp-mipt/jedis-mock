@@ -3,6 +3,7 @@ package com.github.fppt.jedismock.operations.sortedsets;
 import com.github.fppt.jedismock.datastructures.RMZSet;
 import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.datastructures.ZSetEntry;
+import com.github.fppt.jedismock.exception.ArgumentException;
 import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.storage.RedisBase;
 
@@ -12,12 +13,17 @@ import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.github.fppt.jedismock.Utils.convertToLong;
+
 abstract class ZStore extends AbstractByScoreOperation {
 
     protected static final String IS_WEIGHTS = "WEIGHTS";
     protected static final String IS_AGGREGATE = "AGGREGATE";
     protected static final String IS_WITHSCORES = "WITHSCORES";
+    protected static final String IS_LIMIT = "LIMIT";
 
+    protected boolean isLimit = false;
+    protected long limit = 0;
     protected int startKeysIndex = 0;
     protected ArrayList<Double> weights;
 
@@ -91,6 +97,14 @@ abstract class ZStore extends AbstractByScoreOperation {
        }
        if ((params().size() > curIndex) && (IS_WITHSCORES.equalsIgnoreCase(params().get(curIndex).toString()))) {
            withScores = true;
+           curIndex++;
+       }
+       if ((params().size() > curIndex) && (IS_LIMIT.equalsIgnoreCase(params().get(curIndex).toString()))) {
+           isLimit = true;
+           limit = convertToLong(params().get(++curIndex).toString());
+           if (limit < 0) {
+               throw new ArgumentException("ERR LIMIT* Negative limit");
+           }
        }
    }
 

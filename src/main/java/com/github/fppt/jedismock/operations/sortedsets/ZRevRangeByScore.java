@@ -21,6 +21,6 @@ public class ZRevRangeByScore extends AbstractZRangeByScore {
         final Slice start = params().get(2);
         final Slice end = params().get(1);
         isRev = true;
-        return getSliceFromRange(getRange(start, end));
+        return getSliceFromRange(getRange(getStartBound(start), getEndBound(end)));
     }
 }

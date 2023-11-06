@@ -29,7 +29,7 @@ class ZLexCount extends AbstractZRangeByLex {
             return buildErrorResponse("end");
         }
 
-        return Response.integer(getRange(start, end).size());
+        return Response.integer(getRange(getStartBound(start), getEndBound(end)).size());
     }
 
     private boolean notValidate(String forValidate) {

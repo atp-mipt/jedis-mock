@@ -47,13 +47,13 @@ abstract class AbstractZRange extends AbstractByScoreOperation {
     abstract protected ZSetEntryBound getStartBound(Slice start);
     abstract protected ZSetEntryBound getEndBound(Slice end);
 
-    protected NavigableSet<ZSetEntry> getRange(Slice start, Slice end) {
+    protected NavigableSet<ZSetEntry> getRange(ZSetEntryBound start, ZSetEntryBound end) {
         if (mapDBObj.isEmpty()) {
             return emptyNavigableSet();
         }
 
         NavigableSet<ZSetEntry> subset =
-                mapDBObj.subset(getStartBound(start), getEndBound(end));
+                mapDBObj.subset(start, end);
         if (isRev) {
             subset = subset.descendingSet();
         }

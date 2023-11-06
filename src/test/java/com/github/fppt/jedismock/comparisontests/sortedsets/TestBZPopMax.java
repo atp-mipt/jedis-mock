@@ -50,12 +50,12 @@ public class TestBZPopMax {
     @TestTemplate
     public void testBZPopMaxFromEmptySortedSetAndTimeOut(Jedis jedis) {
         long timeout = 1;
-        long startTime = System.currentTimeMillis();
+        long startTime = System.nanoTime();
         assertThrows(NullPointerException.class, () ->
                 jedis.bzpopmax(timeout, ZSET_KEY_2, ZSET_KEY_1, "aaa")
         );
-        long finishTime = System.currentTimeMillis();
-        assertTrue(finishTime - startTime >= timeout * 1000);
+        long finishTime = System.nanoTime();
+        assertTrue(finishTime - startTime >= timeout * 1_000_000_000);
     }
 
 }

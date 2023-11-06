@@ -47,7 +47,7 @@ class ZRange extends AbstractZRangeByIndex {
             return Response.array(new ArrayList<>());
         }
 
-        NavigableSet<ZSetEntry> entries = getRange(Slice.create(String.valueOf(startIndex)), Slice.create(String.valueOf(endIndex)));
+        NavigableSet<ZSetEntry> entries = getRange(getStartBound(Slice.create(String.valueOf(startIndex))), getEndBound(Slice.create(String.valueOf(endIndex))));
         if (entries.isEmpty()) {
             return Response.array(new ArrayList<>());
         }

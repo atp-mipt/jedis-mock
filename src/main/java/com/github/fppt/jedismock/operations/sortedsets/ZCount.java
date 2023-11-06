@@ -21,7 +21,7 @@ public class ZCount extends AbstractZRangeByScore {
         final Slice start = params().get(1);
         final Slice end = params().get(2);
 
-        int result = getRange(start, end).size();
+        int result = getRange(getStartBound(start), getEndBound(end)).size();
 
         return Response.integer(result);
     }

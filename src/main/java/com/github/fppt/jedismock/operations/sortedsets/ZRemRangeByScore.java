@@ -20,6 +20,6 @@ public class ZRemRangeByScore extends AbstractZRangeByScore {
 
         final Slice start = params().get(1);
         final Slice end = params().get(2);
-        return remRangeFromKey(getRange(start, end));
+        return remRangeFromKey(getRange(getStartBound(start), getEndBound(end)));
     }
 }
