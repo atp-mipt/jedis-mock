@@ -7,7 +7,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import redis.clients.jedis.Jedis;
 //import redis.clients.jedis.args.SortedSetOption;
 
-import static org.junit.jupiter.api.Assertions.assertNull;
+//import static org.junit.jupiter.api.Assertions.assertNull;
 //import redis.clients.jedis.args.SortedSetOption;
 //import redis.clients.jedis.resps.Tuple;
 //import redis.clients.jedis.util.KeyValue;
@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 @ExtendWith(ComparisonBase.class)
 public class TestBZMPop {
 
-    private static final String ZSET_KEY = "myzset";
+//    private static final String ZSET_KEY = "myzset";
 
     @BeforeEach
     public void setUp(Jedis jedis) {
