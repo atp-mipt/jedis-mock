@@ -2,20 +2,17 @@ package com.github.fppt.jedismock.operations.sortedsets;
 
 import com.github.fppt.jedismock.datastructures.RMZSet;
 import com.github.fppt.jedismock.datastructures.Slice;
-import com.github.fppt.jedismock.datastructures.ZSetEntry;
 import com.github.fppt.jedismock.operations.RedisCommand;
 import com.github.fppt.jedismock.operations.keys.Scan;
 import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.storage.RedisBase;
 
 import java.util.List;
-import java.util.NavigableSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @RedisCommand("zscan")
 class ZScan extends Scan {
-
     ZScan(RedisBase base, List<Slice> params) {
         super(base, params);
     }
@@ -31,14 +28,14 @@ class ZScan extends Scan {
     @Override
     protected List<Slice> getMatchingValues(String regex, long cursor, long count) {
         RMZSet mapDBObj = getZSetFromBaseOrCreateEmpty(keySlice);
-        NavigableSet<ZSetEntry> set = mapDBObj.entries(false);
-        this.size = set.size();
-        return set.stream().skip(cursor)
+        return mapDBObj.entries(false).stream()
+                .skip(cursor)
                 .limit(count)
                 .filter(e -> e.getValue().toString().matches(regex))
                 .flatMap(e -> Stream.of(e.getValue(),
-                                       Slice.create(String.valueOf(e.getScore()))))
+                        Slice.create(String.valueOf(e.getScore()))))
                 .map(Response::bulkString)
                 .collect(Collectors.toList());
     }
+
 }
