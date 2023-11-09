@@ -2,6 +2,7 @@ package com.github.fppt.jedismock.linkedMap;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BiConsumer;
 
 /**
  * An associative array with O(1) get, delete operations.<br>
@@ -50,14 +51,10 @@ public class LinkedMap<K extends Comparable<K>, V> implements Iterable<Map.Entry
      * @param key the key with which the specified value is to be associated
      * @param value the value to be associated with the specified key
      */
-    public void append(K key, V value) throws WrongKeyException {
+    public void append(K key, V value) {
         if (size == 0) {
             head = key; // the map is empty, so the first appended element becomes the head
         } else {
-            if (tail.compareTo(key) >= 0) {
-                throw new WrongKeyException("Key " + key + " is less than " + tail);
-            }
-
             map.get(tail).setNext(key); // the map is not empty, so we have to update the reference
         }
 
@@ -179,22 +176,29 @@ public class LinkedMap<K extends Comparable<K>, V> implements Iterable<Map.Entry
     }
 
     /**
+     * Checks whether a mapping for the given key exists.
+     *
+     * @return {@code true} if the mapping exists otherwise {@code false}
+     */
+    public boolean contains(K key) {
+        return map.containsKey(key);
+    }
+
+    /**
      * Get the key of the first mapping.
-     * <b>Private API:</b> is accessible only to {@code LinkedMapIterator}
      *
      * @return the first node key in the sequence
      */
-    K getHead() {
+    public K getHead() {
         return head;
     }
 
     /**
      * Get the key of the last mapping.
-     * <b>Private API:</b> is accessible only to {@code LinkedMapIterator}
      *
      * @return the last node key in the sequence
      */
-    K getTail() {
+    public K getTail() {
         return tail;
     }
 
@@ -218,5 +222,23 @@ public class LinkedMap<K extends Comparable<K>, V> implements Iterable<Map.Entry
      */
     public LinkedMapIterator<K, V> iterator(K key) {
         return new LinkedMapIterator<>(getPreviousKey(key), this);
+    }
+
+    // TODO javadoc
+    public void forEach(BiConsumer<? super K, ? super V> action) {
+        if (action == null) {
+            throw new NullPointerException();
+        }
+
+        if (size == 0) {
+            return;
+        }
+
+        K currKey = head;
+
+        do {
+            action.accept(currKey, map.get(currKey).value);
+            currKey = map.get(currKey).next;
+        } while (currKey != null);
     }
 }
