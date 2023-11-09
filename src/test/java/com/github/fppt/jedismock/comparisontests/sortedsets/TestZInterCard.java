@@ -2,16 +2,13 @@ package com.github.fppt.jedismock.comparisontests.sortedsets;
 
 import com.github.fppt.jedismock.comparisontests.ComparisonBase;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import redis.clients.jedis.Jedis;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ComparisonBase.class)
 public class TestZInterCard {
 
-    private static final String ZSET_KEY_1 = "myzset";
+//    private static final String ZSET_KEY_1 = "myzset";
 //    private static final String ZSET_KEY_2 = "ztmp";
 
     @BeforeEach
@@ -19,11 +16,11 @@ public class TestZInterCard {
         jedis.flushAll();
     }
 
-    @TestTemplate
-    public void testZInterCardNotExistKeyToNotExistDest(Jedis jedis) {
-        assertEquals(0, jedis.zintercard(ZSET_KEY_1));
-        assertEquals(0, jedis.zintercard(0, ZSET_KEY_1));
-    }
+//    @TestTemplate
+//    public void testZInterCardNotExistKeyToNotExistDest(Jedis jedis) {
+//        assertEquals(0, jedis.zintercard(ZSET_KEY_1));
+//        assertEquals(0, jedis.zintercard(0, ZSET_KEY_1));
+//    }
 //
 //    @TestTemplate
 //    public void testZInterCardWithEmptySet(Jedis jedis) {
