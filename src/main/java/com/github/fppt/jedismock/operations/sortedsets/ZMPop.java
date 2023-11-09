@@ -19,7 +19,7 @@ public class ZMPop extends ZPop {
     protected static final String IS_COUNT = "COUNT";
 
     protected boolean isMinOrMax = false;
-    private long count = 0;
+    private long count = 1;
 
     ZMPop(RedisBase base, List<Slice> params) {
         super(base, params, false);

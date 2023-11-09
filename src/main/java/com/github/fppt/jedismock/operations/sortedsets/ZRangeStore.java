@@ -28,25 +28,25 @@ class ZRangeStore extends AbstractZRangeByIndex {
             ZRangeByScore zRangeByScore = new ZRangeByScore(base(), params());
             zRangeByScore.key = key;
             zRangeByScore.mapDBObj = mapDBObj;
-            return saveToNewKey(keyDest, zRangeByScore.getRange(getStartBound(params().get(1)), getEndBound(params().get(2))));
+            return saveToNewKey(keyDest, zRangeByScore.getRange(zRangeByScore.getStartBound(params().get(1)), zRangeByScore.getEndBound(params().get(2))));
         }
         if (isByScore) {
             ZRevRangeByScore zRevRangeByScore = new ZRevRangeByScore(base(), params());
             zRevRangeByScore.key = key;
             zRevRangeByScore.mapDBObj = mapDBObj;
-            return saveToNewKey(keyDest, zRevRangeByScore.getRange(getStartBound(params().get(1)), getEndBound(params().get(2))));
+            return saveToNewKey(keyDest, zRevRangeByScore.getRange(zRevRangeByScore.getStartBound(params().get(1)), zRevRangeByScore.getEndBound(params().get(2))));
         }
         if (isByLex && !isRev) {
             ZRangeByLex zRangeByLex = new ZRangeByLex(base(), params());
             zRangeByLex.key = key;
             zRangeByLex.mapDBObj = mapDBObj;
-            return saveToNewKey(keyDest, zRangeByLex.getRange(getStartBound(params().get(1)), getEndBound(params().get(2))));
+            return saveToNewKey(keyDest, zRangeByLex.getRange(zRangeByLex.getStartBound(params().get(1)), zRangeByLex.getEndBound(params().get(2))));
         }
         if (isByLex) {
             ZRevRangeByLex zRevRangeByLex = new ZRevRangeByLex(base(), params());
             zRevRangeByLex.key = key;
             zRevRangeByLex.mapDBObj = mapDBObj;
-            return saveToNewKey(keyDest, zRevRangeByLex.getRange(getStartBound(params().get(1)), getEndBound(params().get(2))));
+            return saveToNewKey(keyDest, zRevRangeByLex.getRange(zRevRangeByLex.getStartBound(params().get(1)), zRevRangeByLex.getEndBound(params().get(2))));
         }
 
         if (checkWrongIndex()) {

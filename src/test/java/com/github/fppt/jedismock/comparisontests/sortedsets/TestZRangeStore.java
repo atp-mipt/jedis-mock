@@ -62,7 +62,7 @@ public class TestZRangeStore {
     }
     @TestTemplate
     public void testZRangeStoreByScore(Jedis jedis) {
-        assertEquals(2, jedis.zrangestore(ZSET_KEY_OUT, ZSET_KEY, new ZRangeParams(BYSCORE, "1", "2")));
+        assertEquals(2, jedis.zrangestore(ZSET_KEY_OUT, ZSET_KEY, new ZRangeParams(BYSCORE, "0", "2.5")));
         List<Tuple> result = jedis.zrangeWithScores(ZSET_KEY_OUT, 0, -1);
         List<Tuple> expected = Arrays.asList(
                 new Tuple("a", 1.0),
