@@ -29,7 +29,7 @@ public class LinkedMapIterator<K extends Comparable<K>, V> implements Iterator<M
     @Override
     public boolean hasNext() {
         if (curr == null) {
-            return map.getNextKey(map.getHead()) != null;
+            return map.getHead() != null;
         }
 
         return map.getNextKey(curr) != null;
