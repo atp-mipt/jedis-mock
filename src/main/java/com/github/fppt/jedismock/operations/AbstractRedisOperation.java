@@ -1,7 +1,7 @@
 package com.github.fppt.jedismock.operations;
 
 import com.github.fppt.jedismock.datastructures.RMList;
-import com.github.fppt.jedismock.datastructures.RMStream;
+import com.github.fppt.jedismock.datastructures.streams.RMStream;
 import com.github.fppt.jedismock.datastructures.RMZSet;
 import com.github.fppt.jedismock.datastructures.RMSet;
 import com.github.fppt.jedismock.datastructures.Slice;

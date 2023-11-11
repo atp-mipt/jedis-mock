@@ -1,4 +1,4 @@
-package com.github.fppt.jedismock.linkedMap;
+package com.github.fppt.jedismock.datastructures.streams;
 
 
 import org.junit.jupiter.api.Test;
@@ -9,7 +9,6 @@ import java.util.stream.IntStream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 public class LinkedMapTests {
     @Test
@@ -25,7 +24,7 @@ public class LinkedMapTests {
     void addPairsToMapTest() {
         LinkedMap<Integer, Integer> map = new LinkedMap<>();
 
-        assertDoesNotThrow(() -> map.append(1, 2));
+        map.append(1, 2);
         assertEquals(1, map.getHead());
         assertEquals(1, map.getTail());
         assertEquals(1, map.size());
@@ -37,18 +36,18 @@ public class LinkedMapTests {
     void addSequenceToMapTest() {
         LinkedMap<Integer, Integer> map = new LinkedMap<>();
 
-        assertDoesNotThrow(() -> map.append(1, 2));
-        assertDoesNotThrow(() -> map.append(2, 2));
-        assertDoesNotThrow(() -> map.append(3, 2));
-        assertDoesNotThrow(() -> map.append(4, 2));
+        map.append(1, 2);
+        map.append(2, 2);
+        map.append(3, 2);
+        map.append(4, 2);
 
-        assertThrows(WrongKeyException.class, () -> map.append(4, 2));
-        assertThrows(WrongKeyException.class, () -> map.append(0, 2));
-        assertThrows(WrongKeyException.class, () -> map.append(2, 2));
+        map.append(4, 2);
+        map.append(0, 2);
+        map.append(2, 2);
     }
 
     @Test
-    void removePairsFromMapTest() throws WrongKeyException {
+    void removePairsFromMapTest() {
         LinkedMap<Integer, Integer> map = new LinkedMap<>();
 
         map.append(1, 2);
@@ -72,7 +71,7 @@ public class LinkedMapTests {
     }
 
     @Test
-    void getNodeTest() throws WrongKeyException {
+    void getNodeTest() {
         LinkedMap<Integer, Integer> map = new LinkedMap<>();
 
         map.append(1, 2);
@@ -91,7 +90,7 @@ public class LinkedMapTests {
     }
 
     @Test
-    void setNextNodeTest() throws WrongKeyException {
+    void setNextNodeTest() {
         LinkedMap<Integer, Integer> map = new LinkedMap<>();
 
         map.append(1, 2);
@@ -113,7 +112,7 @@ public class LinkedMapTests {
     }
 
     @Test
-    void setPreviousNodeTest() throws WrongKeyException {
+    void setPreviousNodeTest() {
         LinkedMap<Integer, Integer> map = new LinkedMap<>();
 
         map.append(1, 2);
@@ -135,7 +134,7 @@ public class LinkedMapTests {
     }
 
     @Test
-    void addRemoveStressTest() throws WrongKeyException {
+    void addRemoveStressTest() {
         LinkedMap<Integer, Integer> map = new LinkedMap<>();
 
         map.append(0, 0);
@@ -143,7 +142,7 @@ public class LinkedMapTests {
         IntStream.range(1, 1_000_001).forEach(el -> {
             assertEquals(el - 1, map.getTail());
             assertEquals(0, map.getHead());
-            assertDoesNotThrow(() -> map.append(el, el * 2));
+            map.append(el, el * 2);
             assertEquals(el, map.getTail());
             assertEquals(0, map.getHead());
 

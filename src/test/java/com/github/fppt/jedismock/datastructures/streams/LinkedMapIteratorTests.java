@@ -1,4 +1,4 @@
-package com.github.fppt.jedismock.linkedMap;
+package com.github.fppt.jedismock.datastructures.streams;
 
 import org.junit.jupiter.api.Test;
 
@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class LinkedMapIteratorTests {
     @Test
-    void createSimpleIterator() throws WrongKeyException {
+    void createSimpleIterator() {
         LinkedMap<Integer, Integer> map = new LinkedMap<>();
 
         map.append(1, 2);
@@ -31,7 +31,7 @@ public class LinkedMapIteratorTests {
     }
 
     @Test
-    void createComplexIterator() throws WrongKeyException {
+    void createComplexIterator() {
         LinkedMap<Integer, Integer> map = new LinkedMap<>();
 
         map.append(1, 2);
@@ -81,7 +81,7 @@ public class LinkedMapIteratorTests {
     }
 
     @Test
-    void removeTest() throws WrongKeyException {
+    void removeTest() {
         LinkedMap<Integer, Integer> map = new LinkedMap<>();
 
         map.append(1, 2);
@@ -111,7 +111,7 @@ public class LinkedMapIteratorTests {
     }
 
     @Test
-    void removeHeadTest() throws WrongKeyException {
+    void removeHeadTest() {
         LinkedMap<Integer, Integer> map = new LinkedMap<>();
 
         map.append(1, 2);

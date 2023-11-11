@@ -1,8 +1,9 @@
-package com.github.fppt.jedismock.datastructures;
+package com.github.fppt.jedismock.datastructures.streams;
 
+import com.github.fppt.jedismock.datastructures.RMDataStructure;
+import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.exception.WrongStreamKeyException;
 import com.github.fppt.jedismock.exception.WrongValueTypeException;
-import com.github.fppt.jedismock.linkedMap.LinkedMap;
 
 import static java.lang.Long.compareUnsigned;
 import static java.lang.Long.parseUnsignedLong;
@@ -33,8 +34,6 @@ public class RMStream implements RMDataStructure {
 
     /**
      * TODO explain
-     * @return
-     * @throws WrongStreamKeyException
      */
     public static void checkParsedKey(String[] parsedKey) throws WrongStreamKeyException {
         if (parsedKey.length != 2) {
