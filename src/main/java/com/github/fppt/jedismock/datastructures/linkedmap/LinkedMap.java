@@ -1,4 +1,4 @@
-package com.github.fppt.jedismock.linkedMap;
+package com.github.fppt.jedismock.datastructures.linkedmap;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -203,7 +203,7 @@ public class LinkedMap<K extends Comparable<K>, V> implements Iterable<Map.Entry
     }
 
     /**
-     * Get {@link com.github.fppt.jedismock.linkedMap.LinkedMapIterator LinkedMapIterator}
+     * Get {@link LinkedMapIterator LinkedMapIterator}
      * whose iteration starts from the head node
      *
      * @return iterator that allows to iterate map
@@ -214,7 +214,7 @@ public class LinkedMap<K extends Comparable<K>, V> implements Iterable<Map.Entry
     }
 
     /**
-     * Get {@link com.github.fppt.jedismock.linkedMap.LinkedMapIterator LinkedMapIterator}
+     * Get {@link LinkedMapIterator LinkedMapIterator}
      * whose iteration starts from the provided key
      *
      * @param key the key which is the start of iteration

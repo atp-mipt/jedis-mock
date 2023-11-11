@@ -1,11 +1,11 @@
-package com.github.fppt.jedismock.linkedMap;
+package com.github.fppt.jedismock.datastructures.linkedmap;
 
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
 /**
- * Iterator for {@link com.github.fppt.jedismock.linkedMap.LinkedMap LinkedMap}
+ * Iterator for {@link LinkedMap LinkedMap}
  *
  * @param <K> keys type, must implement {@link java.lang.Comparable Comparable}
  * @param <V> values type

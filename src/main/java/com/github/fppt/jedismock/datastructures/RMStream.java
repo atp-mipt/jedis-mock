@@ -2,7 +2,7 @@ package com.github.fppt.jedismock.datastructures;
 
 import com.github.fppt.jedismock.exception.WrongStreamKeyException;
 import com.github.fppt.jedismock.exception.WrongValueTypeException;
-import com.github.fppt.jedismock.linkedMap.LinkedMap;
+import com.github.fppt.jedismock.datastructures.linkedmap.LinkedMap;
 
 import static java.lang.Long.compareUnsigned;
 import static java.lang.Long.parseUnsignedLong;
