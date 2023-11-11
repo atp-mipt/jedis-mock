@@ -2,9 +2,13 @@ name: build
 
 on:
   push:
-    branches: [master]
+    branches:
+      - '!streams'
+      - master
   pull_request:
-    branches: [master]
+    branches:
+      - '!streams'
+      - master
 
 jobs:
   build:
