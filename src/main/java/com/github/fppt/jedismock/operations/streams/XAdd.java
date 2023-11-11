@@ -1,9 +1,9 @@
 package com.github.fppt.jedismock.operations.streams;
 
-import com.github.fppt.jedismock.datastructures.RMStream;
+import com.github.fppt.jedismock.datastructures.streams.RMStream;
 import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.exception.WrongStreamKeyException;
-import com.github.fppt.jedismock.linkedMap.LinkedMap;
+import com.github.fppt.jedismock.datastructures.streams.LinkedMap;
 import com.github.fppt.jedismock.operations.AbstractRedisOperation;
 import com.github.fppt.jedismock.operations.RedisCommand;
 import com.github.fppt.jedismock.server.Response;
@@ -11,11 +11,11 @@ import com.github.fppt.jedismock.storage.RedisBase;
 
 import java.util.List;
 
-import static com.github.fppt.jedismock.datastructures.RMStream.checkKey;
+import static com.github.fppt.jedismock.datastructures.streams.RMStream.checkKey;
 
 /**
- * XADD key [NOMKSTREAM] [<MAXLEN | MINID> [= | ~] threshold
- *   [LIMIT count]] <* | id> field value [field value ...]<br/>
+ * XADD key [NOMKSTREAM] [(MAXLEN | MINID) [= | ~] threshold
+ *   [LIMIT count]] (* | id) field value [field value ...]<br/>
  * Supported options: NOMKSTREAM<br/>
  * Unsupported options (TODO): MAXLEN, MINID, LIMIT
  */

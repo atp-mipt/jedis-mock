@@ -1,10 +1,10 @@
 package com.github.fppt.jedismock.operations.streams;
 
-import com.github.fppt.jedismock.datastructures.RMStream;
+import com.github.fppt.jedismock.datastructures.streams.RMStream;
 import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.exception.WrongStreamKeyException;
-import com.github.fppt.jedismock.linkedMap.LinkedMap;
-import com.github.fppt.jedismock.linkedMap.LinkedMapIterator;
+import com.github.fppt.jedismock.datastructures.streams.LinkedMap;
+import com.github.fppt.jedismock.datastructures.streams.LinkedMapIterator;
 import com.github.fppt.jedismock.operations.AbstractRedisOperation;
 import com.github.fppt.jedismock.operations.RedisCommand;
 import com.github.fppt.jedismock.server.Response;
@@ -15,8 +15,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static com.github.fppt.jedismock.datastructures.RMStream.checkParsedKey;
-import static com.github.fppt.jedismock.datastructures.RMStream.compare;
+import static com.github.fppt.jedismock.datastructures.streams.RMStream.checkParsedKey;
+import static com.github.fppt.jedismock.datastructures.streams.RMStream.compare;
 import static java.lang.Long.compareUnsigned;
 import static java.lang.Long.parseUnsignedLong;
 import static java.lang.Long.toUnsignedString;
