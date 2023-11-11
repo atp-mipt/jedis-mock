@@ -22,7 +22,7 @@ import static java.lang.Long.parseUnsignedLong;
 import static java.lang.Long.toUnsignedString;
 
 /**
- * XRANGE key start end [COUNT count]<br/>
+ * XRANGE key start end [COUNT count]<br>
  * Supported options: COUNT
  */
 @RedisCommand("xrange")

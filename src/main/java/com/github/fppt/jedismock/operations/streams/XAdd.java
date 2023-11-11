@@ -15,8 +15,8 @@ import static com.github.fppt.jedismock.datastructures.streams.RMStream.checkKey
 
 /**
  * XADD key [NOMKSTREAM] [(MAXLEN | MINID) [= | ~] threshold
- *   [LIMIT count]] (* | id) field value [field value ...]<br/>
- * Supported options: NOMKSTREAM<br/>
+ *   [LIMIT count]] (* | id) field value [field value ...]<br>
+ * Supported options: NOMKSTREAM<br>
  * Unsupported options (TODO): MAXLEN, MINID, LIMIT
  */
 @RedisCommand("xadd")
