@@ -40,6 +40,10 @@ class ZAdd extends AbstractByScoreOperation {
             throw new ArgumentException("ERR syntax error");
         }
 
+        if (flagLT && flagGT) {
+            throw new ArgumentException("ERR syntax error");
+        }
+
         return flagIncr ? incr(index) : adding(index);
 
     }

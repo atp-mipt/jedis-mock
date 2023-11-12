@@ -1,6 +1,5 @@
 package com.github.fppt.jedismock.operations.sortedsets;
 
-import com.github.fppt.jedismock.datastructures.RMZSet;
 import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.operations.RedisCommand;
 import com.github.fppt.jedismock.storage.RedisBase;
@@ -8,24 +7,26 @@ import com.github.fppt.jedismock.storage.RedisBase;
 import java.util.List;
 
 @RedisCommand("zrevrangebylex")
-class ZRevRangeByLex extends ZRangeByLex {
+class ZRevRangeByLex extends AbstractZRangeByLex {
 
     ZRevRangeByLex(RedisBase base, List<Slice> params) {
         super(base, params);
     }
 
     @Override
-    protected List<Slice> doProcess(RMZSet map, String start, String end, double score) {
-        return process(map, start, end, score, true);
-    }
+    protected Slice response() {
+        key = params().get(0);
+        mapDBObj = getZSetFromBaseOrCreateEmpty(key);
 
-    @Override
-    protected String min() {
-        return params().get(2).toString();
-    }
-
-    @Override
-    protected String max() {
-        return params().get(1).toString();
+        final Slice start = params().get(2);
+        final Slice end = params().get(1);
+        isRev = true;
+        if (invalidateStart(start.toString())) {
+            return buildErrorResponse("start");
+        }
+        if (invalidateEnd(end.toString())) {
+            return buildErrorResponse("end");
+        }
+        return getSliceFromRange(getRange(start, end));
     }
 }
