@@ -7,9 +7,9 @@ import com.github.fppt.jedismock.operations.keys.Scan;
 import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.storage.RedisBase;
 
-import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.List;
 
 @RedisCommand("zscan")
 class ZScan extends Scan {
