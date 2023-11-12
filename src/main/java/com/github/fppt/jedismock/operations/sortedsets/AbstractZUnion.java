@@ -22,9 +22,9 @@ abstract class AbstractZUnion extends ZStore {
         for (ZSetEntry entry :
                 zset2.entries(false)) {
             if (result.hasMember(entry.getValue())) {
-                result.put(entry.getValue(), aggregate.apply(result.getScore(entry.getValue()), entry.getScore() * weight));
+                result.put(entry.getValue(), aggregate.apply(result.getScore(entry.getValue()), getMultiple(entry.getScore(), weight)));
             } else {
-                result.put(entry.getValue(), entry.getScore() * weight);
+                result.put(entry.getValue(), getMultiple(entry.getScore(), weight));
             }
         }
         return result;

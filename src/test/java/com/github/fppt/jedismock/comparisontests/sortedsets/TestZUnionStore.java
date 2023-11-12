@@ -149,6 +149,23 @@ public class TestZUnionStore {
         jedis.zadd(ZSET_KEY_2, 1, "a");
         assertThrows(RuntimeException.class,
                 () -> jedis.zunionstore(ZSET_KEY_OUT,
-                new ZParams().weights(Double.NaN, Double.NaN), ZSET_KEY_1, ZSET_KEY_2));
+                        new ZParams().weights(Double.NaN, Double.NaN), ZSET_KEY_1, ZSET_KEY_2));
+    }
+
+    @TestTemplate
+    public void testZUnionStoreNotCreateNaNScores(Jedis jedis) {
+        jedis.zadd(ZSET_KEY_1, Double.NEGATIVE_INFINITY, "a");
+
+        jedis.zunionstore(ZSET_KEY_OUT, new ZParams().weights(0), ZSET_KEY_1);
+        List<Tuple> results = jedis.zrangeWithScores(ZSET_KEY_OUT, 0, -1);
+        assertEquals(new Tuple("a", 0.0), results.get(0));
+
+        jedis.zunionstore(ZSET_KEY_OUT, new ZParams().weights(1), ZSET_KEY_1);
+        results = jedis.zrangeWithScores(ZSET_KEY_OUT, 0, -1);
+        assertEquals(new Tuple("a", Double.NEGATIVE_INFINITY), results.get(0));
+
+        jedis.zunionstore(ZSET_KEY_OUT, new ZParams().weights(-2), ZSET_KEY_1);
+        results = jedis.zrangeWithScores(ZSET_KEY_OUT, 0, -1);
+        assertEquals(new Tuple("a", Double.POSITIVE_INFINITY), results.get(0));
     }
 }

@@ -18,7 +18,7 @@ abstract class AbstractZInter extends ZStore {
         for (ZSetEntry entry :
                 zset1.entries(false)) {
             if (zset2.hasMember(entry.getValue())) {
-                result.put(entry.getValue(), aggregate.apply(entry.getScore(), zset2.getScore(entry.getValue()) * weight));
+                result.put(entry.getValue(), aggregate.apply(entry.getScore(), getMultiple(zset2.getScore(entry.getValue()), weight)));
             }
         }
         return result;

@@ -44,7 +44,7 @@ abstract class ZStore extends AbstractByScoreOperation {
         RMZSet temp = getZSet(params().get(startKeysIndex + 1));
         for (ZSetEntry entry :
                 temp.entries(false)) {
-            mapDBObj.put(entry.getValue(), entry.getScore() * weights.get(0));
+            mapDBObj.put(entry.getValue(), getMultiple(entry.getScore(), weights.get(0)));
         }
         for (int i = 1; i < numKeys; i++) {
            mapDBObj = getResult(mapDBObj, getZSet(params().get(startKeysIndex + i + 1)), weights.get(i));
@@ -123,6 +123,13 @@ abstract class ZStore extends AbstractByScoreOperation {
             }
             return a + b;
         };
+    }
+
+    protected static Double getMultiple(Double score, Double weight) {
+        if (score == 0 || weight == 0) {
+            return 0.;
+        }
+        return score * weight;
     }
 
     protected long getResultSize() {
