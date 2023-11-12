@@ -27,7 +27,7 @@ abstract class ZStore extends AbstractByScoreOperation {
     protected int startKeysIndex = 0;
     protected ArrayList<Double> weights;
 
-    protected BiFunction<Double, Double, Double> aggregate = Double::sum;
+    protected BiFunction<Double, Double, Double> aggregate = getSum();
 
     protected boolean withScores = false;
 
@@ -78,7 +78,11 @@ abstract class ZStore extends AbstractByScoreOperation {
        }
        if ((params().size() > curIndex) && (IS_WEIGHTS.equalsIgnoreCase(params().get(curIndex).toString()))) {
            for (int i = 0; i < numKeys; i++) {
-               weights.set(i, toDouble(params().get(curIndex + i + 1).toString()));
+               double weight = toDouble(params().get(curIndex + i + 1).toString());
+               if (Double.isNaN(weight)) {
+                   throw new ArgumentException("*weight*not*float*");
+               }
+               weights.set(i, weight);
            }
            curIndex += numKeys + 1;
        }
@@ -91,7 +95,7 @@ abstract class ZStore extends AbstractByScoreOperation {
                aggregate = Double::max;
            }
            if ("SUM".equalsIgnoreCase(aggParam)) {
-               aggregate = Double::sum;
+               aggregate = getSum();
            }
            curIndex += 2;
        }
@@ -107,6 +111,19 @@ abstract class ZStore extends AbstractByScoreOperation {
            }
        }
    }
+
+    private static BiFunction<Double, Double, Double> getSum() {
+        return (a, b) -> {
+            if (a.isInfinite() && b.isInfinite()) {
+                if (a.equals(b)) {
+                    return a;
+                } else {
+                    return Double.valueOf(0);
+                }
+            }
+            return a + b;
+        };
+    }
 
     protected long getResultSize() {
         Slice keyDest = params().get(0);
@@ -128,4 +145,5 @@ abstract class ZStore extends AbstractByScoreOperation {
                 .map(Response::bulkString)
                 .collect(Collectors.toList());
     }
+
 }

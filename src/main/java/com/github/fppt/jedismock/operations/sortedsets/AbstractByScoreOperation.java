@@ -15,6 +15,9 @@ public abstract class AbstractByScoreOperation extends AbstractRedisOperation {
     }
 
     public static double toDouble(String value) {
+        if ("nan".equalsIgnoreCase(value)) {
+            throw new ArgumentException("*ERR*weight*not*float*");
+        }
         if ("+inf".equalsIgnoreCase(value)) {
             return Double.POSITIVE_INFINITY;
         }
