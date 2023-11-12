@@ -3,6 +3,7 @@ package com.github.fppt.jedismock.operations.sortedsets;
 import com.github.fppt.jedismock.datastructures.RMZSet;
 import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.datastructures.ZSetEntry;
+import com.github.fppt.jedismock.exception.ArgumentException;
 import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.storage.RedisBase;
 
@@ -25,13 +26,17 @@ class ZPop extends AbstractByScoreOperation {
     }
 
     protected List<Slice> pop() {
-        final Slice key = params().get(0);
-        final RMZSet mapDBObj = getZSetFromBaseOrCreateEmpty(key);
         int count = 1;
         if (params().size() > 1) {
             String newCount = params().get(1).toString();
             count = Integer.parseInt(newCount);
         }
+        if (count < 0) {
+            throw new ArgumentException("ERR value is out of range, must be positive");
+        }
+
+        final Slice key = params().get(0);
+        final RMZSet mapDBObj = getZSetFromBaseOrCreateEmpty(key);
         List<Slice> result = new ArrayList<>();
         if (mapDBObj.isEmpty()) {
             return result;

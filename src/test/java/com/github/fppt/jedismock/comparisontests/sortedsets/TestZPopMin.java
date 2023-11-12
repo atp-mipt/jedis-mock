@@ -52,4 +52,22 @@ public class TestZPopMin {
         assertNull(jedis.zpopmin(ZSET_KEY));
     }
 
+    @TestTemplate
+    public void testZPopMinWithNegativeCount(Jedis jedis) {
+        jedis.set(ZSET_KEY, "foo");
+        assertThrows(RuntimeException.class,
+                () -> jedis.zpopmin(ZSET_KEY, -1));
+
+        jedis.del(ZSET_KEY);
+        assertThrows(RuntimeException.class,
+                () -> jedis.zpopmin(ZSET_KEY, -2));
+
+        jedis.zadd(ZSET_KEY, 1, "a");
+        jedis.zadd(ZSET_KEY, 2, "b");
+        jedis.zadd(ZSET_KEY, 3, "c");
+        assertThrows(RuntimeException.class,
+                () -> jedis.zpopmin(ZSET_KEY, -3));
+
+    }
+
 }

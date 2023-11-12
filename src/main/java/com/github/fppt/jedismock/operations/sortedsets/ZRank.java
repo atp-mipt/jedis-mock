@@ -13,7 +13,7 @@ import java.util.stream.Stream;
 
 @RedisCommand("zrank")
 public class ZRank extends AbstractByScoreOperation {
-    private static final String WITH_SCORES = "WITHSCORES";
+    private static final String WITH_SCORES = "WITHSCORE";
     private static final String IS_REV = "REV";
 
     private boolean withScores = false;

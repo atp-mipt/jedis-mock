@@ -10,8 +10,8 @@ import redis.clients.jedis.resps.Tuple;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(ComparisonBase.class)
 public class TestZPopMax {
@@ -53,4 +53,21 @@ public class TestZPopMax {
         assertNull(jedis.zpopmax(ZSET_KEY));
     }
 
+    @TestTemplate
+    public void testZPopMinWithNegativeCount(Jedis jedis) {
+        jedis.set(ZSET_KEY, "foo");
+        assertThrows(RuntimeException.class,
+                () -> jedis.zpopmax(ZSET_KEY, -1));
+
+        jedis.del(ZSET_KEY);
+        assertThrows(RuntimeException.class,
+                () -> jedis.zpopmax(ZSET_KEY, -2));
+
+        jedis.zadd(ZSET_KEY, 1, "a");
+        jedis.zadd(ZSET_KEY, 2, "b");
+        jedis.zadd(ZSET_KEY, 3, "c");
+        assertThrows(RuntimeException.class,
+                () -> jedis.zpopmax(ZSET_KEY, -3));
+
+    }
 }
