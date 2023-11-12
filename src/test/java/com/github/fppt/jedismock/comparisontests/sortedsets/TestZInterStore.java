@@ -10,8 +10,7 @@ import redis.clients.jedis.resps.Tuple;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(ComparisonBase.class)
 public class TestZInterStore {
@@ -107,5 +106,37 @@ public class TestZInterStore {
         List<Tuple> results = jedis.zrangeWithScores(ZSET_KEY_OUT, 0, -1);
         assertEquals(new Tuple("b", 2.0), results.get(0));
         assertEquals(new Tuple("c", 3.0), results.get(1));
+    }
+
+    @TestTemplate
+    public void testZInterStoreWithInfScores(Jedis jedis) {
+        jedis.zadd(ZSET_KEY_1, Double.POSITIVE_INFINITY, "a");
+        jedis.zadd(ZSET_KEY_2, Double.POSITIVE_INFINITY, "a");
+        jedis.zinterstore(ZSET_KEY_OUT, ZSET_KEY_1, ZSET_KEY_2);
+        assertEquals(Double.POSITIVE_INFINITY, jedis.zscore(ZSET_KEY_OUT, "a"));
+
+        jedis.zadd(ZSET_KEY_1, Double.NEGATIVE_INFINITY, "a");
+        jedis.zadd(ZSET_KEY_2, Double.POSITIVE_INFINITY, "a");
+        jedis.zinterstore(ZSET_KEY_OUT, ZSET_KEY_1, ZSET_KEY_2);
+        assertEquals(0, jedis.zscore(ZSET_KEY_OUT, "a"));
+
+        jedis.zadd(ZSET_KEY_1, Double.POSITIVE_INFINITY, "a");
+        jedis.zadd(ZSET_KEY_2, Double.NEGATIVE_INFINITY, "a");
+        jedis.zinterstore(ZSET_KEY_OUT, ZSET_KEY_1, ZSET_KEY_2);
+        assertEquals(0, jedis.zscore(ZSET_KEY_OUT, "a"));
+
+        jedis.zadd(ZSET_KEY_1, Double.NEGATIVE_INFINITY, "a");
+        jedis.zadd(ZSET_KEY_2, Double.NEGATIVE_INFINITY, "a");
+        jedis.zinterstore(ZSET_KEY_OUT, ZSET_KEY_1, ZSET_KEY_2);
+        assertEquals(Double.NEGATIVE_INFINITY, jedis.zscore(ZSET_KEY_OUT, "a"));
+    }
+
+    @TestTemplate
+    public void testZInterStoreWithNanScores(Jedis jedis) {
+        jedis.zadd(ZSET_KEY_1, 1, "a");
+        jedis.zadd(ZSET_KEY_2, 1, "a");
+        assertThrows(RuntimeException.class,
+                () -> jedis.zinterstore(ZSET_KEY_OUT,
+                        new ZParams().weights(Double.NaN, Double.NaN), ZSET_KEY_1, ZSET_KEY_2));
     }
 }

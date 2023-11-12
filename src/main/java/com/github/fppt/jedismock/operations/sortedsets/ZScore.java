@@ -12,6 +12,8 @@ import java.util.List;
 @RedisCommand("zscore")
 class ZScore extends AbstractRedisOperation {
 
+    private static final double DELTA = 1e-5;
+
     ZScore(RedisBase base, List<Slice> params) {
         super(base, params);
     }
@@ -28,6 +30,17 @@ class ZScore extends AbstractRedisOperation {
 
         Double score = mapDBObj.getScore(val);
 
-        return score == null ? Response.NULL : Response.bulkString(Slice.create(String.format("%.0f", score)));
+        if (score == null) {
+            return Response.NULL;
+        }
+        if (score.isInfinite()) {
+            return score > 0 ? Response.bulkString(Slice.create("inf"))
+                    : Response.bulkString(Slice.create("-inf"));
+        }
+        long round = Math.round(score);
+        if (Math.abs(score - round) < DELTA) {
+            return Response.bulkString(Slice.create(String.format("%.0f", score)));
+        }
+        return Response.bulkString(Slice.create(String.valueOf(score)));
     }
 }

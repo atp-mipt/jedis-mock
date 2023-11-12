@@ -119,4 +119,36 @@ public class TestZUnionStore {
         assertEquals(new Tuple("c", 3.0), results.get(2));
         assertEquals(new Tuple("d", 3.0), results.get(3));
     }
+
+    @TestTemplate
+    public void testZUnionStoreWithInfScores(Jedis jedis) {
+        jedis.zadd(ZSET_KEY_1, Double.POSITIVE_INFINITY, "a");
+        jedis.zadd(ZSET_KEY_2, Double.POSITIVE_INFINITY, "a");
+        jedis.zunionstore(ZSET_KEY_OUT, ZSET_KEY_1, ZSET_KEY_2);
+        assertEquals(Double.POSITIVE_INFINITY, jedis.zscore(ZSET_KEY_OUT, "a"));
+
+        jedis.zadd(ZSET_KEY_1, Double.NEGATIVE_INFINITY, "a");
+        jedis.zadd(ZSET_KEY_2, Double.POSITIVE_INFINITY, "a");
+        jedis.zunionstore(ZSET_KEY_OUT, ZSET_KEY_1, ZSET_KEY_2);
+        assertEquals(0, jedis.zscore(ZSET_KEY_OUT, "a"));
+
+        jedis.zadd(ZSET_KEY_1, Double.POSITIVE_INFINITY, "a");
+        jedis.zadd(ZSET_KEY_2, Double.NEGATIVE_INFINITY, "a");
+        jedis.zunionstore(ZSET_KEY_OUT, ZSET_KEY_1, ZSET_KEY_2);
+        assertEquals(0, jedis.zscore(ZSET_KEY_OUT, "a"));
+
+        jedis.zadd(ZSET_KEY_1, Double.NEGATIVE_INFINITY, "a");
+        jedis.zadd(ZSET_KEY_2, Double.NEGATIVE_INFINITY, "a");
+        jedis.zunionstore(ZSET_KEY_OUT, ZSET_KEY_1, ZSET_KEY_2);
+        assertEquals(Double.NEGATIVE_INFINITY, jedis.zscore(ZSET_KEY_OUT, "a"));
+    }
+
+    @TestTemplate
+    public void testZUnionStoreWithNanScores(Jedis jedis) {
+        jedis.zadd(ZSET_KEY_1, 1, "a");
+        jedis.zadd(ZSET_KEY_2, 1, "a");
+        assertThrows(RuntimeException.class,
+                () -> jedis.zunionstore(ZSET_KEY_OUT,
+                new ZParams().weights(Double.NaN, Double.NaN), ZSET_KEY_1, ZSET_KEY_2));
+    }
 }
