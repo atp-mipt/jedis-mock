@@ -1,4 +1,4 @@
-package com.github.fppt.jedismock.operations.lists;
+package com.github.fppt.jedismock.operations.sortedsets;
 
 import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.operations.AbstractBPop;
@@ -8,14 +8,14 @@ import com.github.fppt.jedismock.storage.RedisBase;
 
 import java.util.List;
 
-abstract class BPop extends AbstractBPop {
+abstract class BZPop extends AbstractBPop {
 
-    BPop(OperationExecutorState state, List<Slice> params) {
+    BZPop(OperationExecutorState state, List<Slice> params) {
         super(state, params);
     }
 
     @Override
     protected AbstractRedisOperation getSize(RedisBase base, List<Slice> params) {
-        return new LLen(base(), params);
+        return new ZCard(base(), params);
     }
 }
