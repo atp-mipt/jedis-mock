@@ -10,7 +10,10 @@ import redis.clients.jedis.resps.Tuple;
 
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 @ExtendWith(ComparisonBase.class)
 public class TestZadd {
@@ -145,6 +148,12 @@ public class TestZadd {
     }
 
     @TestTemplate
+    public void testZAddLTandGT(Jedis jedis) {
+        assertThrows(RuntimeException.class,
+                () -> jedis.zadd(ZSET_KEY, 10, "x", new ZAddParams().lt().gt()));
+    }
+
+    @TestTemplate
     public void testZAddNXWithNonExistingKey(Jedis jedis) {
         Map<String, Double> members = new HashMap<>();
         members.put("x", 10d);
@@ -188,6 +197,11 @@ public class TestZadd {
         jedis.zaddIncr(ZSET_KEY, 15, "x", new ZAddParams());
 
         assertEquals(25, jedis.zscore(ZSET_KEY, "x"));
+    }
+
+    @TestTemplate
+    public void testZAddIncrToNotExistKey(Jedis jedis) {
+        assertEquals(15, jedis.zaddIncr(ZSET_KEY, 15, "x", new ZAddParams()));
     }
 
     @TestTemplate
@@ -248,13 +262,4 @@ public class TestZadd {
         assertEquals(28, jedis.zscore(ZSET_KEY, "x"));
     }
 
-//    @TestTemplate
-//    public void testZAddMissingArg(Jedis jedis) {
-//        Map<String, Double> members1 = new HashMap<>();
-//        members1.put("x", 10d);
-//        members1.put("y", 20d);
-//        members1.put("z", 30d);
-//        members1.put("", 40d);
-//        assertThrows(RuntimeException.class, () -> jedis.zadd(ZSET_KEY, members1));
-//    }
 }

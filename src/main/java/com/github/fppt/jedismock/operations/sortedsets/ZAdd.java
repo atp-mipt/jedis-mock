@@ -51,9 +51,6 @@ class ZAdd extends AbstractByScoreOperation {
     private Slice incr() {
         Slice key = params().get(0);
         final RMZSet mapDBObj = getZSetFromBaseOrCreateEmpty(key);
-        if (mapDBObj.isEmpty()) {
-            return Slice.empty();
-        }
         if (params().size() != 3) {
             throw new ArgumentException("ERR*ERR*syntax*");
         }

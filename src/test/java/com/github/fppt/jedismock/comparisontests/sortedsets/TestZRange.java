@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(ComparisonBase.class)
 public class TestZRange {
@@ -79,5 +80,17 @@ public class TestZRange {
         jedis.zadd("foo", 3, "three");
         final List<String> list = jedis.zrange("foo", ZRangeParams.zrangeByScoreParams(3, 1).rev());
         assertEquals(Arrays.asList("three", "two", "one"), list);
+    }
+
+    @TestTemplate
+    public void whenUsingZrange_EnsureItReturnsErrorWhenByLexAndWithscores(Jedis jedis) {
+        assertThrows(RuntimeException.class,
+                () -> jedis.zrangeWithScores(ZSET_KEY, ZRangeParams.zrangeByLexParams("1", "-6")));
+    }
+
+    @TestTemplate
+    public void whenUsingZrange_EnsureItReturnsErrorWhenLimitNotByLexNotByScore(Jedis jedis) {
+        assertThrows(RuntimeException.class,
+                () -> jedis.zrange(ZSET_KEY, new ZRangeParams(1, -6).limit(1, 1)));
     }
 }
