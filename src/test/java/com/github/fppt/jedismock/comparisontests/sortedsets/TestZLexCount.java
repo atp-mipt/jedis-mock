@@ -9,6 +9,7 @@ import redis.clients.jedis.Jedis;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(ComparisonBase.class)
 public class TestZLexCount {
@@ -70,5 +71,17 @@ public class TestZLexCount {
     @TestTemplate
     public void testZLexCountNotIncludeBounds(Jedis jedis) {
         assertEquals(3, jedis.zlexcount(ZSET_KEY, "(bar", "(foo"));
+    }
+
+    @TestTemplate
+    public void testZLexCountErrorMinValue(Jedis jedis) {
+        assertThrows(RuntimeException.class,
+                () -> jedis.zlexcount(ZSET_KEY, "bar", "(foo"));
+    }
+
+    @TestTemplate
+    public void testZLexCountErrorMaxValue(Jedis jedis) {
+        assertThrows(RuntimeException.class,
+                () -> jedis.zlexcount(ZSET_KEY, "(bar", "foo"));
     }
 }

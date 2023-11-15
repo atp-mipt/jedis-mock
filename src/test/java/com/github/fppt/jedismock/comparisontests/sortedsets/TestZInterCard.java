@@ -7,6 +7,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import redis.clients.jedis.Jedis;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(ComparisonBase.class)
 public class TestZInterCard {
@@ -57,5 +58,17 @@ public class TestZInterCard {
         assertEquals(2, jedis.zintercard(0, ZSET_KEY_1, ZSET_KEY_2));
         assertEquals(1, jedis.zintercard(1, ZSET_KEY_1, ZSET_KEY_2));
         assertEquals(2, jedis.zintercard(10, ZSET_KEY_1, ZSET_KEY_2));
+    }
+
+
+    @TestTemplate
+    public void testZInterCardWithNegativeLimit(Jedis jedis) {
+        jedis.zadd(ZSET_KEY_1, 1, "1");
+        jedis.zadd(ZSET_KEY_1, 2, "2");
+        jedis.zadd(ZSET_KEY_2, 1, "1");
+        jedis.zadd(ZSET_KEY_2, 4, "4");
+        assertEquals(1, jedis.zintercard(ZSET_KEY_1, ZSET_KEY_2));
+        assertThrows(RuntimeException.class,
+                () -> jedis.zintercard(-10, ZSET_KEY_1, ZSET_KEY_2));
     }
 }

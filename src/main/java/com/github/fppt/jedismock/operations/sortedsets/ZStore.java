@@ -79,9 +79,6 @@ abstract class ZStore extends AbstractByScoreOperation {
        if ((params().size() > curIndex) && (IS_WEIGHTS.equalsIgnoreCase(params().get(curIndex).toString()))) {
            for (int i = 0; i < numKeys; i++) {
                double weight = toDouble(params().get(curIndex + i + 1).toString());
-               if (Double.isNaN(weight)) {
-                   throw new ArgumentException("*weight*not*float*");
-               }
                weights.set(i, weight);
            }
            curIndex += numKeys + 1;

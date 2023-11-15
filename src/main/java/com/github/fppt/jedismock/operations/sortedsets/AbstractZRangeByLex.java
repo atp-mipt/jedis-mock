@@ -42,8 +42,6 @@ abstract class AbstractZRangeByLex extends AbstractZRange {
             } else {
                 return mapDBObj.entries(false).first().getScore();
             }
-        } else if (mapDBObj.hasMember(value)) {
-            return mapDBObj.getScore(value);
         } else {
             return mapDBObj.entries(false).first().getScore();
         }

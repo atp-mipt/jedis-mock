@@ -34,7 +34,7 @@ class ZRangeStore extends AbstractZRangeByIndex {
             ZRevRangeByScore zRevRangeByScore = new ZRevRangeByScore(base(), params());
             zRevRangeByScore.key = key;
             zRevRangeByScore.mapDBObj = mapDBObj;
-            return saveToNewKey(keyDest, zRevRangeByScore.getRange(zRevRangeByScore.getStartBound(params().get(1)), zRevRangeByScore.getEndBound(params().get(2))));
+            return saveToNewKey(keyDest, zRevRangeByScore.getRange(zRevRangeByScore.getStartBound(params().get(2)), zRevRangeByScore.getEndBound(params().get(1))));
         }
         if (isByLex && !isRev) {
             ZRangeByLex zRangeByLex = new ZRangeByLex(base(), params());
@@ -46,7 +46,7 @@ class ZRangeStore extends AbstractZRangeByIndex {
             ZRevRangeByLex zRevRangeByLex = new ZRevRangeByLex(base(), params());
             zRevRangeByLex.key = key;
             zRevRangeByLex.mapDBObj = mapDBObj;
-            return saveToNewKey(keyDest, zRevRangeByLex.getRange(zRevRangeByLex.getStartBound(params().get(1)), zRevRangeByLex.getEndBound(params().get(2))));
+            return saveToNewKey(keyDest, zRevRangeByLex.getRange(zRevRangeByLex.getStartBound(params().get(2)), zRevRangeByLex.getEndBound(params().get(1))));
         }
 
         if (checkWrongIndex()) {

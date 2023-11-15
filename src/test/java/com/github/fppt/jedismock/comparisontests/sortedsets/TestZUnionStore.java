@@ -8,6 +8,7 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.params.ZParams;
 import redis.clients.jedis.resps.Tuple;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -118,6 +119,23 @@ public class TestZUnionStore {
         assertEquals(new Tuple("b", 2.0), results.get(1));
         assertEquals(new Tuple("c", 3.0), results.get(2));
         assertEquals(new Tuple("d", 3.0), results.get(3));
+    }
+
+    @TestTemplate
+    public void testZUnionStoreWithAggregateSum(Jedis jedis) {
+        jedis.zadd(ZSET_KEY_1, 1, "a");
+        jedis.zadd(ZSET_KEY_1, 2, "b");
+        jedis.zadd(ZSET_KEY_1, 3, "c");
+        jedis.zadd(ZSET_KEY_2, 1, "b");
+        jedis.zadd(ZSET_KEY_2, 2, "c");
+        jedis.zadd(ZSET_KEY_2, 3, "d");
+        assertEquals(4, jedis.zunionstore(ZSET_KEY_OUT,
+                new ZParams().aggregate(ZParams.Aggregate.valueOf("SUM")), ZSET_KEY_1, ZSET_KEY_2));
+        List<Tuple> results = Arrays.asList(new Tuple("a", 1.0),
+                new Tuple("b", 3.0),
+                new Tuple("d", 3.0),
+                new Tuple("c", 5.0));
+        assertEquals(results, jedis.zrangeWithScores(ZSET_KEY_OUT, 0, -1));
     }
 
     @TestTemplate

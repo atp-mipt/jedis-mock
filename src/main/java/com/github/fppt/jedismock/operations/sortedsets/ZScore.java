@@ -22,9 +22,6 @@ class ZScore extends AbstractRedisOperation {
     protected Slice response() {
         Slice key = params().get(0);
         Slice val = params().get(1);
-        if (val == null || val.toString().isEmpty()) {
-            return Response.error("Valid parameter must be provided");
-        }
 
         final RMZSet mapDBObj = getZSetFromBaseOrCreateEmpty(key);
 

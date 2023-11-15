@@ -9,6 +9,7 @@ import redis.clients.jedis.params.ZRangeParams;
 import redis.clients.jedis.resps.Tuple;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -51,6 +52,7 @@ public class TestZRangeStore {
                 new Tuple("c", 3.0));
         assertEquals(expected, result);
     }
+
     @TestTemplate
     public void testZRangeStoreByLex(Jedis jedis) {
         assertEquals(2, jedis.zrangestore(ZSET_KEY_OUT, ZSET_KEY, new ZRangeParams(BYLEX, "[b", "[c")));
@@ -60,6 +62,17 @@ public class TestZRangeStore {
                 new Tuple("c", 3.0));
         assertEquals(expected, result);
     }
+
+    @TestTemplate
+    public void testZRangeStoreByLexAndRev(Jedis jedis) {
+        assertEquals(2, jedis.zrangestore(ZSET_KEY_OUT, ZSET_KEY, new ZRangeParams(BYLEX, "[c", "[b").rev()));
+        List<Tuple> result = jedis.zrangeWithScores(ZSET_KEY_OUT, 0, -1);
+        List<Tuple> expected = Arrays.asList(
+                new Tuple("b", 2.0),
+                new Tuple("c", 3.0));
+        assertEquals(expected, result);
+    }
+
     @TestTemplate
     public void testZRangeStoreByScore(Jedis jedis) {
         assertEquals(2, jedis.zrangestore(ZSET_KEY_OUT, ZSET_KEY, new ZRangeParams(BYSCORE, "0", "2.5")));
@@ -68,5 +81,21 @@ public class TestZRangeStore {
                 new Tuple("a", 1.0),
                 new Tuple("b", 2.0));
         assertEquals(expected, result);
+    }
+
+    @TestTemplate
+    public void testZRangeStoreByScoreAndRev(Jedis jedis) {
+        assertEquals(2, jedis.zrangestore(ZSET_KEY_OUT, ZSET_KEY, new ZRangeParams(BYSCORE, "2.5", "0").rev()));
+        List<Tuple> result = jedis.zrangeWithScores(ZSET_KEY_OUT, 0, -1);
+        List<Tuple> expected = Arrays.asList(
+                new Tuple("a", 1.0),
+                new Tuple("b", 2.0));
+        assertEquals(expected, result);
+    }
+
+    @TestTemplate
+    public void testZRangeStoreWrongArgs(Jedis jedis) {
+        assertEquals(0, jedis.zrangestore(ZSET_KEY_OUT, ZSET_KEY, new ZRangeParams(100, 150)));
+        assertEquals(Collections.emptyList(), jedis.zrangeWithScores(ZSET_KEY_OUT, 0, -1));
     }
 }

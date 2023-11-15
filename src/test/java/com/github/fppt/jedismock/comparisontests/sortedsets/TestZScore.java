@@ -5,7 +5,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import redis.clients.jedis.Jedis;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ComparisonBase.class)
 public class TestZScore {
@@ -31,6 +32,9 @@ public class TestZScore {
     @TestTemplate
     public void testZScoreOK(Jedis jedis) {
         jedis.zadd(ZSET_KEY, 2, "a");
+        jedis.zadd(ZSET_KEY, 2.5, "b");
         assertEquals(2, jedis.zscore(ZSET_KEY, "a"));
+        assertEquals(2.5, jedis.zscore(ZSET_KEY, "b"));
     }
+
 }
