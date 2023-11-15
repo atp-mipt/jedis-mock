@@ -6,6 +6,7 @@ import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisDataException;
+import redis.clients.jedis.params.ZRangeParams;
 import redis.clients.jedis.resps.Tuple;
 
 import java.util.Arrays;
@@ -286,4 +287,16 @@ public class TestZRangeByScore {
         assertThrows(RuntimeException.class,
                 () -> jedis.zrangeByScore("fooz", "str", "2.6"));
     }
+
+    @TestTemplate
+    void testZRangeNoLimitWithScore(Jedis jedis) {
+        jedis.zadd(ZSET_KEY, 1, "one");
+        jedis.zadd(ZSET_KEY, 2, "two");
+        jedis.zadd(ZSET_KEY, 3, "three");
+        jedis.zadd(ZSET_KEY, 4, "four");
+        jedis.zadd(ZSET_KEY, 5, "five");
+        assertEquals(Collections.singletonList(new Tuple("five", 5.)),
+                jedis.zrangeByScoreWithScores(ZSET_KEY, 2, 6, 3, -1));
+    }
+
 }

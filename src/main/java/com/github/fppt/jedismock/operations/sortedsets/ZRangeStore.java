@@ -54,9 +54,6 @@ class ZRangeStore extends AbstractZRangeByIndex {
         }
 
         NavigableSet<ZSetEntry> entries = getRange(getStartBound(Slice.create(String.valueOf(startIndex))), getStartBound(Slice.create(String.valueOf(endIndex))));
-        if (entries.isEmpty()) {
-            return Response.integer(0);
-        }
 
         return saveToNewKey(keyDest, entries);
     }

@@ -34,13 +34,13 @@ public abstract class AbstractByScoreOperation extends AbstractRedisOperation {
 
 
     public Double getSum(Double score, String increment) {
-        if ("+inf".equalsIgnoreCase(increment)) {
+        if ("+inf".equalsIgnoreCase(increment) || "infinity".equalsIgnoreCase(increment)) {
             if (score == Double.NEGATIVE_INFINITY) {
                 throw new ArgumentException("ERR resulting score is not a number (NaN)");
             } else {
                 return Double.POSITIVE_INFINITY;
             }
-        } else if ("-inf".equalsIgnoreCase(increment)) {
+        } else if ("-inf".equalsIgnoreCase(increment) || "-infinity".equalsIgnoreCase(increment)) {
             if (score == Double.POSITIVE_INFINITY) {
                 throw new ArgumentException("ERR resulting score is not a number (NaN)");
             } else {

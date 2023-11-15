@@ -2,6 +2,7 @@ package com.github.fppt.jedismock.operations.sortedsets;
 
 import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.datastructures.ZSetEntry;
+import com.github.fppt.jedismock.exception.ArgumentException;
 import com.github.fppt.jedismock.operations.RedisCommand;
 import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.storage.RedisBase;
@@ -30,6 +31,9 @@ class ZRange extends AbstractZRangeByIndex {
             ZRevRangeByScore zRevRangeByScore = new ZRevRangeByScore(base(), params());
             return zRevRangeByScore.response();
         }
+        if (isByLex && withScores) {
+            throw new ArgumentException("ERR syntax error, WITHSCORES not supported in combination with BYLEX");
+        }
         if (isByLex && !isRev) {
             ZRangeByLex zRangeByLex = new ZRangeByLex(base(), params());
             return zRangeByLex.response();
@@ -37,6 +41,9 @@ class ZRange extends AbstractZRangeByIndex {
         if (isByLex) {
             ZRevRangeByLex zRevRangeByLex = new ZRevRangeByLex(base(), params());
             return zRevRangeByLex.response();
+        }
+        if (isLimit && count != -1) {
+            throw new ArgumentException("ERR syntax error, LIMIT is only supported in combination with either BYSCORE or BYLEX");
         }
         if (isRev) {
             ZRevRange zRevRange = new ZRevRange(base(), params());
@@ -48,9 +55,7 @@ class ZRange extends AbstractZRangeByIndex {
         }
 
         NavigableSet<ZSetEntry> entries = getRange(getStartBound(Slice.create(String.valueOf(startIndex))), getEndBound(Slice.create(String.valueOf(endIndex))));
-        if (entries.isEmpty()) {
-            return Response.array(new ArrayList<>());
-        }
+
         return getSliceFromRange(entries);
     }
 

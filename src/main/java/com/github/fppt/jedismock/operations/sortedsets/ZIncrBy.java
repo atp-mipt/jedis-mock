@@ -21,7 +21,7 @@ public class ZIncrBy extends AbstractByScoreOperation {
             throw new ArgumentException("ERR wrong number of arguments for 'zincrby' command");
         }
 
-        return Response.bulkString(Slice.create(String.valueOf(Math.round(getNewScore()))));
+        return Response.bulkString(Slice.create(String.valueOf(getNewScore())));
     }
 
     protected double getNewScore() {
