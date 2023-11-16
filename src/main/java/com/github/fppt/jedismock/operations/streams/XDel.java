@@ -21,7 +21,7 @@ public class XDel extends AbstractRedisOperation {
     @Override
     protected Slice response() {
         if (params().size() < 2) {
-            return Response.error("wrong number of arguments for 'xlen' command");
+            return Response.error("wrong number of arguments for 'xdel' command");
         }
 
         Slice key = params().get(0);
