@@ -457,67 +457,67 @@ start_server {
 #        assert {[lindex $res 0 1 1 1] eq {field two}}
 #        $rd close
 #    }
-#
-#    test {XDEL basic test} {
-#        r del somestream
-#        r xadd somestream * foo value0
-#        set id [r xadd somestream * foo value1]
-#        r xadd somestream * foo value2
-#        r xdel somestream $id
-#        assert {[r xlen somestream] == 2}
-#        set result [r xrange somestream - +]
-#        assert {[lindex $result 0 1 1] eq {value0}}
-#        assert {[lindex $result 1 1 1] eq {value2}}
-#    }
-#
-#    test {XDEL multiply id test} {
-#        r del somestream
-#        r xadd somestream 1-1 a 1
-#        r xadd somestream 1-2 b 2
-#        r xadd somestream 1-3 c 3
-#        r xadd somestream 1-4 d 4
-#        r xadd somestream 1-5 e 5
-#        assert {[r xlen somestream] == 5}
-#        assert {[r xdel somestream 1-1 1-4 1-5 2-1] == 3}
-#        assert {[r xlen somestream] == 2}
-#        set result [r xrange somestream - +]
-#        assert {[dict get [lindex $result 0 1] b] eq {2}}
-#        assert {[dict get [lindex $result 1 1] c] eq {3}}
-#    }
+
+    test {XDEL basic test} {
+        r del somestream
+        r xadd somestream * foo value0
+        set id [r xadd somestream * foo value1]
+        r xadd somestream * foo value2
+        r xdel somestream $id
+        assert {[r xlen somestream] == 2}
+        set result [r xrange somestream - +]
+        assert {[lindex $result 0 1 1] eq {value0}}
+        assert {[lindex $result 1 1 1] eq {value2}}
+    }
+
+    test {XDEL multiply id test} {
+        r del somestream
+        r xadd somestream 1-1 a 1
+        r xadd somestream 1-2 b 2
+        r xadd somestream 1-3 c 3
+        r xadd somestream 1-4 d 4
+        r xadd somestream 1-5 e 5
+        assert {[r xlen somestream] == 5}
+        assert {[r xdel somestream 1-1 1-4 1-5 2-1] == 3}
+        assert {[r xlen somestream] == 2}
+        set result [r xrange somestream - +]
+        assert {[dict get [lindex $result 0 1] b] eq {2}}
+        assert {[dict get [lindex $result 1 1] c] eq {3}}
+    }
 #     Here the idea is to check the consistency of the stream data structure
 #     as we remove all the elements down to zero elements.
-#    test {XDEL fuzz test} {
-#        r del somestream
-#        set ids {}
-#        set x 0;  Length of the stream
-#        while 1 {
-#            lappend ids [r xadd somestream * item $x]
-#            incr x
+    test {XDEL fuzz test} {
+        r del somestream
+        set ids {}
+        set x 0; # Length of the stream
+        while {$x < 100} { # WARNING! Modified condition as Jedis Mock does not implement XINFO command
+            lappend ids [r xadd somestream * item $x]
+            incr x
 #             Add enough elements to have a few radix tree nodes inside the stream.
 #            if {[dict get [r xinfo stream somestream] radix-tree-keys] > 20} break
-#        }
-#
+        }
+
 #         Now remove all the elements till we reach an empty stream
 #         and after every deletion, check that the stream is sane enough
 #         to report the right number of elements with XRANGE: this will also
 #         force accessing the whole data structure to check sanity.
-#        assert {[r xlen somestream] == $x}
-#
+        assert {[r xlen somestream] == $x}
+
 #         We want to remove elements in random order to really test the
 #         implementation in a better way.
-#        set ids [lshuffle $ids]
-#        foreach id $ids {
-#            assert {[r xdel somestream $id] == 1}
-#            incr x -1
-#            assert {[r xlen somestream] == $x}
+        set ids [lshuffle $ids]
+        foreach id $ids {
+            assert {[r xdel somestream $id] == 1}
+            incr x -1
+            assert {[r xlen somestream] == $x}
 #             The test would be too slow calling XRANGE for every iteration.
 #             Do it every 100 removal.
-#            if {$x % 100 == 0} {
-#                set res [r xrange somestream - +]
-#                assert {[llength $res] == $x}
-#            }
-#        }
-#    }
+            if {$x % 100 == 0} {
+                set res [r xrange somestream - +]
+                assert {[llength $res] == $x}
+            }
+        }
+    }
 
     test {XRANGE fuzzing} {
         insert_into_stream_key mystream{t}
