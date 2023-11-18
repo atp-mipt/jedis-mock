@@ -195,9 +195,9 @@
 
 ## Sorted Sets
 
-:heavy_check_mark: bzmpop<br>
-:heavy_check_mark: bzpopmax<br>
-:heavy_check_mark: bzpopmin<br>
+:x: bzmpop<br>
+:x: bzpopmax<br>
+:x: bzpopmin<br>
 :heavy_check_mark: zadd<br>
 :heavy_check_mark: zcard<br>
 :heavy_check_mark: zcount<br>

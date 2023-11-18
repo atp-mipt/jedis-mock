@@ -12,7 +12,7 @@ import java.util.List;
 @RedisCommand("zscore")
 class ZScore extends AbstractRedisOperation {
 
-    private static final double DELTA = 1e-5;
+    private static final double DELTA = 1e-6;
 
     ZScore(RedisBase base, List<Slice> params) {
         super(base, params);
@@ -38,6 +38,6 @@ class ZScore extends AbstractRedisOperation {
         if (Math.abs(score - round) < DELTA) {
             return Response.bulkString(Slice.create(String.format("%.0f", score)));
         }
-        return Response.bulkString(Slice.create(String.valueOf(score)));
+        return Response.bulkString(Slice.create(String.format("%10.16e", score).replace(',','.')));
     }
 }

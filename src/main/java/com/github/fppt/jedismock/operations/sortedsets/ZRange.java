@@ -7,7 +7,6 @@ import com.github.fppt.jedismock.operations.RedisCommand;
 import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.storage.RedisBase;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.NavigableSet;
 
@@ -51,7 +50,7 @@ class ZRange extends AbstractZRangeByIndex {
         }
 
         if (checkWrongIndex()) {
-            return Response.array(new ArrayList<>());
+            return Response.EMPTY_ARRAY;
         }
 
         NavigableSet<ZSetEntry> entries = getRange(getStartBound(Slice.create(String.valueOf(startIndex))), getEndBound(Slice.create(String.valueOf(endIndex))));

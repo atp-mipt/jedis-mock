@@ -13,8 +13,6 @@ import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.github.fppt.jedismock.Utils.convertToLong;
-
 abstract class ZStore extends AbstractByScoreOperation {
 
     protected static final String IS_WEIGHTS = "WEIGHTS";
@@ -39,7 +37,13 @@ abstract class ZStore extends AbstractByScoreOperation {
 
     protected RMZSet getFinishedZSet() {
         int numKeys = Integer.parseInt(params().get(startKeysIndex).toString());
+        if (numKeys == 0) {
+            throw new ArgumentException("*at least 1 input key * '" + this.getClass().getSimpleName().toLowerCase() + "' command");
+        }
         parseParams(numKeys);
+        if (params().size() != numKeys + startKeysIndex + 1) {
+            throw new ArgumentException("ERR syntax error*");
+        }
         RMZSet mapDBObj = new RMZSet();
         RMZSet temp = getZSet(params().get(startKeysIndex + 1));
         for (ZSetEntry entry :
@@ -71,40 +75,67 @@ abstract class ZStore extends AbstractByScoreOperation {
     }
 
    private void parseParams(int numKeys) {
-       int curIndex = startKeysIndex + numKeys + 1;
        weights = new ArrayList<>(numKeys);
        for (int i = 0; i < numKeys; i++) {
            weights.add(1.0);
        }
-       if ((params().size() > curIndex) && (IS_WEIGHTS.equalsIgnoreCase(params().get(curIndex).toString()))) {
-           for (int i = 0; i < numKeys; i++) {
-               double weight = toDouble(params().get(curIndex + i + 1).toString());
-               weights.set(i, weight);
+
+       List<Slice> temp = new ArrayList<>(params());
+       for (Slice param : temp) {
+           if (IS_WEIGHTS.equalsIgnoreCase(param.toString())) {
+               int index = params().indexOf(param);
+               for (int i = 0; i < numKeys; i++) {
+                   double weight;
+                   try {
+                       weight = toDouble(params().get(index + 1).toString());
+                   } catch (IndexOutOfBoundsException e) {
+                       throw new ArgumentException("ERR syntax error*");
+                   }
+                   weights.set(i, weight);
+                   params().remove(index + 1);
+               }
+               params().remove(param);
            }
-           curIndex += numKeys + 1;
-       }
-       if ((params().size() > curIndex) && (IS_AGGREGATE.equalsIgnoreCase(params().get(curIndex).toString()))) {
-           String aggParam = params().get(curIndex + 1).toString();
-           if ("MIN".equalsIgnoreCase(aggParam)) {
-               aggregate = Double::min;
+           if (IS_AGGREGATE.equalsIgnoreCase(param.toString())) {
+               String aggParam;
+               try {
+                   aggParam = params().get(params().indexOf(param) + 1).toString();
+               } catch (IndexOutOfBoundsException e) {
+                   throw new ArgumentException("ERR syntax error*");
+               }
+               if ("MIN".equalsIgnoreCase(aggParam)) {
+                   aggregate = Double::min;
+               }
+               if ("MAX".equalsIgnoreCase(aggParam)) {
+                   aggregate = Double::max;
+               }
+               if ("SUM".equalsIgnoreCase(aggParam)) {
+                   aggregate = getSum();
+               }
+               params().remove(params().indexOf(param) + 1);
+               params().remove(param);
            }
-           if ("MAX".equalsIgnoreCase(aggParam)) {
-               aggregate = Double::max;
+           if (IS_WITHSCORES.equalsIgnoreCase(param.toString())) {
+               withScores = true;
+               if (this.getClass().getSimpleName().endsWith("Store")) {
+                   throw new ArgumentException("ERR syntax error");
+               }
+               params().remove(param);
            }
-           if ("SUM".equalsIgnoreCase(aggParam)) {
-               aggregate = getSum();
-           }
-           curIndex += 2;
-       }
-       if ((params().size() > curIndex) && (IS_WITHSCORES.equalsIgnoreCase(params().get(curIndex).toString()))) {
-           withScores = true;
-           curIndex++;
-       }
-       if ((params().size() > curIndex) && (IS_LIMIT.equalsIgnoreCase(params().get(curIndex).toString()))) {
-           isLimit = true;
-           limit = convertToLong(params().get(++curIndex).toString());
-           if (limit < 0) {
-               throw new ArgumentException("ERR LIMIT* Negative limit");
+           if (IS_LIMIT.equalsIgnoreCase(param.toString())) {
+               isLimit = true;
+               try {
+                   limit = Long.parseLong(params().get(params().indexOf(param) + 1).toString());
+               } catch (IndexOutOfBoundsException e) {
+                   throw new ArgumentException("ERR syntax error*");
+               } catch (NumberFormatException e) {
+                   throw new ArgumentException("ERR LIMIT*");
+               }
+               if (limit < 0) {
+                   throw new ArgumentException("ERR LIMIT* Negative limit");
+               }
+               params().remove(params().indexOf(param) + 1);
+               params().remove(param);
            }
        }
    }
@@ -131,6 +162,9 @@ abstract class ZStore extends AbstractByScoreOperation {
 
     protected long getResultSize() {
         Slice keyDest = params().get(0);
+        if (base().exists(keyDest)) {
+            base().deleteValue(keyDest);
+        }
         startKeysIndex = 1;
         RMZSet mapDBObj = getFinishedZSet();
         if (!mapDBObj.isEmpty()) {

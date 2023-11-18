@@ -1,6 +1,7 @@
 package com.github.fppt.jedismock.operations.sortedsets;
 
 import com.github.fppt.jedismock.datastructures.Slice;
+import com.github.fppt.jedismock.exception.ArgumentException;
 import com.github.fppt.jedismock.operations.RedisCommand;
 import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.storage.RedisBase;
@@ -16,6 +17,9 @@ class ZLexCount extends AbstractZRangeByLex {
 
     @Override
     protected Slice response() {
+        if (isByScore || isByLex || isLimit || isRev || withScores) {
+            throw new ArgumentException("*syntax*");
+        }
         key = params().get(0);
         mapDBObj = getZSetFromBaseOrCreateEmpty(key);
 

@@ -13,6 +13,8 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static redis.clients.jedis.Protocol.Keyword.BYLEX;
 import static redis.clients.jedis.Protocol.Keyword.BYSCORE;
 
@@ -94,8 +96,59 @@ public class TestZRangeStore {
     }
 
     @TestTemplate
-    public void testZRangeStoreWrongArgs(Jedis jedis) {
-        assertEquals(0, jedis.zrangestore(ZSET_KEY_OUT, ZSET_KEY, new ZRangeParams(100, 150)));
-        assertEquals(Collections.emptyList(), jedis.zrangeWithScores(ZSET_KEY_OUT, 0, -1));
+    public void testZRangeStoreByScoreAndLimit(Jedis jedis) {
+        assertEquals(2, jedis.zrangestore(ZSET_KEY_OUT, ZSET_KEY, new ZRangeParams(BYSCORE, "0", "5").limit(2, -1)));
+        List<Tuple> result = jedis.zrangeWithScores(ZSET_KEY_OUT, 0, -1);
+        List<Tuple> expected = Arrays.asList(
+                new Tuple("c", 3.0),
+                new Tuple("d", 4.0));
+        assertEquals(expected, result);
+    }
+
+    @TestTemplate
+    public void testZRangeStoreByScoreAndRevAndLimit(Jedis jedis) {
+        assertEquals(2, jedis.zrangestore(ZSET_KEY_OUT, ZSET_KEY, new ZRangeParams(BYSCORE, "5", "0").rev().limit(0, 2)));
+        List<Tuple> result = jedis.zrangeWithScores(ZSET_KEY_OUT, 0, -1);
+        List<Tuple> expected = Arrays.asList(
+                new Tuple("c", 3.0),
+                new Tuple("d", 4.0));
+        assertEquals(expected, result);
+    }
+
+    @TestTemplate
+    public void testZRangeStoreEmptyRange(Jedis jedis) {
+        assertEquals(0, jedis.zrangestore(ZSET_KEY_OUT, ZSET_KEY, new ZRangeParams(5, 6)));
+        assertFalse(jedis.exists(ZSET_KEY_OUT));
+
+        assertEquals(0, jedis.zrangestore(ZSET_KEY_OUT, ZSET_KEY, new ZRangeParams(BYSCORE, "5", "6")));
+        assertFalse(jedis.exists(ZSET_KEY_OUT));
+
+        assertEquals(0, jedis.zrangestore(ZSET_KEY_OUT, ZSET_KEY, new ZRangeParams(BYLEX, "[f", "[g")));
+        assertFalse(jedis.exists(ZSET_KEY_OUT));
+    }
+
+    @TestTemplate
+    public void testZRangeStoreWrongTypeKey(Jedis jedis) {
+        jedis.zadd(ZSET_KEY_OUT, 1, "a");
+        jedis.set("foo", "bar");
+
+        assertThrows(RuntimeException.class,
+                () -> jedis.zrangestore(ZSET_KEY_OUT, "foo", new ZRangeParams(0, -1)));
+        assertEquals(Collections.singletonList("a"), jedis.zrange(ZSET_KEY_OUT, 0, -1));
+    }
+
+    @TestTemplate
+    public void testZRangeStoreInvalidSyntax(Jedis jedis) {
+        assertThrows(RuntimeException.class,
+                () -> jedis.zrangestore(ZSET_KEY_OUT, ZSET_KEY, new ZRangeParams(0, -1).limit(1, 2)));
+    }
+
+    @TestTemplate
+    public void testZRangeStoreFromNoExistKey(Jedis jedis) {
+        jedis.zadd(ZSET_KEY_OUT, 2, "aaa");
+        assertEquals(0, jedis.zrangestore(ZSET_KEY_OUT, "noKey", new ZRangeParams(0, -1)));
+        assertFalse(jedis.exists(ZSET_KEY_OUT));
     }
 }
+
+

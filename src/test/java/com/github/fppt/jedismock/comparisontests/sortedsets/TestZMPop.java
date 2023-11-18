@@ -13,7 +13,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(ComparisonBase.class)
 public class TestZMPop {
@@ -53,15 +55,11 @@ public class TestZMPop {
         assertEquals(expected, jedis.zmpop(SortedSetOption.MAX, 10, ZSET_KEY));
     }
 
-
-//
-//    @TestTemplate
-//    public void testZMPopKeyNotExist(Jedis jedis) {
-//        assertThrows(RuntimeException.class, () ->
-//                jedis.zmpop(SortedSetOption.MIN, "aaa")
-//        );
-//    }
+    @TestTemplate
+    public void testZMPopKeyNegativeCount(Jedis jedis) {
+        assertThrows(RuntimeException.class, () ->
+                jedis.zmpop(SortedSetOption.MIN, -1, "aaa")
+        );
+    }
 
 }
-
-//    verify_zpop_response r $popmin zset 0 {a -1} {zset {{a -1}}}
