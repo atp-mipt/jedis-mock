@@ -100,6 +100,19 @@ public class LinkedMap<K extends Comparable<K>, V> implements Iterable<Map.Entry
     }
 
     /**
+     * Remove the mapping for the first key from map if it exists
+     * @asymptotic O(1) regardless the size of map
+     */
+    public void removeHead() {
+        if (size == 0) {
+            return;
+        }
+
+        --size;
+        head = getNextKey(head);
+    }
+
+    /**
      * Get the value to which the given key is mapped
      * @asymptotic O(1)
      * @param key the key whose associated value is to be returned
