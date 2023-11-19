@@ -51,6 +51,11 @@ public class RMStream implements RMDataStructure {
     public static Slice checkKey(Slice key) throws WrongStreamKeyException {
         String[] parsedKey = key.toString().split("-");
 
+        if (parsedKey.length == 1) {
+            checkParsedKey(new String[] {parsedKey[0], "0"});
+            return Slice.create(key + "-0");
+        }
+
         checkParsedKey(parsedKey);
         return key;
     }
