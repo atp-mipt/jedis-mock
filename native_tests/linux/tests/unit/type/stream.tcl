@@ -204,26 +204,26 @@ start_server {
 #            incr expected
 #        }
 #    }
-#
-#    test {XTRIM with MINID option} {
-#        r DEL mystream
-#        r XADD mystream 1-0 f v
-#        r XADD mystream 2-0 f v
-#        r XADD mystream 3-0 f v
-#        r XADD mystream 4-0 f v
-#        r XADD mystream 5-0 f v
-#        r XTRIM mystream MINID = 3-0
-#        assert_equal [r XRANGE mystream - +] {{3-0 {f v}} {4-0 {f v}} {5-0 {f v}}}
-#    }
-#
-#    test {XTRIM with MINID option, big delta from master record} {
-#        r DEL mystream
-#        r XADD mystream 1-0 f v
-#        r XADD mystream 1641544570597-0 f v
-#        r XADD mystream 1641544570597-1 f v
-#        r XTRIM mystream MINID 1641544570597-0
-#        assert_equal [r XRANGE mystream - +] {{1641544570597-0 {f v}} {1641544570597-1 {f v}}}
-#    }
+
+    test {XTRIM with MINID option} {
+        r DEL mystream
+        r XADD mystream 1-0 f v
+        r XADD mystream 2-0 f v
+        r XADD mystream 3-0 f v
+        r XADD mystream 4-0 f v
+        r XADD mystream 5-0 f v
+        r XTRIM mystream MINID = 3-0
+        assert_equal [r XRANGE mystream - +] {{3-0 {f v}} {4-0 {f v}} {5-0 {f v}}}
+    }
+
+    test {XTRIM with MINID option, big delta from master record} {
+        r DEL mystream
+        r XADD mystream 1-0 f v
+        r XADD mystream 1641544570597-0 f v
+        r XADD mystream 1641544570597-1 f v
+        r XTRIM mystream MINID 1641544570597-0
+        assert_equal [r XRANGE mystream - +] {{1641544570597-0 {f v}} {1641544570597-1 {f v}}}
+    }
 
     proc insert_into_stream_key {key {count 10000}} {
         r multi
@@ -586,25 +586,25 @@ start_server {
         assert_equal [r XRANGE x - +] {{2577343934890-18446744073709551615 {f v}} {2577343934891-0 {f2 v2}}}
     }
 
-#    test {XTRIM with MAXLEN option basic test} {
-#        r DEL mystream
-#        for {set j 0} {$j < 1000} {incr j} {
-#            if {rand() < 0.9} {
-#                r XADD mystream * xitem $j
-#            } else {
-#                r XADD mystream * yitem $j
-#            }
-#        }
-#        r XTRIM mystream MAXLEN 666
-#        assert {[r XLEN mystream] == 666}
-#        r XTRIM mystream MAXLEN = 555
-#        assert {[r XLEN mystream] == 555}
+    test {XTRIM with MAXLEN option basic test} {
+        r DEL mystream
+        for {set j 0} {$j < 1000} {incr j} {
+            if {rand() < 0.9} {
+                r XADD mystream * xitem $j
+            } else {
+                r XADD mystream * yitem $j
+            }
+        }
+        r XTRIM mystream MAXLEN 666
+        assert {[r XLEN mystream] == 666}
+        r XTRIM mystream MAXLEN = 555
+        assert {[r XLEN mystream] == 555}
 #        r XTRIM mystream MAXLEN ~ 444
 #        assert {[r XLEN mystream] == 500}
-#        r XTRIM mystream MAXLEN ~ 400
-#        assert {[r XLEN mystream] == 400}
-#    }
-#
+        r XTRIM mystream MAXLEN ~ 400
+        assert {[r XLEN mystream] == 400}
+    }
+
 #    test {XADD with LIMIT consecutive calls} {
 #        r del mystream
 #        r config set stream-node-max-entries 10
@@ -628,38 +628,40 @@ start_server {
 #        assert {[r xlen mystream] == 2}
 #        r config set stream-node-max-entries 100
 #    }
-#
-#    test {XTRIM without ~ is not limited} {
-#        r del mystream
-#        r config set stream-node-max-entries 1
-#        for {set j 0} {$j < 102} {incr j} {
-#            r XADD mystream * xitem v
-#        }
-#        r XTRIM mystream MAXLEN 1
-#        assert {[r xlen mystream] == 1}
-#        r config set stream-node-max-entries 100
-#    }
-#
-#    test {XTRIM without ~ and with LIMIT} {
-#        r del mystream
-#        r config set stream-node-max-entries 1
-#        for {set j 0} {$j < 102} {incr j} {
-#            r XADD mystream * xitem v
-#        }
-#        assert_error ERR* {r XTRIM mystream MAXLEN 1 LIMIT 30}
-#    }
-#
-#    test {XTRIM with LIMIT delete entries no more than limit} {
-#        r del mystream
-#        r config set stream-node-max-entries 2
-#        for {set j 0} {$j < 3} {incr j} {
-#            r XADD mystream * xitem v
-#        }
+
+    test {XTRIM without ~ is not limited} {
+        r del mystream
+        r config set stream-node-max-entries 1
+        for {set j 0} {$j < 102} {incr j} {
+            r XADD mystream * xitem v
+        }
+        r XTRIM mystream MAXLEN 1
+        assert {[r xlen mystream] == 1}
+        r config set stream-node-max-entries 100
+    }
+
+    test {XTRIM without ~ and with LIMIT} {
+        r del mystream
+        r config set stream-node-max-entries 1
+        for {set j 0} {$j < 102} {incr j} {
+            r XADD mystream * xitem v
+        }
+        assert_error ERR* {r XTRIM mystream MAXLEN 1 LIMIT 30}
+    }
+
+    test {XTRIM with LIMIT delete entries no more than limit} {
+        r del mystream
+        r config set stream-node-max-entries 2
+        for {set j 0} {$j < 3} {incr j} {
+            r XADD mystream * xitem v
+        }
+
+# TODO add to java tests
 #        assert {[r XTRIM mystream MAXLEN ~ 0 LIMIT 1] == 0}
-#        assert {[r XTRIM mystream MAXLEN ~ 0 LIMIT 2] == 2}
-#    }
-#}
-#
+        assert {[r XTRIM mystream MAXLEN ~ 0 LIMIT 2] == 2}
+    }
+}
+
 #start_server {tags {"stream needs:debug"} overrides {appendonly yes}} {
 #    test {XADD with MAXLEN > xlen can propagate correctly} {
 #        for {set j 0} {$j < 100} {incr j} {
@@ -840,7 +842,7 @@ start_server {
 #    } {ERR *smaller*}
 #}
 #
-#start_server {tags {"stream"}} {
+start_server {tags {"stream"}} {
 #    test {XADD advances the entries-added counter and sets the recorded-first-entry-id} {
 #        r DEL x
 #        r XADD x 1-0 data a
@@ -854,7 +856,7 @@ start_server {
 #        assert_equal [dict get $reply entries-added] 2
 #        assert_equal [dict get $reply recorded-first-entry-id] "1-0"
 #    }
-#
+# TODO java test
 #    test {XDEL/TRIM are reflected by recorded first entry} {
 #        r DEL x
 #        r XADD x 1-0 data a
@@ -897,14 +899,14 @@ start_server {
 #        set reply [r XINFO STREAM x FULL]
 #        assert_equal [dict get $reply max-deleted-entry-id] "2-0"
 #    }
-#
-#    test {XADD with artial ID with maximal seq} {
-#        r DEL x
-#        r XADD x 1-18446744073709551615 f1 v1
-#        assert_error {*The ID specified in XADD is equal or smaller*} {r XADD x 1-* f2 v2}
-#    }
-#}
-#
+
+    test {XADD with artial ID with maximal seq} {
+        r DEL x
+        r XADD x 1-18446744073709551615 f1 v1
+        assert_error {*The ID specified in XADD is equal or smaller*} {r XADD x 1-* f2 v2}
+    }
+}
+
 #start_server {tags {"stream needs:debug"} overrides {appendonly yes aof-use-rdb-preamble no}} {
 #    test {Empty stream can be rewrite into AOF correctly} {
 #        r XADD mystream MAXLEN 0 * a b
