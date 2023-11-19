@@ -10,7 +10,7 @@ import com.github.fppt.jedismock.storage.RedisBase;
 import java.util.List;
 
 /**
- * XLEN key
+ * XDEL key id [id ...]
  */
 @RedisCommand("xdel")
 public class XDel extends AbstractRedisOperation {
