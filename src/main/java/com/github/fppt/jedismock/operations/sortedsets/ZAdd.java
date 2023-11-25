@@ -129,30 +129,41 @@ class ZAdd extends AbstractByScoreOperation {
 
     private void parseParams() {
         List<Slice> temp = new ArrayList<>(params());
+        temp.remove(0);
         for (Slice param : temp) {
+            boolean quit = true;
             if (IS_CH.equalsIgnoreCase(param.toString())) {
                 flagCH = true;
+                quit = false;
                 params().remove(param);
             }
             if (IS_INCR.equalsIgnoreCase(param.toString())) {
                 flagIncr = true;
+                quit = false;
                 params().remove(param);
             }
             if (IS_LT.equalsIgnoreCase(param.toString())) {
                 flagLT = true;
+                quit = false;
                 params().remove(param);
             }
             if (IS_GT.equalsIgnoreCase(param.toString())) {
                 flagGT = true;
+                quit = false;
                 params().remove(param);
             }
             if (IS_XX.equalsIgnoreCase(param.toString())) {
                 flagXX = true;
+                quit = false;
                 params().remove(param);
             }
             if (IS_NX.equalsIgnoreCase(param.toString())) {
                 flagNX = true;
+                quit = false;
                 params().remove(param);
+            }
+            if (quit) {
+                return;
             }
         }
     }

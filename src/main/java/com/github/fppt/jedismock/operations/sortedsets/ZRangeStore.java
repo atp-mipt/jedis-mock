@@ -32,9 +32,6 @@ class ZRangeStore extends AbstractZRangeByIndex {
             return Response.integer(0);
         }
         mapDBObj = base().getZSet(key);
-//        if(mapDBObj == null) {
-//            throw new ArgumentException("*WRONGTYPE*");
-//        }
 
         if (isByScore && !isRev) {
             ZRangeByScore zRangeByScore = new ZRangeByScore(base(), new ArrayList<>());

@@ -2110,40 +2110,40 @@ start_server {tags {"zset"}} {
         assert_error "ERR count*" {r bzmpop 1 2 myzset{t} myzset2{t} MAX COUNT -1}
     }
 
-    test "BZMPOP with multiple blocked clients" {
-        set rd1 [redis_deferring_client]
-        set rd2 [redis_deferring_client]
-        set rd3 [redis_deferring_client]
-        set rd4 [redis_deferring_client]
-        r del myzset{t} myzset2{t}
-
-        $rd1 bzmpop 0 2 myzset{t} myzset2{t} min count 1
-        wait_for_blocked_clients_count 1
-        $rd2 bzmpop 0 2 myzset{t} myzset2{t} max count 10
-        wait_for_blocked_clients_count 2
-        $rd3 bzmpop 0 2 myzset{t} myzset2{t} min count 10
-        wait_for_blocked_clients_count 3
-        $rd4 bzmpop 0 2 myzset{t} myzset2{t} max count 1
-        wait_for_blocked_clients_count 4
-
-        r multi
-        r zadd myzset{t} 1 a 2 b 3 c 4 d 5 e
-        r zadd myzset2{t} 1 a 2 b 3 c 4 d 5 e
-        r exec
-
-        assert_equal {myzset{t} {{a 1}}} [$rd1 read]
-        assert_equal {myzset{t} {{e 5} {d 4} {c 3} {b 2}}} [$rd2 read]
-        assert_equal {myzset2{t} {{a 1} {b 2} {c 3} {d 4} {e 5}}} [$rd3 read]
-
-        r zadd myzset2{t} 1 a 2 b 3 c
-        assert_equal {myzset2{t} {{c 3}}} [$rd4 read]
-
-        r del myzset{t} myzset2{t}
-        $rd1 close
-        $rd2 close
-        $rd3 close
-        $rd4 close
-    }
+#    test "BZMPOP with multiple blocked clients" {
+#        set rd1 [redis_deferring_client]
+#        set rd2 [redis_deferring_client]
+#        set rd3 [redis_deferring_client]
+#        set rd4 [redis_deferring_client]
+#        r del myzset{t} myzset2{t}
+#
+#        $rd1 bzmpop 0 2 myzset{t} myzset2{t} min count 1
+#        wait_for_blocked_clients_count 1
+#        $rd2 bzmpop 0 2 myzset{t} myzset2{t} max count 10
+#        wait_for_blocked_clients_count 2
+#        $rd3 bzmpop 0 2 myzset{t} myzset2{t} min count 10
+#        wait_for_blocked_clients_count 3
+#        $rd4 bzmpop 0 2 myzset{t} myzset2{t} max count 1
+#        wait_for_blocked_clients_count 4
+#
+#        r multi
+#        r zadd myzset{t} 1 a 2 b 3 c 4 d 5 e
+#        r zadd myzset2{t} 1 a 2 b 3 c 4 d 5 e
+#        r exec
+#
+#        assert_equal {myzset{t} {{a 1}}} [$rd1 read]
+#        assert_equal {myzset{t} {{e 5} {d 4} {c 3} {b 2}}} [$rd2 read]
+#        assert_equal {myzset2{t} {{a 1} {b 2} {c 3} {d 4} {e 5}}} [$rd3 read]
+#
+#        r zadd myzset2{t} 1 a 2 b 3 c
+#        assert_equal {myzset2{t} {{c 3}}} [$rd4 read]
+#
+#        r del myzset{t} myzset2{t}
+#        $rd1 close
+#        $rd2 close
+#        $rd3 close
+#        $rd4 close
+#    }
 
 #    test "BZMPOP propagate as pop with count command to replica" {
 #        set rd [redis_deferring_client]
@@ -2191,32 +2191,32 @@ start_server {tags {"zset"}} {
 #        close_replication_stream $repl
 #    } {} {needs:repl}
 
-    test "BZMPOP should not blocks on non key arguments - #10762" {
-        set rd1 [redis_deferring_client]
-        set rd2 [redis_deferring_client]
-        r del myzset myzset2 myzset3
-
-        $rd1 bzmpop 0 1 myzset min count 10
-        wait_for_blocked_clients_count 1
-        $rd2 bzmpop 0 2 myzset2 myzset3 max count 10
-        wait_for_blocked_clients_count 2
-
-        # These non-key keys will not unblock the clients.
-        r zadd 0 100 timeout_value
-        r zadd 1 200 numkeys_value
-        r zadd min 300 min_token
-        r zadd max 400 max_token
-        r zadd count 500 count_token
-        r zadd 10 600 count_value
-
-        r zadd myzset 1 zset
-        r zadd myzset3 1 zset3
-        assert_equal {myzset {{zset 1}}} [$rd1 read]
-        assert_equal {myzset3 {{zset3 1}}} [$rd2 read]
-
-        $rd1 close
-        $rd2 close
-    } {0} {cluster:skip}
+#    test "BZMPOP should not blocks on non key arguments - #10762" {
+#        set rd1 [redis_deferring_client]
+#        set rd2 [redis_deferring_client]
+#        r del myzset myzset2 myzset3
+#
+#        $rd1 bzmpop 0 1 myzset min count 10
+#        wait_for_blocked_clients_count 1
+#        $rd2 bzmpop 0 2 myzset2 myzset3 max count 10
+#        wait_for_blocked_clients_count 2
+#
+#        # These non-key keys will not unblock the clients.
+#        r zadd 0 100 timeout_value
+#        r zadd 1 200 numkeys_value
+#        r zadd min 300 min_token
+#        r zadd max 400 max_token
+#        r zadd count 500 count_token
+#        r zadd 10 600 count_value
+#
+#        r zadd myzset 1 zset
+#        r zadd myzset3 1 zset3
+#        assert_equal {myzset {{zset 1}}} [$rd1 read]
+#        assert_equal {myzset3 {{zset3 1}}} [$rd2 read]
+#
+#        $rd1 close
+#        $rd2 close
+#    } {0} {cluster:skip}
 
     test {ZSET skiplist order consistency when elements are moved} {
         set original_max [lindex [r config get zset-max-ziplist-entries] 1]

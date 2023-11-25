@@ -39,16 +39,10 @@ public abstract class AbstractBPop extends AbstractRedisOperation {
     protected abstract AbstractRedisOperation getSize(RedisBase base, List<Slice> params);
 
     protected Slice response() {
-//        int size = params().size();
-
-//        List<Slice> keys = params().subList(0, size - 1);
-//        long timeoutNanos = (long) (convertToDouble(params().get(size - 1).toString()) * 1_000_000_000L);
-
         if (timeoutNanos < 0) {
             throw new IllegalArgumentException("ERR timeout is negative");
         }
 
-//        System.out.println(keys.stream().map(Slice::toString).collect(Collectors.toList()));
         Slice source = getKey(keys, true);
 
         long waitEnd = System.nanoTime() + timeoutNanos;
