@@ -25,8 +25,6 @@ public class ZMPop extends ZPop {
 
     ZMPop(RedisBase base, List<Slice> params) {
         super(base, params, false);
-//        this.numKeys = numKeys;
-//        this.count = count;
     }
 
     @Override
@@ -105,9 +103,6 @@ public class ZMPop extends ZPop {
         }
         if (numKeys < 1) {
             throw new ArgumentException("ERR numkeys*");
-        }
-        if (!isMax && !isMin) {
-            throw new ArgumentException("ERR syntax error*");
         }
         if (params().size() != numKeys + 1) {
             throw new ArgumentException("ERR syntax error*");
