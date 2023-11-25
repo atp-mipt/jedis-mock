@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @ExtendWith(ComparisonBase.class)
 public class TestZMPop {
 
-//    private static final String ZSET_KEY = "myzset";
+    private static final String ZSET_KEY = "myzset";
 
     @BeforeEach
     public void setUp(Jedis jedis) {

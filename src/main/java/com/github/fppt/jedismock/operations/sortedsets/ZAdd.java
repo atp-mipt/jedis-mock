@@ -26,13 +26,6 @@ class ZAdd extends AbstractByScoreOperation {
     }
     private final Object lock;
 
-    private static final String IS_XX = "XX";
-    private static final String IS_NX = "NX";
-    private static final String IS_LT = "LT";
-    private static final String IS_GT = "GT";
-    private static final String IS_CH = "CH";
-    private static final String IS_INCR = "INCR";
-
     private final EnumSet<Options> options = EnumSet.noneOf(Options.class);
 
     private int countAdd = 0;
@@ -139,12 +132,16 @@ class ZAdd extends AbstractByScoreOperation {
 
     private void parseParams() {
         Iterator<Slice> i = params().iterator();
-        while (i.hasNext()) {
+        i.next();
+        boolean quit = false;
+        while (i.hasNext() && !quit) {
             String opt = i.next().toString();
+            quit = true;
             for (Options value : Options.values()) {
                 if (value.toString().equalsIgnoreCase(opt)) {
                     options.add(value);
                     i.remove();
+                    quit = false;
                     break;
                 }
             }
