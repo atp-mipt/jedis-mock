@@ -12,6 +12,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NavigableSet;
 
+import static com.github.fppt.jedismock.operations.sortedsets.AbstractZRange.Options.BYLEX;
+import static com.github.fppt.jedismock.operations.sortedsets.AbstractZRange.Options.BYSCORE;
+import static com.github.fppt.jedismock.operations.sortedsets.AbstractZRange.Options.LIMIT;
+import static com.github.fppt.jedismock.operations.sortedsets.AbstractZRange.Options.REV;
+import static com.github.fppt.jedismock.operations.sortedsets.AbstractZRange.Options.WITHSCORES;
+
 @RedisCommand("zrangestore")
 class ZRangeStore extends AbstractZRangeByIndex {
 
@@ -21,7 +27,7 @@ class ZRangeStore extends AbstractZRangeByIndex {
 
     @Override
     protected Slice response() {
-        if (withScores) {
+        if (options.contains(WITHSCORES)) {
             throw new ArgumentException("*syntax*");
         }
         Slice keyDest = params().get(0);
@@ -32,37 +38,34 @@ class ZRangeStore extends AbstractZRangeByIndex {
             return Response.integer(0);
         }
         mapDBObj = base().getZSet(key);
-//        if(mapDBObj == null) {
-//            throw new ArgumentException("*WRONGTYPE*");
-//        }
 
-        if (isByScore && !isRev) {
+        if (options.contains(BYSCORE) && !options.contains(REV)) {
             ZRangeByScore zRangeByScore = new ZRangeByScore(base(), new ArrayList<>());
             zRangeByScore.key = key;
             zRangeByScore.mapDBObj = mapDBObj;
             return saveToNewKey(keyDest, zRangeByScore.getRange(zRangeByScore.getStartBound(params().get(1)), zRangeByScore.getEndBound(params().get(2))));
         }
-        if (isByScore) {
+        if (options.contains(BYSCORE)) {
             ZRevRangeByScore zRevRangeByScore = new ZRevRangeByScore(base(), new ArrayList<>());
             zRevRangeByScore.key = key;
             zRevRangeByScore.mapDBObj = mapDBObj;
-            zRevRangeByScore.isRev = true;
+            zRevRangeByScore.options.add(REV);
             return saveToNewKey(keyDest, zRevRangeByScore.getRange(zRevRangeByScore.getStartBound(params().get(2)), zRevRangeByScore.getEndBound(params().get(1))));
         }
-        if (isByLex && !isRev) {
+        if (options.contains(BYLEX) && !options.contains(REV)) {
             ZRangeByLex zRangeByLex = new ZRangeByLex(base(), new ArrayList<>());
             zRangeByLex.key = key;
             zRangeByLex.mapDBObj = mapDBObj;
             return saveToNewKey(keyDest, zRangeByLex.getRange(zRangeByLex.getStartBound(params().get(1)), zRangeByLex.getEndBound(params().get(2))));
         }
-        if (isByLex) {
+        if (options.contains(BYLEX)) {
             ZRevRangeByLex zRevRangeByLex = new ZRevRangeByLex(base(), new ArrayList<>());
             zRevRangeByLex.key = key;
             zRevRangeByLex.mapDBObj = mapDBObj;
-            zRevRangeByLex.isRev = true;
+            zRevRangeByLex.options.add(REV);
             return saveToNewKey(keyDest, zRevRangeByLex.getRange(zRevRangeByLex.getStartBound(params().get(2)), zRevRangeByLex.getEndBound(params().get(1))));
         }
-        if (isLimit) {
+        if (options.contains(LIMIT)) {
             throw new ArgumentException("ERR syntax error, LIMIT is only supported in combination with either BYSCORE or BYLEX");
         }
         if (checkWrongIndex()) {
@@ -77,7 +80,7 @@ class ZRangeStore extends AbstractZRangeByIndex {
 
     private Slice saveToNewKey(Slice keyDest, NavigableSet<ZSetEntry> entries) {
         RMZSet resultZSet = new RMZSet();
-        if (isLimit) {
+        if (options.contains(LIMIT)) {
             int tempOffset = 0;
             int tempCount = 0;
             for (ZSetEntry entry : entries) {

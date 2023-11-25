@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.github.fppt.jedismock.Utils.convertToInteger;
+import static com.github.fppt.jedismock.operations.sortedsets.AbstractZRange.Options.REV;
 
 abstract class AbstractZRangeByIndex extends AbstractZRange {
 
@@ -18,7 +19,7 @@ abstract class AbstractZRangeByIndex extends AbstractZRange {
 
     @Override
     public final ZSetEntryBound getStartBound(Slice startSlice) {
-        ZSetEntry entry = mapDBObj.entries(isRev).stream()
+        ZSetEntry entry = mapDBObj.entries(options.contains(REV)).stream()
                 .skip(convertToInteger(startSlice.toString()))
                 .limit(1)
                 .collect(Collectors.toList())

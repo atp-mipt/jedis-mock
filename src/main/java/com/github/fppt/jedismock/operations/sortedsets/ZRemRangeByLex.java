@@ -16,7 +16,7 @@ class ZRemRangeByLex extends AbstractZRangeByLex {
 
     @Override
     protected Slice response() {
-        if (isByScore || isByLex || isLimit || isRev || withScores) {
+        if (!options.isEmpty()) {
             throw new ArgumentException("*syntax*");
         }
         key = params().get(0);

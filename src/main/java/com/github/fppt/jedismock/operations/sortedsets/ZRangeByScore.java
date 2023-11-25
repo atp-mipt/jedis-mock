@@ -7,6 +7,9 @@ import com.github.fppt.jedismock.storage.RedisBase;
 
 import java.util.List;
 
+import static com.github.fppt.jedismock.operations.sortedsets.AbstractZRange.Options.BYLEX;
+import static com.github.fppt.jedismock.operations.sortedsets.AbstractZRange.Options.REV;
+
 @RedisCommand("zrangebyscore")
 public class ZRangeByScore extends AbstractZRangeByScore {
 
@@ -16,7 +19,7 @@ public class ZRangeByScore extends AbstractZRangeByScore {
 
     @Override
     protected Slice response() {
-        if (isByLex || isRev) {
+        if (options.contains(BYLEX) || options.contains(REV)) {
             throw new ArgumentException("*syntax*");
         }
         key = params().get(0);

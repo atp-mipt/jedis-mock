@@ -8,30 +8,30 @@ import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.storage.RedisBase;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.NavigableSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.github.fppt.jedismock.Utils.convertToLong;
+import static com.github.fppt.jedismock.operations.sortedsets.AbstractZRange.Options.LIMIT;
+import static com.github.fppt.jedismock.operations.sortedsets.AbstractZRange.Options.REV;
+import static com.github.fppt.jedismock.operations.sortedsets.AbstractZRange.Options.WITHSCORES;
+import static com.github.fppt.jedismock.operations.sortedsets.AbstractZRange.Options.values;
 import static java.util.Collections.emptyNavigableSet;
 
 abstract class AbstractZRange extends AbstractByScoreOperation {
+
+    enum Options {
+        WITHSCORES, REV, BYSCORE, BYLEX, LIMIT
+    }
+
+    protected final EnumSet<Options> options = EnumSet.noneOf(Options.class);
+    
     protected static final String EXCLUSIVE_PREFIX = "(";
     protected static final String LOWEST_POSSIBLE_SCORE = "-inf";
     protected static final String HIGHEST_POSSIBLE_SCORE = "+inf";
-
-    protected static final String WITH_SCORES = "WITHSCORES";
-    protected static final String IS_REV = "REV";
-    protected static final String IS_BYSCORE = "BYSCORE";
-    protected static final String IS_BYLEX = "BYLEX";
-    protected static final String IS_LIMIT = "LIMIT";
-
-    protected boolean withScores = false;
-    protected boolean isRev = false;
-    protected boolean isByScore = false;
-    protected boolean isByLex = false;
-    protected boolean isLimit = false;
     protected int startIndex;
     protected int endIndex;
     protected long offset = 0;
@@ -54,7 +54,7 @@ abstract class AbstractZRange extends AbstractByScoreOperation {
 
         NavigableSet<ZSetEntry> subset =
                 mapDBObj.subset(start, end);
-        if (isRev) {
+        if (options.contains(REV)) {
             subset = subset.descendingSet();
         }
         return subset;
@@ -63,9 +63,9 @@ abstract class AbstractZRange extends AbstractByScoreOperation {
 
     protected Slice getSliceFromRange(NavigableSet<ZSetEntry> entries) {
         final List<Slice> list;
-        if (isLimit) {
+        if (options.contains(LIMIT)) {
             if (count == -1) {
-                if (withScores) {
+                if (options.contains(WITHSCORES)) {
                     list = entries.stream()
                             .skip(offset)
                             .flatMap(e -> Stream.of(e.getValue(),
@@ -80,7 +80,7 @@ abstract class AbstractZRange extends AbstractByScoreOperation {
                             .collect(Collectors.toList());
                 }
             } else {
-                if (withScores) {
+                if (options.contains(WITHSCORES)) {
                     list = entries.stream()
                             .skip(offset)
                             .limit(count)
@@ -99,7 +99,7 @@ abstract class AbstractZRange extends AbstractByScoreOperation {
 
             }
         } else {
-            if (withScores) {
+            if (options.contains(WITHSCORES)) {
                 list = entries.stream()
                         .flatMap(e -> Stream.of(e.getValue(),
                                 Slice.create(String.format("%.0f", e.getScore()))))
@@ -118,20 +118,14 @@ abstract class AbstractZRange extends AbstractByScoreOperation {
 
     protected final void parseArgs() {
         for (Slice param : params()) {
-            if (WITH_SCORES.equalsIgnoreCase(param.toString())) {
-                withScores = true;
+            for (Options value : values()) {
+                if (value.toString().equalsIgnoreCase(param.toString())){
+                    options.add(value);
+                    break;
+                }
             }
-            if (IS_REV.equalsIgnoreCase(param.toString())) {
-                isRev = true;
-            }
-            if (IS_BYSCORE.equalsIgnoreCase(param.toString())) {
-                isByScore = true;
-            }
-            if (IS_BYLEX.equalsIgnoreCase(param.toString())) {
-                isByLex = true;
-            }
-            if (IS_LIMIT.equalsIgnoreCase(param.toString())) {
-                isLimit = true;
+
+            if (LIMIT.toString().equalsIgnoreCase(param.toString())) {
                 int index = params().indexOf(param);
                 offset = convertToLong(params().get(++index).toString());
                 count = convertToLong(params().get(++index).toString());

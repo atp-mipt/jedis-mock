@@ -1,11 +1,15 @@
 package com.github.fppt.jedismock.operations.sortedsets;
 
+import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.exception.ArgumentException;
 import com.github.fppt.jedismock.operations.RedisCommand;
-import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.storage.RedisBase;
 
 import java.util.List;
+
+import static com.github.fppt.jedismock.operations.sortedsets.AbstractZRange.Options.BYSCORE;
+import static com.github.fppt.jedismock.operations.sortedsets.AbstractZRange.Options.REV;
+import static com.github.fppt.jedismock.operations.sortedsets.AbstractZRange.Options.WITHSCORES;
 
 @RedisCommand("zrangebylex")
 class ZRangeByLex extends AbstractZRangeByLex {
@@ -16,7 +20,7 @@ class ZRangeByLex extends AbstractZRangeByLex {
 
     @Override
     protected Slice response() {
-        if (isByScore || isRev || withScores) {
+        if (options.contains(BYSCORE) || options.contains(REV) || options.contains(WITHSCORES)) {
             throw new ArgumentException("*syntax*");
         }
         key = params().get(0);

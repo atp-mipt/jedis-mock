@@ -1,8 +1,8 @@
 package com.github.fppt.jedismock.operations.sortedsets;
 
+import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.exception.ArgumentException;
 import com.github.fppt.jedismock.operations.RedisCommand;
-import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.storage.RedisBase;
 
 import java.util.List;
@@ -16,7 +16,7 @@ public class ZRemRangeByScore extends AbstractZRangeByScore {
 
     @Override
     protected Slice response() {
-        if (isByScore || isByLex || isLimit || withScores || isRev ) {
+        if (!options.isEmpty()) {
             throw new ArgumentException("*syntax*");
         }
         key = params().get(0);

@@ -7,24 +7,26 @@ import com.github.fppt.jedismock.operations.RedisCommand;
 import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.storage.RedisBase;
 
-import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.Iterator;
 import java.util.List;
+
+import static com.github.fppt.jedismock.operations.sortedsets.ZAdd.Options.CH;
+import static com.github.fppt.jedismock.operations.sortedsets.ZAdd.Options.GT;
+import static com.github.fppt.jedismock.operations.sortedsets.ZAdd.Options.INCR;
+import static com.github.fppt.jedismock.operations.sortedsets.ZAdd.Options.LT;
+import static com.github.fppt.jedismock.operations.sortedsets.ZAdd.Options.NX;
+import static com.github.fppt.jedismock.operations.sortedsets.ZAdd.Options.XX;
 
 @RedisCommand("zadd")
 class ZAdd extends AbstractByScoreOperation {
-    private static final String IS_XX = "XX";
-    private static final String IS_NX = "NX";
-    private static final String IS_LT = "LT";
-    private static final String IS_GT = "GT";
-    private static final String IS_CH = "CH";
-    private static final String IS_INCR = "INCR";
 
-    private boolean flagXX = false;
-    private boolean flagNX = false;
-    private boolean flagLT = false;
-    private boolean flagGT = false;
-    private boolean flagCH = false;
-    private boolean flagIncr = false;
+    enum Options {
+        XX, NX, LT, GT, CH, INCR
+    }
+
+    private final EnumSet<Options> options = EnumSet.noneOf(Options.class);
+
     private int countAdd = 0;
     private int countChange = 0;
 
@@ -36,15 +38,16 @@ class ZAdd extends AbstractByScoreOperation {
     protected Slice response() {
         parseParams();
 
-        if (flagNX && (flagGT || flagLT || flagXX)) {
+        if (options.contains(NX) && (
+                options.contains(GT) || options.contains(LT) || options.contains(XX))) {
             throw new ArgumentException("ERR syntax error");
         }
 
-        if (flagLT && flagGT) {
+        if (options.contains(LT) && options.contains(GT)) {
             throw new ArgumentException("ERR syntax error");
         }
 
-        return flagIncr ? incr() : adding();
+        return options.contains(INCR) ? incr() : adding();
 
     }
 
@@ -52,7 +55,7 @@ class ZAdd extends AbstractByScoreOperation {
         Slice key = params().get(0);
         final RMZSet mapDBObj = getZSetFromBaseOrCreateEmpty(key);
         if (params().size() != 3) {
-            throw new ArgumentException("ERR*ERR*syntax*");
+            throw new ArgumentException("ERR INCR option supports a single increment-element pair");
         }
         String increment = params().get(1).toString();
         Slice member = params().get(2);
@@ -77,9 +80,9 @@ class ZAdd extends AbstractByScoreOperation {
         Slice key = params().get(0);
         final RMZSet mapDBObj = getZSetFromBaseOrCreateEmpty(key);
         if (((params().size()) & 1) == 0) {
-            throw new ArgumentException("ERR*ERR*syntax*");
+            throw new ArgumentException("ERR syntax error");
         }
-        if (flagXX && params().isEmpty()) {
+        if (options.contains(XX) && params().isEmpty()) {
             return Slice.empty();
         }
 
@@ -94,29 +97,21 @@ class ZAdd extends AbstractByScoreOperation {
         if (countAdd + countChange > 0) {
             base().putValue(key, mapDBObj);
         }
-        return flagCH ? Response.integer(countAdd + countChange) :
-                        Response.integer(countAdd);
+        return options.contains(CH) ? Response.integer(countAdd + countChange) :
+                Response.integer(countAdd);
     }
 
     private void addOneElement(RMZSet mapDBObj, Slice value, double newScore) {
-        if (flagXX && mapDBObj.hasMember(value)) {
-            Double oldScore = mapDBObj.getScore(value);
-            if ((flagLT && oldScore > newScore) || (flagGT && oldScore < newScore) || (!flagLT && !flagGT && oldScore != newScore)) {
-                mapDBObj.put(value, newScore);
-                countChange++;
-            }
+        if (options.contains(XX) && mapDBObj.hasMember(value)) {
+            updateValue(mapDBObj, value, newScore);
         }
-        if (flagNX && !mapDBObj.hasMember(value)) {
+        if (options.contains(NX) && !mapDBObj.hasMember(value)) {
             mapDBObj.put(value, newScore);
             countAdd++;
         }
-        if (!flagXX && !flagNX) {
+        if (!options.contains(XX) && !options.contains(NX)) {
             if (mapDBObj.hasMember(value)) {
-                Double oldScore = mapDBObj.getScore(value);
-                if ((flagLT && oldScore > newScore) || (flagGT && oldScore < newScore) || (!flagLT && !flagGT && oldScore != newScore)) {
-                    mapDBObj.put(value, newScore);
-                    countChange++;
-                }
+                updateValue(mapDBObj, value, newScore);
             } else {
                 mapDBObj.put(value, newScore);
                 countAdd++;
@@ -124,32 +119,24 @@ class ZAdd extends AbstractByScoreOperation {
         }
     }
 
+    private void updateValue(RMZSet mapDBObj, Slice value, double newScore) {
+        Double oldScore = mapDBObj.getScore(value);
+        if ((options.contains(LT) && oldScore > newScore) || (options.contains(GT) && oldScore < newScore) || (!options.contains(LT) && !options.contains(GT) && oldScore != newScore)) {
+            mapDBObj.put(value, newScore);
+            countChange++;
+        }
+    }
+
     private void parseParams() {
-        List<Slice> temp = new ArrayList<>(params());
-        for (Slice param : temp) {
-            if (IS_CH.equalsIgnoreCase(param.toString())) {
-                flagCH = true;
-                params().remove(param);
-            }
-            if (IS_INCR.equalsIgnoreCase(param.toString())) {
-                flagIncr = true;
-                params().remove(param);
-            }
-            if (IS_LT.equalsIgnoreCase(param.toString())) {
-                flagLT = true;
-                params().remove(param);
-            }
-            if (IS_GT.equalsIgnoreCase(param.toString())) {
-                flagGT = true;
-                params().remove(param);
-            }
-            if (IS_XX.equalsIgnoreCase(param.toString())) {
-                flagXX = true;
-                params().remove(param);
-            }
-            if (IS_NX.equalsIgnoreCase(param.toString())) {
-                flagNX = true;
-                params().remove(param);
+        Iterator<Slice> i = params().iterator();
+        while (i.hasNext()) {
+            String opt = i.next().toString();
+            for (Options value : Options.values()) {
+                if (value.toString().equalsIgnoreCase(opt)) {
+                    options.add(value);
+                    i.remove();
+                    break;
+                }
             }
         }
     }
