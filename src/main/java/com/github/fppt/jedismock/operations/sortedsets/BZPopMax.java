@@ -2,22 +2,22 @@ package com.github.fppt.jedismock.operations.sortedsets;
 
 import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.operations.RedisCommand;
-import com.github.fppt.jedismock.storage.RedisBase;
+import com.github.fppt.jedismock.server.Response;
+import com.github.fppt.jedismock.storage.OperationExecutorState;
 
+import java.util.Arrays;
 import java.util.List;
 
 @RedisCommand("bzpopmax")
-public class BZPopMax extends AbstractByScoreOperation {
-    private final BZPopMin bzPopMin;
+public class BZPopMax extends BZPop {
 
-    BZPopMax(RedisBase base, List<Slice> params) {
-        super(base, params);
-        this.bzPopMin = new BZPopMin(base, params());
-        bzPopMin.setRev(true);
+    BZPopMax(OperationExecutorState state, List<Slice> params) {
+        super(state, params);
     }
 
     @Override
-    protected Slice response() {
-        return bzPopMin.response();
+    protected Slice popper(List<Slice> params) {
+        List<Slice> result = new ZPop(base(), params, true).pop();
+        return Response.array(Arrays.asList(Response.bulkString(params.get(0)), result.get(0), result.get(1)));
     }
 }
