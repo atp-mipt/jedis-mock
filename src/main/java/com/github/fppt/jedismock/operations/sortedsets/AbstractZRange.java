@@ -4,6 +4,7 @@ import com.github.fppt.jedismock.datastructures.RMZSet;
 import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.datastructures.ZSetEntry;
 import com.github.fppt.jedismock.datastructures.ZSetEntryBound;
+import com.github.fppt.jedismock.exception.ArgumentException;
 import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.storage.RedisBase;
 
@@ -145,5 +146,11 @@ abstract class AbstractZRange extends AbstractByScoreOperation {
             base().putValue(key, mapDBObj);
         }
         return Response.integer(count);
+    }
+
+    protected final void expectNoOptions() {
+        if (!options.isEmpty()) {
+            throw new ArgumentException("*syntax*");
+        }
     }
 }

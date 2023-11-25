@@ -1,7 +1,6 @@
 package com.github.fppt.jedismock.operations.sortedsets;
 
 import com.github.fppt.jedismock.datastructures.Slice;
-import com.github.fppt.jedismock.exception.ArgumentException;
 import com.github.fppt.jedismock.operations.RedisCommand;
 import com.github.fppt.jedismock.storage.RedisBase;
 
@@ -16,9 +15,7 @@ class ZRemRangeByLex extends AbstractZRangeByLex {
 
     @Override
     protected Slice response() {
-        if (!options.isEmpty()) {
-            throw new ArgumentException("*syntax*");
-        }
+        expectNoOptions();
         key = params().get(0);
         mapDBObj = getZSetFromBaseOrCreateEmpty(key);
 
@@ -26,6 +23,4 @@ class ZRemRangeByLex extends AbstractZRangeByLex {
         final Slice end = params().get(2);
         return remRangeFromKey(getRange(getStartBound(start), getEndBound(end)));
     }
-
-
 }
