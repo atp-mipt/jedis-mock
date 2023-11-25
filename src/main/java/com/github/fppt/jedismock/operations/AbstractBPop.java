@@ -16,6 +16,8 @@ public abstract class AbstractBPop extends AbstractRedisOperation {
 
     private final Object lock;
     private final boolean isInTransaction;
+    protected long timeoutNanos;
+    protected List<Slice> keys;
 
     protected AbstractBPop(OperationExecutorState state, List<Slice> params) {
         super(state.base(), params);
@@ -23,22 +25,30 @@ public abstract class AbstractBPop extends AbstractRedisOperation {
         this.isInTransaction = state.isTransactionModeOn();
     }
 
+    @Override
+    protected void doOptionalWork() {
+        if (params().size() < 2) {
+            throw new IndexOutOfBoundsException("require at least 2 params");
+        }
+        timeoutNanos = (long) (convertToDouble(params().get(params().size() - 1).toString()) * 1_000_000_000L);
+        keys = params().subList(0, params().size() - 1);
+    }
+
     protected abstract Slice popper(List<Slice> params);
 
     protected abstract AbstractRedisOperation getSize(RedisBase base, List<Slice> params);
 
     protected Slice response() {
-        int size = params().size();
-        if (size < 2) {
-            throw new IndexOutOfBoundsException("require at least 2 params");
-        }
-        List<Slice> keys = params().subList(0, size - 1);
-        long timeoutNanos = (long) (convertToDouble(params().get(size - 1).toString()) * 1_000_000_000L);
+//        int size = params().size();
+
+//        List<Slice> keys = params().subList(0, size - 1);
+//        long timeoutNanos = (long) (convertToDouble(params().get(size - 1).toString()) * 1_000_000_000L);
 
         if (timeoutNanos < 0) {
             throw new IllegalArgumentException("ERR timeout is negative");
         }
 
+//        System.out.println(keys.stream().map(Slice::toString).collect(Collectors.toList()));
         Slice source = getKey(keys, true);
 
         long waitEnd = System.nanoTime() + timeoutNanos;
@@ -60,7 +70,7 @@ public abstract class AbstractBPop extends AbstractRedisOperation {
         if (source != null) {
             return popper(Collections.singletonList(source));
         } else {
-            return Response.NULL;
+            return Response.NULL_ARRAY;
         }
     }
 

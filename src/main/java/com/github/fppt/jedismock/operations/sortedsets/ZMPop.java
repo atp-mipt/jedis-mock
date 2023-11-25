@@ -13,17 +13,20 @@ import java.util.List;
 
 @RedisCommand("zmpop")
 public class ZMPop extends ZPop {
-    protected static final String IS_MIN = "MIN";
-    protected static final String IS_MAX = "MAX";
-    protected static final String IS_COUNT = "COUNT";
+    private static final String IS_MIN = "MIN";
+    private static final String IS_MAX = "MAX";
+    private static final String IS_COUNT = "COUNT";
 
-    protected boolean isMin = false;
-    protected boolean isMax = false;
-    protected boolean isCount = false;
+    private boolean isMin = false;
+    private boolean isMax = false;
+    private boolean isCount = false;
+    private int numKeys = 1;
     private long count = 1;
 
     ZMPop(RedisBase base, List<Slice> params) {
         super(base, params, false);
+//        this.numKeys = numKeys;
+//        this.count = count;
     }
 
     @Override
@@ -32,22 +35,10 @@ public class ZMPop extends ZPop {
             throw new ArgumentException("ERR wrong number of arguments for 'zmpop' command");
         }
         parseArgs();
-        int numKeys;
-        try {
-            numKeys = Integer.parseInt(params().get(0).toString());
-        } catch (NumberFormatException e) {
-            throw new ArgumentException("ERR numkeys*");
-        }
-        if (numKeys < 1) {
-            throw new ArgumentException("ERR numkeys*");
-        }
-        if (!isMax && !isMin) {
-            throw new ArgumentException("ERR syntax error*");
-        }
-        if (params().size() != numKeys + 1) {
-            throw new ArgumentException("ERR syntax error*");
-        }
+        return getResult();
+    }
 
+    protected Slice getResult() {
         for (int i = 0; i < numKeys; i++) {
             Slice key = params().get(i + 1);
             RMZSet mapDBObj = getZSetFromBaseOrCreateEmpty(key);
@@ -70,7 +61,7 @@ public class ZMPop extends ZPop {
         return Response.NULL_ARRAY;
     }
 
-    protected final void parseArgs() {
+    protected final List<Slice> parseArgs() {
         List<Slice> temp = new ArrayList<>(params());
         for (Slice param : temp) {
             if (IS_MIN.equalsIgnoreCase(param.toString())) {
@@ -107,5 +98,20 @@ public class ZMPop extends ZPop {
                 params().remove(param);
             }
         }
+        try {
+            numKeys = Integer.parseInt(params().get(0).toString());
+        } catch (NumberFormatException e) {
+            throw new ArgumentException("ERR numkeys*");
+        }
+        if (numKeys < 1) {
+            throw new ArgumentException("ERR numkeys*");
+        }
+        if (!isMax && !isMin) {
+            throw new ArgumentException("ERR syntax error*");
+        }
+        if (params().size() != numKeys + 1) {
+            throw new ArgumentException("ERR syntax error*");
+        }
+        return params();
     }
 }

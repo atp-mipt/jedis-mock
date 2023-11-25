@@ -1957,112 +1957,112 @@ start_server {tags {"zset"}} {
             assert_equal {} $err
         }
 
-#    foreach {pop} {BZPOPMIN BZMPOP_MIN} {
-#        test "$pop, ZADD + DEL should not awake blocked client" {
-#            set rd [redis_deferring_client]
-#            r del zset
-#
-#            bzpop_command $rd $pop zset 0
-#            wait_for_blocked_client
-#
-#            r multi
-#            r zadd zset 0 foo
-#            r del zset
-#            r exec
-#            r del zset
-#            r zadd zset 1 bar
-#
-#            verify_pop_response $pop [$rd read] {zset bar 1} {zset {{bar 1}}}
-#            $rd close
-#        }
+    foreach {pop} {BZPOPMIN BZMPOP_MIN} {
+        test "$pop, ZADD + DEL should not awake blocked client" {
+            set rd [redis_deferring_client]
+            r del zset
 
-#        test "$pop, ZADD + DEL + SET should not awake blocked client" {
-#            set rd [redis_deferring_client]
-#            r del zset
-#
-#            bzpop_command $rd $pop zset 0
-#            wait_for_blocked_client
-#
-#            r multi
-#            r zadd zset 0 foo
-#            r del zset
-#            r set zset foo
-#            r exec
-#            r del zset
-#            r zadd zset 1 bar
-#
-#            verify_pop_response $pop [$rd read] {zset bar 1} {zset {{bar 1}}}
-#            $rd close
-#        }
-#    }
+            bzpop_command $rd $pop zset 0
+            wait_for_blocked_client
 
-#        test "BZPOPMIN with same key multiple times should work" {
-#            set rd [redis_deferring_client]
-#            r del z1{t} z2{t}
-#
-#            # Data arriving after the BZPOPMIN.
-#            $rd bzpopmin z1{t} z2{t} z2{t} z1{t} 0
-#            wait_for_blocked_client
-#            r zadd z1{t} 0 a
-#            assert_equal [$rd read] {z1{t} a 0}
-#            $rd bzpopmin z1{t} z2{t} z2{t} z1{t} 0
-#            wait_for_blocked_client
-#            r zadd z2{t} 1 b
-#            assert_equal [$rd read] {z2{t} b 1}
-#
-#            # Data already there.
-#            r zadd z1{t} 0 a
-#            r zadd z2{t} 1 b
-#            $rd bzpopmin z1{t} z2{t} z2{t} z1{t} 0
-#            assert_equal [$rd read] {z1{t} a 0}
-#            $rd bzpopmin z1{t} z2{t} z2{t} z1{t} 0
-#            assert_equal [$rd read] {z2{t} b 1}
-#            $rd close
-#        }
+            r multi
+            r zadd zset 0 foo
+            r del zset
+            r exec
+            r del zset
+            r zadd zset 1 bar
 
-#    foreach {pop} {BZPOPMIN BZMPOP_MIN} {
-#        test "MULTI/EXEC is isolated from the point of view of $pop" {
-#            set rd [redis_deferring_client]
-#            r del zset
-#
-#            bzpop_command $rd $pop zset 0
-#            wait_for_blocked_client
-#
-#            r multi
-#            r zadd zset 0 a
-#            r zadd zset 1 b
-#            r zadd zset 2 c
-#            r exec
-#
-#            verify_pop_response $pop [$rd read] {zset a 0} {zset {{a 0}}}
-#            $rd close
-#        }
+            verify_pop_response $pop [$rd read] {zset bar 1} {zset {{bar 1}}}
+            $rd close
+        }
 
-#        test "$pop with variadic ZADD" {
-#            set rd [redis_deferring_client]
-#            r del zset
-#            if {$::valgrind} {after 100}
-#            bzpop_command $rd $pop zset 0
-#            wait_for_blocked_client
-#            if {$::valgrind} {after 100}
-#            assert_equal 2 [r zadd zset -1 foo 1 bar]
-#            if {$::valgrind} {after 100}
-#            verify_pop_response $pop [$rd read] {zset foo -1} {zset {{foo -1}}}
-#            assert_equal {bar} [r zrange zset 0 -1]
-#            $rd close
-#        }
+        test "$pop, ZADD + DEL + SET should not awake blocked client" {
+            set rd [redis_deferring_client]
+            r del zset
 
-#        test "$pop with zero timeout should block indefinitely" {
-#            set rd [redis_deferring_client]
-#            r del zset
-#            bzpop_command $rd $pop zset 0
-#            wait_for_blocked_client
-#            after 1000
-#            r zadd zset 0 foo
-#            verify_pop_response $pop [$rd read] {zset foo 0} {zset {{foo 0}}}
-#            $rd close
-#        }
-#    }
+            bzpop_command $rd $pop zset 0
+            wait_for_blocked_client
+
+            r multi
+            r zadd zset 0 foo
+            r del zset
+            r set zset foo
+            r exec
+            r del zset
+            r zadd zset 1 bar
+
+            verify_pop_response $pop [$rd read] {zset bar 1} {zset {{bar 1}}}
+            $rd close
+        }
+    }
+
+        test "BZPOPMIN with same key multiple times should work" {
+            set rd [redis_deferring_client]
+            r del z1{t} z2{t}
+
+            # Data arriving after the BZPOPMIN.
+            $rd bzpopmin z1{t} z2{t} z2{t} z1{t} 0
+            wait_for_blocked_client
+            r zadd z1{t} 0 a
+            assert_equal [$rd read] {z1{t} a 0}
+            $rd bzpopmin z1{t} z2{t} z2{t} z1{t} 0
+            wait_for_blocked_client
+            r zadd z2{t} 1 b
+            assert_equal [$rd read] {z2{t} b 1}
+
+            # Data already there.
+            r zadd z1{t} 0 a
+            r zadd z2{t} 1 b
+            $rd bzpopmin z1{t} z2{t} z2{t} z1{t} 0
+            assert_equal [$rd read] {z1{t} a 0}
+            $rd bzpopmin z1{t} z2{t} z2{t} z1{t} 0
+            assert_equal [$rd read] {z2{t} b 1}
+            $rd close
+        }
+
+    foreach {pop} {BZPOPMIN BZMPOP_MIN} {
+        test "MULTI/EXEC is isolated from the point of view of $pop" {
+            set rd [redis_deferring_client]
+            r del zset
+
+            bzpop_command $rd $pop zset 0
+            wait_for_blocked_client
+
+            r multi
+            r zadd zset 0 a
+            r zadd zset 1 b
+            r zadd zset 2 c
+            r exec
+
+            verify_pop_response $pop [$rd read] {zset a 0} {zset {{a 0}}}
+            $rd close
+        }
+
+        test "$pop with variadic ZADD" {
+            set rd [redis_deferring_client]
+            r del zset
+            if {$::valgrind} {after 100}
+            bzpop_command $rd $pop zset 0
+            wait_for_blocked_client
+            if {$::valgrind} {after 100}
+            assert_equal 2 [r zadd zset -1 foo 1 bar]
+            if {$::valgrind} {after 100}
+            verify_pop_response $pop [$rd read] {zset foo -1} {zset {{foo -1}}}
+            assert_equal {bar} [r zrange zset 0 -1]
+            $rd close
+        }
+
+        test "$pop with zero timeout should block indefinitely" {
+            set rd [redis_deferring_client]
+            r del zset
+            bzpop_command $rd $pop zset 0
+            wait_for_blocked_client
+            after 1000
+            r zadd zset 0 foo
+            verify_pop_response $pop [$rd read] {zset foo 0} {zset {{foo 0}}}
+            $rd close
+        }
+    }
 
         r config set zset-max-ziplist-entries $original_max_entries
         r config set zset-max-ziplist-value $original_max_value
@@ -2110,40 +2110,40 @@ start_server {tags {"zset"}} {
         assert_error "ERR count*" {r bzmpop 1 2 myzset{t} myzset2{t} MAX COUNT -1}
     }
 
-#    test "BZMPOP with multiple blocked clients" {
-#        set rd1 [redis_deferring_client]
-#        set rd2 [redis_deferring_client]
-#        set rd3 [redis_deferring_client]
-#        set rd4 [redis_deferring_client]
-#        r del myzset{t} myzset2{t}
-#
-#        $rd1 bzmpop 0 2 myzset{t} myzset2{t} min count 1
-#        wait_for_blocked_clients_count 1
-#        $rd2 bzmpop 0 2 myzset{t} myzset2{t} max count 10
-#        wait_for_blocked_clients_count 2
-#        $rd3 bzmpop 0 2 myzset{t} myzset2{t} min count 10
-#        wait_for_blocked_clients_count 3
-#        $rd4 bzmpop 0 2 myzset{t} myzset2{t} max count 1
-#        wait_for_blocked_clients_count 4
-#
-#        r multi
-#        r zadd myzset{t} 1 a 2 b 3 c 4 d 5 e
-#        r zadd myzset2{t} 1 a 2 b 3 c 4 d 5 e
-#        r exec
-#
-#        assert_equal {myzset{t} {{a 1}}} [$rd1 read]
-#        assert_equal {myzset{t} {{e 5} {d 4} {c 3} {b 2}}} [$rd2 read]
-#        assert_equal {myzset2{t} {{a 1} {b 2} {c 3} {d 4} {e 5}}} [$rd3 read]
-#
-#        r zadd myzset2{t} 1 a 2 b 3 c
-#        assert_equal {myzset2{t} {{c 3}}} [$rd4 read]
-#
-#        r del myzset{t} myzset2{t}
-#        $rd1 close
-#        $rd2 close
-#        $rd3 close
-#        $rd4 close
-#    }
+    test "BZMPOP with multiple blocked clients" {
+        set rd1 [redis_deferring_client]
+        set rd2 [redis_deferring_client]
+        set rd3 [redis_deferring_client]
+        set rd4 [redis_deferring_client]
+        r del myzset{t} myzset2{t}
+
+        $rd1 bzmpop 0 2 myzset{t} myzset2{t} min count 1
+        wait_for_blocked_clients_count 1
+        $rd2 bzmpop 0 2 myzset{t} myzset2{t} max count 10
+        wait_for_blocked_clients_count 2
+        $rd3 bzmpop 0 2 myzset{t} myzset2{t} min count 10
+        wait_for_blocked_clients_count 3
+        $rd4 bzmpop 0 2 myzset{t} myzset2{t} max count 1
+        wait_for_blocked_clients_count 4
+
+        r multi
+        r zadd myzset{t} 1 a 2 b 3 c 4 d 5 e
+        r zadd myzset2{t} 1 a 2 b 3 c 4 d 5 e
+        r exec
+
+        assert_equal {myzset{t} {{a 1}}} [$rd1 read]
+        assert_equal {myzset{t} {{e 5} {d 4} {c 3} {b 2}}} [$rd2 read]
+        assert_equal {myzset2{t} {{a 1} {b 2} {c 3} {d 4} {e 5}}} [$rd3 read]
+
+        r zadd myzset2{t} 1 a 2 b 3 c
+        assert_equal {myzset2{t} {{c 3}}} [$rd4 read]
+
+        r del myzset{t} myzset2{t}
+        $rd1 close
+        $rd2 close
+        $rd3 close
+        $rd4 close
+    }
 
 #    test "BZMPOP propagate as pop with count command to replica" {
 #        set rd [redis_deferring_client]

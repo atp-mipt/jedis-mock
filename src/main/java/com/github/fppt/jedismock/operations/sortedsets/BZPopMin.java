@@ -8,11 +8,14 @@ import com.github.fppt.jedismock.storage.OperationExecutorState;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.github.fppt.jedismock.Utils.convertToDouble;
+
 @RedisCommand("bzpopmin")
 public class BZPopMin extends BZPop {
 
     BZPopMin(OperationExecutorState state, List<Slice> params) {
         super(state, params);
+        timeoutNanos = (long) (convertToDouble(params().get(params().size() - 1).toString()) * 1_000_000_000L);
     }
 
     @Override
