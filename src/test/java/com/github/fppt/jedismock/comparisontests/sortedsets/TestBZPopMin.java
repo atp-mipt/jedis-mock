@@ -57,5 +57,4 @@ public class TestBZPopMin {
         long finishTime = System.currentTimeMillis();
         assertTrue(finishTime - startTime >= timeout * 1000);
     }
-
 }
