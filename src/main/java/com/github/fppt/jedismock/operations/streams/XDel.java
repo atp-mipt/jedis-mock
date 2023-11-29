@@ -2,6 +2,8 @@ package com.github.fppt.jedismock.operations.streams;
 
 import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.datastructures.streams.LinkedMap;
+import com.github.fppt.jedismock.datastructures.streams.StreamId;
+import com.github.fppt.jedismock.exception.WrongStreamKeyException;
 import com.github.fppt.jedismock.operations.AbstractRedisOperation;
 import com.github.fppt.jedismock.operations.RedisCommand;
 import com.github.fppt.jedismock.server.Response;
@@ -10,7 +12,7 @@ import com.github.fppt.jedismock.storage.RedisBase;
 import java.util.List;
 
 /**
- * XDEL key id [id ...]
+ * XDEL key id [id ...]<br>
  */
 @RedisCommand("xdel")
 public class XDel extends AbstractRedisOperation {
@@ -25,12 +27,19 @@ public class XDel extends AbstractRedisOperation {
         }
 
         Slice key = params().get(0);
-        LinkedMap<Slice, LinkedMap<Slice, Slice>> map = getStreamFromBaseOrCreateEmpty(key).getStoredData();
+        LinkedMap<StreamId, LinkedMap<Slice, Slice>> map = getStreamFromBaseOrCreateEmpty(key).getStoredData();
 
         int deletedElementsCount = 0;
+        StreamId idToBeRemoved;
 
         for (int i = 1; i < params().size(); ++i) {
-            if (map.remove(params().get(i)) != null) {
+            try { /* FIXME all preceding nodes are to be removed */
+                idToBeRemoved = new StreamId(params().get(i));
+            } catch (WrongStreamKeyException e) {
+                return Response.error(e.getMessage());
+            }
+
+            if (map.remove(idToBeRemoved) != null) {
                 ++deletedElementsCount;
             }
         }
