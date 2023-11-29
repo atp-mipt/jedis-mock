@@ -44,6 +44,10 @@ public class Response {
         return Slice.create(String.format("-%s%s", s, LINE_SEPARATOR));
     }
 
+    public static Slice invalidArgumentsCountError(String cmdName) {
+        return error("ERR wrong number of arguments for '" + cmdName + "' command");
+    }
+
     public static Slice integer(long v) {
         return Slice.create(String.format(":%d%s", v, LINE_SEPARATOR));
     }
