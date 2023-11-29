@@ -20,7 +20,7 @@ public class XLen extends AbstractRedisOperation {
     @Override
     protected Slice response() {
         if (params().size() != 1) {
-            return Response.error("wrong number of arguments for 'xlen' command");
+            return Response.invalidArgumentsCountError("xlen");
         }
 
         return Response.integer(getStreamFromBaseOrCreateEmpty(params().get(0)).getStoredData().size());

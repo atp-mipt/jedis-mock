@@ -23,7 +23,7 @@ public class XDel extends AbstractRedisOperation {
     @Override
     protected Slice response() {
         if (params().size() < 2) {
-            return Response.error("wrong number of arguments for 'xdel' command");
+            return Response.invalidArgumentsCountError("xdel");
         }
 
         Slice key = params().get(0);

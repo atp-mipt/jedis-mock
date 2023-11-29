@@ -18,7 +18,7 @@ public class XRevRange extends Ranges {
     @Override
     protected Slice response() {
         if (params().size() < 3) {
-            return Response.error("wrong number of arguments for 'xrevrange' command");
+            return Response.invalidArgumentsCountError("xrevrange");
         }
 
         Slice key = params().get(0);

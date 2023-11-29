@@ -22,8 +22,6 @@ import static com.github.fppt.jedismock.datastructures.streams.StreamErrors.TOP_
  */
 @RedisCommand("xadd")
 public class XAdd extends AbstractRedisOperation {
-    public static final String ARG_NUMBER_ERROR = "wrong number of arguments for 'xadd' command";
-
     XAdd(RedisBase base, List<Slice> params) {
         super(base, params);
     }
@@ -40,7 +38,7 @@ public class XAdd extends AbstractRedisOperation {
     @Override
     protected Slice response() {
         if (params().size() < 3) {
-            return Response.error(ARG_NUMBER_ERROR);
+            return Response.invalidArgumentsCountError("xadd");
         }
 
         Slice key = params().get(0);
@@ -54,14 +52,18 @@ public class XAdd extends AbstractRedisOperation {
             }
 
             if (params().size() % 2 != 1) {
-                return Response.error(ARG_NUMBER_ERROR);
+                return Response.invalidArgumentsCountError("xadd");
             }
 
             valueInd = 3; // incrementing position
             id = params().get(2);
         }
 
-        // TODO compare top
+        /*  Begin trim options parsing */
+
+
+
+        /*  End trim options parsing */
 
         RMStream stream = getStreamFromBaseOrCreateEmpty(key);
         LinkedMap<StreamId, LinkedMap<Slice, Slice>> map = stream.getStoredData();
