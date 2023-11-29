@@ -305,7 +305,6 @@ start_server {
         }
         r exec
         assert {[llength [r xrange vipstream - +]] == $total}
-        puts [lindex $ids 0]
         assert {[llength [r xrange vipstream ([lindex $ids 0] +]] == $total-1}
         assert {[llength [r xrange vipstream - ([lindex $ids $total-1]]] == $total-1}
         assert {[llength [r xrange vipstream (0-1 (1-0]] == 1}

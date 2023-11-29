@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * XTRIM key (MAXLEN | MINID) [= | ~] threshold [LIMIT count]<br>
  * Supported options: MINID, MAXLEN, LIMIT, =<br>
- * Unsupported options: "~" - due to our implementation works as = option
+ * Unsupported options: "~" - due to the fact that our implementation works as = option
  */
 @RedisCommand("xtrim")
 public class XTrim extends AbstractRedisOperation {
@@ -45,10 +45,8 @@ public class XTrim extends AbstractRedisOperation {
     @Override
     protected Slice response() {
         if (params().size() < 3) {
-            return Response.error("ERR wrong number of arguments for 'xtrim' command");
+            return Response.invalidArgumentsCountError("xtrim");
         }
-
-//        System.out.println(params());
 
         /* Begin parsing arguments */
 

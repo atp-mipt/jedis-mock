@@ -24,7 +24,7 @@ public class XRange extends Ranges {
     @Override
     protected Slice response() {
         if (params().size() < 3) {
-            return Response.error("wrong number of arguments for 'xrange' command");
+            return Response.invalidArgumentsCountError("xrange");
         }
 
         Slice key = params().get(0);
