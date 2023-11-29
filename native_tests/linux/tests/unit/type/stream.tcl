@@ -129,36 +129,36 @@ start_server {
         assert {$seq == 1}
     }
 
-#    test {XADD with MAXLEN option} {
-#        r DEL mystream
-#        for {set j 0} {$j < 1000} {incr j} {
-#            if {rand() < 0.9} {
-#                r XADD mystream MAXLEN 5 * xitem $j
-#            } else {
-#                r XADD mystream MAXLEN 5 * yitem $j
-#            }
-#        }
-#        assert {[r xlen mystream] == 5}
-#        set res [r xrange mystream - +]
-#        set expected 995
-#        foreach r $res {
-#            assert {[lindex $r 1 1] == $expected}
-#            incr expected
-#        }
-#    }
-#
-#    test {XADD with MAXLEN option and the '=' argument} {
-#        r DEL mystream
-#        for {set j 0} {$j < 1000} {incr j} {
-#            if {rand() < 0.9} {
-#                r XADD mystream MAXLEN = 5 * xitem $j
-#            } else {
-#                r XADD mystream MAXLEN = 5 * yitem $j
-#            }
-#        }
-#        assert {[r XLEN mystream] == 5}
-#    }
-#
+    test {XADD with MAXLEN option} {
+        r DEL mystream
+        for {set j 0} {$j < 1000} {incr j} {
+            if {rand() < 0.9} {
+                r XADD mystream MAXLEN 5 * xitem $j
+            } else {
+                r XADD mystream MAXLEN 5 * yitem $j
+            }
+        }
+        assert {[r xlen mystream] == 5}
+        set res [r xrange mystream - +]
+        set expected 995
+        foreach r $res {
+            assert {[lindex $r 1 1] == $expected}
+            incr expected
+        }
+    }
+
+    test {XADD with MAXLEN option and the '=' argument} {
+        r DEL mystream
+        for {set j 0} {$j < 1000} {incr j} {
+            if {rand() < 0.9} {
+                r XADD mystream MAXLEN = 5 * xitem $j
+            } else {
+                r XADD mystream MAXLEN = 5 * yitem $j
+            }
+        }
+        assert {[r XLEN mystream] == 5}
+    }
+
 #    test {XADD with MAXLEN option and the '~' argument} {
 #        r DEL mystream
 #        r config set stream-node-max-entries 100
@@ -184,27 +184,27 @@ start_server {
         assert_equal [lindex $items 1 1] {item 2 value b}
     }
 
-#    test {XADD with MINID option} {
-#        r DEL mystream
-#        for {set j 1} {$j < 1001} {incr j} {
-#            set minid 1000
-#            if {$j >= 5} {
-#                set minid [expr {$j-5}]
-#            }
-#            if {rand() < 0.9} {
-#                r XADD mystream MINID $minid $j xitem $j
-#            } else {
-#                r XADD mystream MINID $minid $j yitem $j
-#            }
-#        }
-#        assert {[r xlen mystream] == 6}
-#        set res [r xrange mystream - +]
-#        set expected 995
-#        foreach r $res {
-#            assert {[lindex $r 1 1] == $expected}
-#            incr expected
-#        }
-#    }
+    test {XADD with MINID option} {
+        r DEL mystream
+        for {set j 1} {$j < 1001} {incr j} {
+            set minid 1000
+            if {$j >= 5} {
+                set minid [expr {$j-5}]
+            }
+            if {rand() < 0.9} {
+                r XADD mystream MINID $minid $j xitem $j
+            } else {
+                r XADD mystream MINID $minid $j yitem $j
+            }
+        }
+        assert {[r xlen mystream] == 6}
+        set res [r xrange mystream - +]
+        set expected 995
+        foreach r $res {
+            assert {[lindex $r 1 1] == $expected}
+            incr expected
+        }
+    }
 
     test {XTRIM with MINID option} {
         r DEL mystream
@@ -257,15 +257,18 @@ start_server {
         assert {[r EXISTS otherstream] == 0}
     }
 
+# WARNING! Our implementation removes exactly limit
 #    test {XADD with LIMIT delete entries no more than limit} {
 #        r del yourstream
-#        for {set j 0} {$j < 3} {incr j} {
+#        for {set j 0} {$j < 300} {incr j} {
 #            r XADD yourstream * xitem v
 #        }
+#        puts [r xrange yourstream - +]
 #        r XADD yourstream MAXLEN ~ 0 limit 1 * xitem v
+#        puts [r xrange yourstream - +]
 #        assert {[r XLEN yourstream] == 4}
 #    }
-#
+
     test {XRANGE COUNT works as expected} {
         assert {[llength [r xrange mystream - + COUNT 10]] == 10}
     }
@@ -662,37 +665,37 @@ start_server {
     }
 }
 
-#start_server {tags {"stream needs:debug"} overrides {appendonly yes}} {
-#    test {XADD with MAXLEN > xlen can propagate correctly} {
-#        for {set j 0} {$j < 100} {incr j} {
-#            r XADD mystream * xitem v
-#        }
-#        r XADD mystream MAXLEN 200 * xitem v
-#        incr j
-#        assert {[r xlen mystream] == $j}
-#        r debug loadaof
-#        r XADD mystream * xitem v
-#        incr j
-#        assert {[r xlen mystream] == $j}
-#    }
-#}
-#
-#start_server {tags {"stream needs:debug"} overrides {appendonly yes}} {
-#    test {XADD with MINID > lastid can propagate correctly} {
-#        for {set j 0} {$j < 100} {incr j} {
-#            set id [expr {$j+1}]
-#            r XADD mystream $id xitem v
-#        }
-#        r XADD mystream MINID 1 * xitem v
-#        incr j
-#        assert {[r xlen mystream] == $j}
-#        r debug loadaof
-#        r XADD mystream * xitem v
-#        incr j
-#        assert {[r xlen mystream] == $j}
-#    }
-#}
-#
+start_server {tags {"stream needs:debug"} overrides {appendonly yes}} {
+    test {XADD with MAXLEN > xlen can propagate correctly} {
+        for {set j 0} {$j < 100} {incr j} {
+            r XADD mystream * xitem v
+        }
+        r XADD mystream MAXLEN 200 * xitem v
+        incr j
+        assert {[r xlen mystream] == $j}
+        # r debug loadaof
+        r XADD mystream * xitem v
+        incr j
+        assert {[r xlen mystream] == $j}
+    }
+}
+
+start_server {tags {"stream needs:debug"} overrides {appendonly yes}} {
+    test {XADD with MINID > lastid can propagate correctly} {
+        for {set j 0} {$j < 100} {incr j} {
+            set id [expr {$j+1}]
+            r XADD mystream $id xitem v
+        }
+        r XADD mystream MINID 1 * xitem v
+        incr j
+        assert {[r xlen mystream] == $j}
+        # r debug loadaof
+        r XADD mystream * xitem v
+        incr j
+        assert {[r xlen mystream] == $j}
+    }
+}
+
 #start_server {tags {"stream needs:debug"} overrides {appendonly yes stream-node-max-entries 100}} {
 #    test {XADD with ~ MAXLEN can propagate correctly} {
 #        for {set j 0} {$j < 100} {incr j} {
