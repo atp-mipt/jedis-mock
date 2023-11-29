@@ -7,7 +7,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class LinkedMapIteratorTests {
+public class LinkedMapForwardIteratorTests {
     @Test
     void createSimpleIterator() {
         LinkedMap<Integer, Integer> map = new LinkedMap<>();
@@ -16,7 +16,7 @@ public class LinkedMapIteratorTests {
         map.append(2, 3);
         map.append(3, 4);
 
-        LinkedMapIterator<Integer, Integer> it = map.iterator();
+        LinkedMapForwardIterator<Integer, Integer> it = map.iterator();
 
         int iterCount = 0;
 
@@ -40,7 +40,7 @@ public class LinkedMapIteratorTests {
         map.append(4, 5);
         map.append(5, 6);
 
-        LinkedMapIterator<Integer, Integer> it = map.iterator(3);
+        LinkedMapForwardIterator<Integer, Integer> it = map.iterator(3);
 
         int iterCount = 0;
 
@@ -90,7 +90,7 @@ public class LinkedMapIteratorTests {
         map.append(4, 5);
         map.append(5, 6);
 
-        LinkedMapIterator<Integer, Integer> it = map.iterator();
+        LinkedMapForwardIterator<Integer, Integer> it = map.iterator();
 
         int iterCount = 0;
 
@@ -120,7 +120,7 @@ public class LinkedMapIteratorTests {
         map.append(4, 5);
         map.append(5, 6);
 
-        LinkedMapIterator<Integer, Integer> it = map.iterator();
+        LinkedMapForwardIterator<Integer, Integer> it = map.iterator();
 
         int iterCount = 0;
 
