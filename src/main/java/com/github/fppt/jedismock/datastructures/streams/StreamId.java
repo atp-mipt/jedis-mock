@@ -40,15 +40,18 @@ public class StreamId implements Comparable<StreamId> {
                 } catch (NumberFormatException e) {
                     throw new WrongStreamKeyException(INVALID_ID_ERROR);
                 }
-
-                /* Check whether ID is equals to 0-0 */
-                if (secondPart == 0 && firstPart == 0) {
-                    throw new WrongStreamKeyException(ZERO_ERROR);
-                }
                 break;
             default:
                 throw new WrongStreamKeyException(INVALID_ID_ERROR);
         }
+    }
+
+    public StreamId compareToZero() throws WrongStreamKeyException {
+        if (secondPart == 0 && firstPart == 0) {
+            throw new WrongStreamKeyException(ZERO_ERROR);
+        }
+
+        return this;
     }
 
 
