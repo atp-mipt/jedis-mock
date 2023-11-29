@@ -216,25 +216,46 @@ public class LinkedMap<K extends Comparable<K>, V> implements Iterable<Map.Entry
     }
 
     /**
-     * Get {@link LinkedMapIterator LinkedMapIterator}
+     * Get {@link LinkedMapForwardIterator LinkedMapIterator}
      * whose iteration starts from the head node
      *
      * @return iterator that allows to iterate map
      */
     @Override
-    public LinkedMapIterator<K, V> iterator() {
-        return new LinkedMapIterator<>(null, this);
+    public LinkedMapForwardIterator<K, V> iterator() {
+        return new LinkedMapForwardIterator<>(head, this);
     }
 
     /**
-     * Get {@link LinkedMapIterator LinkedMapIterator}
+     * Get {@link LinkedMapForwardIterator LinkedMapForwardIterator}
      * whose iteration starts from the provided key
      *
      * @param key the key which is the start of iteration
      * @return iterator that points to the provided key
      */
-    public LinkedMapIterator<K, V> iterator(K key) {
-        return new LinkedMapIterator<>(getPreviousKey(key), this);
+    public LinkedMapForwardIterator<K, V> iterator(K key) {
+        return new LinkedMapForwardIterator<>(key, this);
+    }
+
+    /**
+     * Get {@link LinkedMapReverseIterator LinkedMapReverseIterator}
+     * whose iteration starts from the tail
+     *
+     * @return iterator that allows to iterate map in reversed order
+     */
+    public LinkedMapReverseIterator<K, V> reverseIterator() {
+        return new LinkedMapReverseIterator<>(tail, this);
+    }
+
+    /**
+     * Get {@link LinkedMapReverseIterator LinkedMapReverseIterator}
+     * whose iteration starts from the provided key
+     *
+     * @param key the key which is the start of iteration
+     * @return iterator that points to the provided key
+     */
+    public LinkedMapReverseIterator<K, V> reverseIterator(K key) {
+        return new LinkedMapReverseIterator<>(key, this);
     }
 
     // TODO javadoc

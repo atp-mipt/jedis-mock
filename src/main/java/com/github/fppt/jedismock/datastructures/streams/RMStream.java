@@ -7,108 +7,41 @@ import com.github.fppt.jedismock.exception.WrongValueTypeException;
 
 import static java.lang.Long.compareUnsigned;
 import static java.lang.Long.parseUnsignedLong;
+import static com.github.fppt.jedismock.datastructures.streams.StreamErrors.TOP_ERROR;
+import static com.github.fppt.jedismock.datastructures.streams.StreamErrors.ID_OVERFLOW_ERROR;
+import static com.github.fppt.jedismock.datastructures.streams.StreamErrors.INVALID_ID_ERROR;
 
 public class RMStream implements RMDataStructure {
-    private final LinkedMap<Slice, LinkedMap<Slice, Slice>> storedData;
-    private long lastFirstId = 0;
-    private long lastSecondId = 0;
-
-    private static final String ZERO_ERROR = "ERR The ID specified in XADD must be greater than 0-0";
-    private static final String TOP_ERROR = "ERR The ID specified in XADD is equal or smaller than the target stream top item";
-    public static final String INVALID_ID_ERROR = "ERR Invalid stream ID specified as stream command argument";
+    private final LinkedMap<StreamId, LinkedMap<Slice, Slice>> storedData;
+    private StreamId lastId;
 
 
     public RMStream() {
         storedData = new LinkedMap<>();
+        lastId = new StreamId();
     }
 
-    public LinkedMap<Slice, LinkedMap<Slice, Slice>> getStoredData() {
+    public StreamId getLastId() {
+        return lastId;
+    }
+
+    public LinkedMap<StreamId, LinkedMap<Slice, Slice>> getStoredData() {
         return storedData;
     }
 
-    public void updateLastId(Slice id) {
-        String[] parsedKey = id.toString().split("-");
-        lastFirstId = parseUnsignedLong(parsedKey[0]);
-        lastSecondId = parseUnsignedLong(parsedKey[1]);
+    public void updateLastId(StreamId id) {
+        lastId = id;
     }
-
-    /**
-     * TODO explain
-     */
-    public static void checkParsedKey(String[] parsedKey) throws WrongStreamKeyException {
-        if (parsedKey.length != 2) {
-            throw new WrongStreamKeyException(INVALID_ID_ERROR);
-        }
-
-        try {
-            parseUnsignedLong(parsedKey[0]);
-            parseUnsignedLong(parsedKey[1]);
-        } catch (NumberFormatException e) {
-            throw new WrongStreamKeyException(INVALID_ID_ERROR);
-        }
-    }
-
-    public static Slice checkKey(Slice key) throws WrongStreamKeyException {
-        String[] parsedKey = key.toString().split("-");
-
-        if (parsedKey.length == 1) {
-            checkParsedKey(new String[] {parsedKey[0], "0"});
-            return Slice.create(key + "-0");
-        }
-
-        checkParsedKey(parsedKey);
-        return key;
-    }
-
-    // xadd
-    public Slice compareWithTopKey(Slice key) throws WrongStreamKeyException { //done
-        String[] parsedKey = key.toString().split("-");
-
-        if (storedData.size() == 0) {
-            check(
-                    parseUnsignedLong(parsedKey[0]),
-                    parseUnsignedLong(parsedKey[1]),
-                    0, 0,
-                    ZERO_ERROR
-            );
-        } else {
-            check(
-                    parseUnsignedLong(parsedKey[0]),
-                    parseUnsignedLong(parsedKey[1]),
-                    lastFirstId, lastSecondId,
-                    TOP_ERROR
-            );
-        }
-
-
-        return key;
-    }
-
-    // xrange
-    public static int compare(Slice left, Slice right) {
-        String[] parsedLeft = left.toString().split("-");
-        String[] parsedRight = right.toString().split("-");
-
-        return compareUnsigned(parseUnsignedLong(parsedLeft[0]), parseUnsignedLong(parsedRight[0])) != 0
-                ? compareUnsigned(parseUnsignedLong(parsedLeft[0]), parseUnsignedLong(parsedRight[0]))
-                : compareUnsigned(parseUnsignedLong(parsedLeft[1]), parseUnsignedLong(parsedRight[1]));
-    }
-
-    private static void check(long keyFirstPart, long keySecondPart, long otherKeyFirstPart, long otherKeySecondPart, String message) throws WrongStreamKeyException {
-        if (compareUnsigned(otherKeyFirstPart, keyFirstPart) > 0) {
-            throw new WrongStreamKeyException(message);
-        }
-
-        if (compareUnsigned(otherKeyFirstPart, keyFirstPart) == 0 && compareUnsigned(otherKeySecondPart, keySecondPart) >= 0) {
-            throw new WrongStreamKeyException(message);
-        }
-    }
-
 
     public Slice replaceAsterisk(Slice key) throws WrongStreamKeyException {
         if (key.toString().equals("*")) {
-            long secondPart = lastSecondId + 1;
-            long firstPart = lastSecondId == -1 ? lastFirstId + 1 : lastFirstId;
+            /* 0xFFFFFFFFFFFFFFFF-0xFFFFFFFFFFFFFFFF is already in use - overflow */
+            if (lastId.getFirstPart() == -1 && lastId.getSecondPart() == -1) {
+                throw new WrongStreamKeyException(ID_OVERFLOW_ERROR);
+            }
+
+            long secondPart = lastId.getSecondPart() + 1;
+            long firstPart = lastId.getFirstPart() + (lastId.getSecondPart() == -1 ? 1 : 0);
 
             return Slice.create(firstPart + "-" + secondPart);
         }
@@ -116,24 +49,27 @@ public class RMStream implements RMDataStructure {
         String[] parsedKey = key.toString().split("-");
 
         if (parsedKey.length != 2) {
-            return key; /* Wrong key format - will be caught in checkKey */
+            return key; /* Wrong key format - will be caught when creating StreamId */
         }
 
         try {
-            if (compareUnsigned(lastFirstId, parseUnsignedLong(parsedKey[0])) > 0) {
+            if (compareUnsigned(lastId.getFirstPart(), parseUnsignedLong(parsedKey[0])) > 0) {
                 throw new WrongStreamKeyException(TOP_ERROR);
             }
 
             if (parsedKey[1].equals("*")) {
-                return Slice.create(parsedKey[0] + "-" + (
-                        /* First parts are equal => incrementing last second part
-                         * 0xFFFFFFFFFFFFFFFF -> 0 which produces an error when comparing to the top key as it has to be
-                         * otherwise use 0 as the smallest unsigned long number
-                         */
-                        compareUnsigned(lastFirstId, parseUnsignedLong(parsedKey[0])) == 0
-                                ? lastSecondId + 1
-                                : 0
-                ));
+                if (compareUnsigned(lastId.getFirstPart(), parseUnsignedLong(parsedKey[0])) == 0) {
+                    /* The second part is 0xFFFFFFFFFFFFFFFF - overflow */
+                    if (lastId.getSecondPart() == -1) {
+                        throw new WrongStreamKeyException(TOP_ERROR);
+                    }
+
+                    /* Incrementing the second part */
+                    return Slice.create(parsedKey[0] + "-" + (lastId.getSecondPart() + 1));
+                }
+
+                /* Use 0 as the smallest unsigned long number */
+                return Slice.create(parsedKey[0] + "-0");
             }
         } catch (NumberFormatException e) {
             throw new WrongStreamKeyException(INVALID_ID_ERROR);
