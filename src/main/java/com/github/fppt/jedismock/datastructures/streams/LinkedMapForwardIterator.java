@@ -49,12 +49,17 @@ public class LinkedMapForwardIterator<K extends Comparable<K>, V> implements Lin
         return Map.entry(curr, map.get(curr));
     }
 
+    /**
+     *
+     */
     @Override
     public void remove() {
         if (curr == null) {
-            map.removeHead();
+            throw new IllegalStateException("'next' method has not been invoked yet");
         } else {
-            map.remove(map.getNextKey(curr));
+            K tmp = map.getPreviousKey(curr);
+            map.remove(curr);
+            curr = tmp;
         }
     }
 

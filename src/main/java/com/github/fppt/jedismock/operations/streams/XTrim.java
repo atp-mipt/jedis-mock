@@ -2,6 +2,7 @@ package com.github.fppt.jedismock.operations.streams;
 
 import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.datastructures.streams.LinkedMap;
+import com.github.fppt.jedismock.datastructures.streams.LinkedMapIterator;
 import com.github.fppt.jedismock.datastructures.streams.StreamId;
 import com.github.fppt.jedismock.exception.WrongStreamKeyException;
 import com.github.fppt.jedismock.operations.AbstractRedisOperation;
@@ -10,6 +11,10 @@ import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.storage.RedisBase;
 
 import java.util.List;
+
+import static com.github.fppt.jedismock.datastructures.streams.StreamErrors.LIMIT_OPTION_ERROR;
+import static com.github.fppt.jedismock.datastructures.streams.StreamErrors.NOT_AN_INTEGER_ERROR;
+import static com.github.fppt.jedismock.datastructures.streams.StreamErrors.SYNTAX_ERROR;
 
 /**
  * XTRIM key (MAXLEN | MINID) [= | ~] threshold [LIMIT count]<br>
@@ -22,7 +27,7 @@ public class XTrim extends AbstractRedisOperation {
         super(base, params);
     }
 
-    int trimLen(LinkedMap<?, ?> map, int threshold, int limit) {
+    static int trimLen(LinkedMap<?, ?> map, int threshold, int limit) {
         int numberOfEvictedNodes = 0;
         while (map.size() > threshold && numberOfEvictedNodes < limit) {
             ++numberOfEvictedNodes;
@@ -32,11 +37,16 @@ public class XTrim extends AbstractRedisOperation {
         return numberOfEvictedNodes;
     }
 
-    int trimID(LinkedMap<StreamId, ?> map, StreamId threshold, int limit) {
+    static int trimID(LinkedMap<StreamId, ?> map, StreamId threshold, int limit) {
         int numberOfEvictedNodes = 0;
-        while (map.getHead().compareTo(threshold) < 0 && numberOfEvictedNodes < limit) {
-            ++numberOfEvictedNodes;
-            map.removeHead();
+        LinkedMapIterator<StreamId, ?> it = map.iterator();
+        while (it.hasNext() && numberOfEvictedNodes < limit) {
+            if (it.next().getKey().compareTo(threshold) < 0) {
+                ++numberOfEvictedNodes;
+                it.remove();
+            } else {
+                break;
+            }
         }
 
         return numberOfEvictedNodes;
@@ -66,13 +76,10 @@ public class XTrim extends AbstractRedisOperation {
             aproxTrim = true;
         }
 
-
-//        System.out.println("threshold: " + thresholdPosition);
-
         int limit = map.size() + 1;
 
         if (params().size() > thresholdPosition + 3) {
-            return Response.error("syntax error");
+            return Response.error(SYNTAX_ERROR);
         }
 
         if (params().size() > thresholdPosition + 1) {
@@ -80,31 +87,25 @@ public class XTrim extends AbstractRedisOperation {
                 try {
                     limit = Integer.parseInt(params().get(thresholdPosition + 2).toString());
                 } catch (NumberFormatException e) {
-                    return Response.error("ERR value is not an integer or out of range");
+                    return Response.error(NOT_AN_INTEGER_ERROR);
                 }
 
                 if (!aproxTrim) {
-                    return Response.error("ERR syntax error, LIMIT cannot be used without the special ~ option");
+                    return Response.error(LIMIT_OPTION_ERROR);
                 }
-
             } else {
-                return Response.error("ERR syntax error");
+                return Response.error(SYNTAX_ERROR);
             }
         }
 
-//        System.out.println("limit: " + thresholdPosition);
-//        System.out.println(criterion.toUpperCase());
-
         switch (criterion.toUpperCase()) {
             case "MAXLEN":
-                /* Parsing threshold value */
                 try {
                     int threshold = Integer.parseInt(params().get(thresholdPosition).toString());
                     return Response.integer(trimLen(map, threshold, limit));
                 } catch (NumberFormatException e) {
-                    return Response.error("ERR syntax error");
+                    return Response.error(SYNTAX_ERROR);
                 }
-
             case "MINID":
                 try {
                     StreamId id = new StreamId(params().get(thresholdPosition));
@@ -113,7 +114,7 @@ public class XTrim extends AbstractRedisOperation {
                     return Response.error(e.getMessage());
                 }
             default:
-                return Response.error("ERR syntax error");
+                return Response.error(SYNTAX_ERROR);
         }
     }
 }
