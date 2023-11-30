@@ -8,4 +8,6 @@ public class StreamErrors {
     public static final String SYNTAX_ERROR = "ERR syntax error";
     public static final String NOT_AN_INTEGER_ERROR = "ERR value is not an integer or out of range";
     public static final String LIMIT_OPTION_ERROR = "ERR syntax error, LIMIT cannot be used without the special ~ option";
+    public static final String XREAD_ARGS_ERROR = "ERR Unbalanced 'xread' list of streams: for each stream key an ID or '$' must be specified";
+    public static final String NEGATIVE_TIMEOUT_ERROR = "ERR timeout is negative";
 }
