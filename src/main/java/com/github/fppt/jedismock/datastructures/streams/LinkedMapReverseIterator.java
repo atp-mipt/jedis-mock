@@ -65,7 +65,7 @@ public class LinkedMapReverseIterator<K extends Comparable<K>, V> implements Lin
             }
         }
 
-        curr = map.getNextKey(curr);
+        curr = curr == null ? null : map.getNextKey(curr); // map might be empty
     }
 
 //    @Override

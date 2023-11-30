@@ -79,6 +79,6 @@ public class LinkedMapForwardIterator<K extends Comparable<K>, V> implements Lin
             }
         }
 
-        curr = map.getPreviousKey(curr);
+        curr = curr == null ? null : map.getPreviousKey(curr); // map might be empty
     }
 }
