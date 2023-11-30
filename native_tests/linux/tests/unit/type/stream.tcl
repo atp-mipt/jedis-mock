@@ -322,144 +322,144 @@ start_server {
         assert_match {ERR*} $e
     }
 
-#    test {XREAD with non empty stream} {
-#        set res [r XREAD COUNT 1 STREAMS mystream 0-0]
-#        assert {[lrange [lindex $res 0 1 0 1] 0 1] eq {item 0}}
-#    }
-#
-#    test {Non blocking XREAD with empty streams} {
-#        set res [r XREAD STREAMS s1{t} s2{t} 0-0 0-0]
-#        assert {$res eq {}}
-#    }
-#
-#    test {XREAD with non empty second stream} {
-#        insert_into_stream_key mystream{t}
-#        set res [r XREAD COUNT 1 STREAMS nostream{t} mystream{t} 0-0 0-0]
-#        assert {[lindex $res 0 0] eq {mystream{t}}}
-#        assert {[lrange [lindex $res 0 1 0 1] 0 1] eq {item 0}}
-#    }
-#
-#    test {Blocking XREAD waiting new data} {
-#        r XADD s2{t} * old abcd1234
-#        set rd [redis_deferring_client]
-#        $rd XREAD BLOCK 20000 STREAMS s1{t} s2{t} s3{t} $ $ $
-#        wait_for_blocked_client
-#        r XADD s2{t} * new abcd1234
-#        set res [$rd read]
-#        assert {[lindex $res 0 0] eq {s2{t}}}
-#        assert {[lindex $res 0 1 0 1] eq {new abcd1234}}
-#        $rd close
-#    }
-#
-#    test {Blocking XREAD waiting old data} {
-#        set rd [redis_deferring_client]
-#        $rd XREAD BLOCK 20000 STREAMS s1{t} s2{t} s3{t} $ 0-0 $
-#        r XADD s2{t} * foo abcd1234
-#        set res [$rd read]
-#        assert {[lindex $res 0 0] eq {s2{t}}}
-#        assert {[lindex $res 0 1 0 1] eq {old abcd1234}}
-#        $rd close
-#    }
-#
-#    test {Blocking XREAD will not reply with an empty array} {
-#        r del s1
-#        r XADD s1 666 f v
-#        r XADD s1 667 f2 v2
-#        r XDEL s1 667
-#        set rd [redis_deferring_client]
-#        $rd XREAD BLOCK 10 STREAMS s1 666
-#        after 20
-#        assert {[$rd read] == {}} ; before the fix, client didn't even block, but was served synchronously with {s1 {}}
-#        $rd close
-#    }
-#
-#    test "Blocking XREAD for stream that ran dry (issue 5299)" {
-#        set rd [redis_deferring_client]
-#
-#         Add a entry then delete it, now stream's last_id is 666.
-#        r DEL mystream
-#        r XADD mystream 666 key value
-#        r XDEL mystream 666
-#
-#         Pass a ID smaller than stream's last_id, released on timeout.
-#        $rd XREAD BLOCK 10 STREAMS mystream 665
-#        assert_equal [$rd read] {}
-#
-#         Throw an error if the ID equal or smaller than the last_id.
-#        assert_error ERR*equal*smaller* {r XADD mystream 665 key value}
-#        assert_error ERR*equal*smaller* {r XADD mystream 666 key value}
-#
-#         Entered blocking state and then release because of the new entry.
-#        $rd XREAD BLOCK 0 STREAMS mystream 665
-#        wait_for_blocked_clients_count 1
-#        r XADD mystream 667 key value
-#        assert_equal [$rd read] {{mystream {{667-0 {key value}}}}}
-#
-#        $rd close
-#    }
-#
-#    test "XREAD: XADD + DEL should not awake client" {
-#        set rd [redis_deferring_client]
-#        r del s1
-#        $rd XREAD BLOCK 20000 STREAMS s1 $
-#        wait_for_blocked_clients_count 1
-#        r multi
-#        r XADD s1 * old abcd1234
-#        r DEL s1
-#        r exec
-#        r XADD s1 * new abcd1234
-#        set res [$rd read]
-#        assert {[lindex $res 0 0] eq {s1}}
-#        assert {[lindex $res 0 1 0 1] eq {new abcd1234}}
-#        $rd close
-#    }
-#
-#    test "XREAD: XADD + DEL + LPUSH should not awake client" {
-#        set rd [redis_deferring_client]
-#        r del s1
-#        $rd XREAD BLOCK 20000 STREAMS s1 $
-#        wait_for_blocked_clients_count 1
-#        r multi
-#        r XADD s1 * old abcd1234
-#        r DEL s1
-#        r LPUSH s1 foo bar
-#        r exec
-#        r DEL s1
-#        r XADD s1 * new abcd1234
-#        set res [$rd read]
-#        assert {[lindex $res 0 0] eq {s1}}
-#        assert {[lindex $res 0 1 0 1] eq {new abcd1234}}
-#        $rd close
-#    }
-#
-#    test {XREAD with same stream name multiple times should work} {
-#        r XADD s2 * old abcd1234
-#        set rd [redis_deferring_client]
-#        $rd XREAD BLOCK 20000 STREAMS s2 s2 s2 $ $ $
-#        wait_for_blocked_clients_count 1
-#        r XADD s2 * new abcd1234
-#        set res [$rd read]
-#        assert {[lindex $res 0 0] eq {s2}}
-#        assert {[lindex $res 0 1 0 1] eq {new abcd1234}}
-#        $rd close
-#    }
-#
-#    test {XREAD + multiple XADD inside transaction} {
-#        r XADD s2 * old abcd1234
-#        set rd [redis_deferring_client]
-#        $rd XREAD BLOCK 20000 STREAMS s2 s2 s2 $ $ $
-#        wait_for_blocked_clients_count 1
-#        r MULTI
-#        r XADD s2 * field one
-#        r XADD s2 * field two
-#        r XADD s2 * field three
-#        r EXEC
-#        set res [$rd read]
-#        assert {[lindex $res 0 0] eq {s2}}
-#        assert {[lindex $res 0 1 0 1] eq {field one}}
-#        assert {[lindex $res 0 1 1 1] eq {field two}}
-#        $rd close
-#    }
+    test {XREAD with non empty stream} {
+        set res [r XREAD COUNT 1 STREAMS mystream 0-0]
+        assert {[lrange [lindex $res 0 1 0 1] 0 1] eq {item 0}}
+    }
+
+    test {Non blocking XREAD with empty streams} {
+        set res [r XREAD STREAMS s1{t} s2{t} 0-0 0-0]
+        assert {$res eq {}}
+    }
+
+    test {XREAD with non empty second stream} {
+        insert_into_stream_key mystream{t}
+        set res [r XREAD COUNT 1 STREAMS nostream{t} mystream{t} 0-0 0-0]
+        assert {[lindex $res 0 0] eq {mystream{t}}}
+        assert {[lrange [lindex $res 0 1 0 1] 0 1] eq {item 0}}
+    }
+
+    test {Blocking XREAD waiting new data} {
+        r XADD s2{t} * old abcd1234
+        set rd [redis_deferring_client]
+        $rd XREAD BLOCK 20000 STREAMS s1{t} s2{t} s3{t} $ $ $
+        wait_for_blocked_client
+        r XADD s2{t} * new abcd1234
+        set res [$rd read]
+        assert {[lindex $res 0 0] eq {s2{t}}}
+        assert {[lindex $res 0 1 0 1] eq {new abcd1234}}
+        $rd close
+    }
+
+    test {Blocking XREAD waiting old data} {
+        set rd [redis_deferring_client]
+        $rd XREAD BLOCK 20000 STREAMS s1{t} s2{t} s3{t} $ 0-0 $
+        r XADD s2{t} * foo abcd1234
+        set res [$rd read]
+        assert {[lindex $res 0 0] eq {s2{t}}}
+        assert {[lindex $res 0 1 0 1] eq {old abcd1234}}
+        $rd close
+    }
+
+    test {Blocking XREAD will not reply with an empty array} {
+        r del s1
+        r XADD s1 666 f v
+        r XADD s1 667 f2 v2
+        r XDEL s1 667
+        set rd [redis_deferring_client]
+        $rd XREAD BLOCK 10 STREAMS s1 666
+        after 20
+        assert {[$rd read] == {}} ; before the fix, client didn't even block, but was served synchronously with {s1 {}}
+        $rd close
+    }
+
+    test "Blocking XREAD for stream that ran dry (issue 5299)" {
+        set rd [redis_deferring_client]
+
+         Add a entry then delete it, now stream's last_id is 666.
+        r DEL mystream
+        r XADD mystream 666 key value
+        r XDEL mystream 666
+
+         Pass a ID smaller than stream's last_id, released on timeout.
+        $rd XREAD BLOCK 10 STREAMS mystream 665
+        assert_equal [$rd read] {}
+
+         Throw an error if the ID equal or smaller than the last_id.
+        assert_error ERR*equal*smaller* {r XADD mystream 665 key value}
+        assert_error ERR*equal*smaller* {r XADD mystream 666 key value}
+
+         Entered blocking state and then release because of the new entry.
+        $rd XREAD BLOCK 0 STREAMS mystream 665
+        wait_for_blocked_clients_count 1
+        r XADD mystream 667 key value
+        assert_equal [$rd read] {{mystream {{667-0 {key value}}}}}
+
+        $rd close
+    }
+
+    test "XREAD: XADD + DEL should not awake client" {
+        set rd [redis_deferring_client]
+        r del s1
+        $rd XREAD BLOCK 20000 STREAMS s1 $
+        wait_for_blocked_clients_count 1
+        r multi
+        r XADD s1 * old abcd1234
+        r DEL s1
+        r exec
+        r XADD s1 * new abcd1234
+        set res [$rd read]
+        assert {[lindex $res 0 0] eq {s1}}
+        assert {[lindex $res 0 1 0 1] eq {new abcd1234}}
+        $rd close
+    }
+
+    test "XREAD: XADD + DEL + LPUSH should not awake client" {
+        set rd [redis_deferring_client]
+        r del s1
+        $rd XREAD BLOCK 20000 STREAMS s1 $
+        wait_for_blocked_clients_count 1
+        r multi
+        r XADD s1 * old abcd1234
+        r DEL s1
+        r LPUSH s1 foo bar
+        r exec
+        r DEL s1
+        r XADD s1 * new abcd1234
+        set res [$rd read]
+        assert {[lindex $res 0 0] eq {s1}}
+        assert {[lindex $res 0 1 0 1] eq {new abcd1234}}
+        $rd close
+    }
+
+    test {XREAD with same stream name multiple times should work} {
+        r XADD s2 * old abcd1234
+        set rd [redis_deferring_client]
+        $rd XREAD BLOCK 20000 STREAMS s2 s2 s2 $ $ $
+        wait_for_blocked_clients_count 1
+        r XADD s2 * new abcd1234
+        set res [$rd read]
+        assert {[lindex $res 0 0] eq {s2}}
+        assert {[lindex $res 0 1 0 1] eq {new abcd1234}}
+        $rd close
+    }
+
+    test {XREAD + multiple XADD inside transaction} {
+        r XADD s2 * old abcd1234
+        set rd [redis_deferring_client]
+        $rd XREAD BLOCK 20000 STREAMS s2 s2 s2 $ $ $
+        wait_for_blocked_clients_count 1
+        r MULTI
+        r XADD s2 * field one
+        r XADD s2 * field two
+        r XADD s2 * field three
+        r EXEC
+        set res [$rd read]
+        assert {[lindex $res 0 0] eq {s2}}
+        assert {[lindex $res 0 1 0 1] eq {field one}}
+        assert {[lindex $res 0 1 1 1] eq {field two}}
+        $rd close
+    }
 
     test {XDEL basic test} {
         r del somestream
@@ -560,27 +560,27 @@ start_server {
         assert_equal [r xrevrange teststream2 1234567891245 -] {{1234567891240-0 {key1 value2}} {1234567891230-0 {key1 value1}}}
     }
 
-#    test {XREAD streamID edge (no-blocking)} {
-#        r del x
-#        r XADD x 1-1 f v
-#        r XADD x 1-18446744073709551615 f v
-#        r XADD x 2-1 f v
-#        set res [r XREAD BLOCK 0 STREAMS x 1-18446744073709551615]
-#        assert {[lindex $res 0 1 0] == {2-1 {f v}}}
-#    }
-#
-#    test {XREAD streamID edge (blocking)} {
-#        r del x
-#        set rd [redis_deferring_client]
-#        $rd XREAD BLOCK 0 STREAMS x 1-18446744073709551615
-#        wait_for_blocked_clients_count 1
-#        r XADD x 1-1 f v
-#        r XADD x 1-18446744073709551615 f v
-#        r XADD x 2-1 f v
-#        set res [$rd read]
-#        assert {[lindex $res 0 1 0] == {2-1 {f v}}}
-#        $rd close
-#    }
+    test {XREAD streamID edge (no-blocking)} {
+        r del x
+        r XADD x 1-1 f v
+        r XADD x 1-18446744073709551615 f v
+        r XADD x 2-1 f v
+        set res [r XREAD BLOCK 0 STREAMS x 1-18446744073709551615]
+        assert {[lindex $res 0 1 0] == {2-1 {f v}}}
+    }
+
+    test {XREAD streamID edge (blocking)} {
+        r del x
+        set rd [redis_deferring_client]
+        $rd XREAD BLOCK 0 STREAMS x 1-18446744073709551615
+        wait_for_blocked_clients_count 1
+        r XADD x 1-1 f v
+        r XADD x 1-18446744073709551615 f v
+        r XADD x 2-1 f v
+        set res [$rd read]
+        assert {[lindex $res 0 1 0] == {2-1 {f v}}}
+        $rd close
+    }
 
     test {XADD streamID edge} {
         r del x
