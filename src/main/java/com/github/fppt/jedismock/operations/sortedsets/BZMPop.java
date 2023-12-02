@@ -7,9 +7,8 @@ import com.github.fppt.jedismock.storage.OperationExecutorState;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static com.github.fppt.jedismock.Utils.convertToDouble;
+import static com.github.fppt.jedismock.Utils.toNanoTimeout;
 
 @RedisCommand("bzmpop")
 public class BZMPop extends BZPop {
@@ -25,13 +24,12 @@ public class BZMPop extends BZPop {
         if (params().size() < 4) {
             throw new ArgumentException("ERR wrong number of arguments for 'bzmpop' command");
         }
-        timeoutNanos = (long) (convertToDouble(params().get(0).toString()) * 1_000_000_000L);
+        timeoutNanos = toNanoTimeout(params().get(0).toString());
         params().remove(0);
         ZMPop zmPop = new ZMPop(base(), new ArrayList<>(params()));
         numKeys = params().remove(0);
         keys = zmPop.parseArgs();
         keys.remove(0);
-        System.out.println(keys.stream().map(Slice::toString).collect(Collectors.toList()));
     }
 
     @Override

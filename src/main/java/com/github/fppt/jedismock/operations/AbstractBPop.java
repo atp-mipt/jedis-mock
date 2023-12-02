@@ -10,7 +10,7 @@ import com.github.fppt.jedismock.storage.RedisBase;
 import java.util.Collections;
 import java.util.List;
 
-import static com.github.fppt.jedismock.Utils.convertToDouble;
+import static com.github.fppt.jedismock.Utils.toNanoTimeout;
 
 public abstract class AbstractBPop extends AbstractRedisOperation {
 
@@ -30,7 +30,7 @@ public abstract class AbstractBPop extends AbstractRedisOperation {
         if (params().size() < 2) {
             throw new IndexOutOfBoundsException("require at least 2 params");
         }
-        timeoutNanos = (long) (convertToDouble(params().get(params().size() - 1).toString()) * 1_000_000_000L);
+        timeoutNanos = toNanoTimeout(params().get(params().size() - 1).toString());
         keys = params().subList(0, params().size() - 1);
     }
 
@@ -61,10 +61,10 @@ public abstract class AbstractBPop extends AbstractRedisOperation {
             Thread.currentThread().interrupt();
             return Response.NULL;
         }
-        if (source != null) {
-            return popper(Collections.singletonList(source));
-        } else {
+        if (source == null) {
             return Response.NULL_ARRAY;
+        } else {
+            return popper(Collections.singletonList(source));
         }
     }
 

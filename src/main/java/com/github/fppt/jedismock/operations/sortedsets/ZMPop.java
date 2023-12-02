@@ -9,17 +9,16 @@ import com.github.fppt.jedismock.storage.RedisBase;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 
 @RedisCommand("zmpop")
 public class ZMPop extends ZPop {
-    private static final String IS_MIN = "MIN";
-    private static final String IS_MAX = "MAX";
-    private static final String IS_COUNT = "COUNT";
+    enum Options {
+        MIN, MAX, COUNT
+    }
 
-    private boolean isMin = false;
-    private boolean isMax = false;
-    private boolean isCount = false;
+    private final EnumSet<Options> options = EnumSet.noneOf(Options.class);
     private int numKeys = 1;
     private long count = 1;
 
@@ -44,7 +43,7 @@ public class ZMPop extends ZPop {
                 List<Slice> newParams = new ArrayList<>();
                 newParams.add(key);
                 newParams.add(Slice.create(String.valueOf(Math.min(count, mapDBObj.size()))));
-                List<Slice> result = new ZPop(base(), newParams, isMax).pop();
+                List<Slice> result = new ZPop(base(), newParams, options.contains(Options.MAX)).pop();
 
                 List<Slice> popedList = new ArrayList<>();
                 for (int index = 0; index < result.size(); index += 2) {
@@ -62,25 +61,23 @@ public class ZMPop extends ZPop {
     protected final List<Slice> parseArgs() {
         List<Slice> temp = new ArrayList<>(params());
         for (Slice param : temp) {
-            if (IS_MIN.equalsIgnoreCase(param.toString())) {
-                if (isMax) {
+            if (Options.MIN.toString().equalsIgnoreCase(param.toString())) {
+                if (options.contains(Options.MAX)) {
                     throw new ArgumentException("ERR syntax error*");
                 }
-                isMin = true;
+                options.add(Options.MIN);
                 params().remove(param);
-            }
-            if (IS_MAX.equalsIgnoreCase(param.toString())) {
-                if (isMin) {
+            } else if (Options.MAX.toString().equalsIgnoreCase(param.toString())) {
+                if (options.contains(Options.MIN)) {
                     throw new ArgumentException("ERR syntax error*");
                 }
-                isMax = true;
+                options.add(Options.MAX);
                 params().remove(param);
-            }
-            if (IS_COUNT.equalsIgnoreCase(param.toString())) {
-                if (isCount) {
+            } else if (Options.COUNT.toString().equalsIgnoreCase(param.toString())) {
+                if (options.contains(Options.COUNT)) {
                     throw new ArgumentException("ERR syntax error*");
                 }
-                isCount = true;
+                options.add(Options.COUNT);
                 int index = params().indexOf(param);
                 try {
                     count = Long.parseLong(params().get(index + 1).toString());

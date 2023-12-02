@@ -150,8 +150,7 @@ public class TestZDiff {
                     numElements--;
                 }
             }
-            String[] argsArrayVar = argsList.toArray(new String[0]);
-            Set<String> result = jedis.zdiff(argsArrayVar);
+            Set<String> result = jedis.zdiff(argsList.toArray(new String[0]));
             List<String> resultSorted = new ArrayList<>(result);
             resultSorted.sort(null);
             List<String> sSorted = new ArrayList<>(s.keySet());
@@ -159,5 +158,4 @@ public class TestZDiff {
             assertEquals(resultSorted, sSorted);
         }
     }
-
 }
