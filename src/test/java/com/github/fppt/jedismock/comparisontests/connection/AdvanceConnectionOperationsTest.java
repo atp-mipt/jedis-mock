@@ -6,8 +6,9 @@ import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import redis.clients.jedis.Jedis;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+
 
 @ExtendWith(ComparisonBase.class)
 public class AdvanceConnectionOperationsTest {
@@ -34,8 +35,8 @@ public class AdvanceConnectionOperationsTest {
 
         //Change to new DB
         jedis.select(2);
-        assertNull(jedis.get(key1));
-        assertNull(jedis.get(key2));
+        assertThat(jedis.get(key1)).isNull();
+        assertThat(jedis.get(key2)).isNull();
 
         jedis.set(key1, val3);
         jedis.set(key2, val3);

@@ -7,9 +7,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.params.SetParams;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 @ExtendWith(ComparisonBase.class)
 public class TestSet {
@@ -116,20 +116,20 @@ public class TestSet {
         assertEquals("OK", jedis.set(SET_KEY, SET_VALUE, setParams));
         assertEquals(SET_VALUE, jedis.get(SET_KEY));
         Thread.sleep(1100);
-        assertNull(jedis.get(SET_KEY));
+        assertThat(jedis.get(SET_KEY)).isNull();
     }
 
     private void testSetNXWithParams(Jedis jedis, SetParams setParams) {
         assertEquals("OK", jedis.set(SET_KEY, SET_VALUE, setParams));
         assertEquals(SET_VALUE, jedis.get(SET_KEY));
-        assertNull(jedis.set(SET_KEY, SET_ANOTHER_VALUE, setParams));
+        assertThat(jedis.set(SET_KEY, SET_ANOTHER_VALUE, setParams)).isNull();
         assertEquals(SET_VALUE, jedis.get(SET_KEY));
         assertEquals(1, jedis.del(SET_KEY));
     }
 
     private void testSetXXWithParams(Jedis jedis, SetParams setParams) {
-        assertNull(jedis.set(SET_KEY, SET_VALUE, setParams));
-        assertNull(jedis.get(SET_KEY));
+        assertThat(jedis.set(SET_KEY, SET_VALUE, setParams)).isNull();
+        assertThat(jedis.get(SET_KEY)).isNull();
         assertEquals("OK", jedis.set(SET_KEY, SET_ANOTHER_VALUE));
         assertEquals("OK", jedis.set(SET_KEY, SET_VALUE, setParams));
         assertEquals(SET_VALUE, jedis.get(SET_KEY));

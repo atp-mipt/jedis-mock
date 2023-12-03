@@ -10,8 +10,8 @@ import redis.clients.jedis.exceptions.JedisConnectionException;
 
 import java.io.IOException;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class TestInterceptor {
     @Test
@@ -42,7 +42,8 @@ public class TestInterceptor {
             assertEquals(jedis.set("ab", "cd"), "OK");
             assertEquals(jedis.set("ab", "cd"), "OK");
             assertEquals(jedis.set("ab", "cd"), "OK");
-            assertThrows(JedisConnectionException.class, () -> jedis.set("ab", "cd"));
+            assertThatThrownBy(() -> jedis.set("ab", "cd"))
+                    .isInstanceOf(JedisConnectionException.class);
         }
         server.stop();
     }
@@ -69,7 +70,8 @@ public class TestInterceptor {
         try (Jedis jedis = new Jedis(server.getHost(), server.getBindPort())) {
             assertEquals("MOCK_VALUE", jedis.get("foo"));
             assertEquals("OK", jedis.set("bar", "baz"));
-            assertThrows(JedisConnectionException.class, () -> jedis.echo("hello"));
+            assertThatThrownBy(() -> jedis.echo("hello"))
+                    .isInstanceOf(JedisConnectionException.class);
         }
         server.stop();
     }

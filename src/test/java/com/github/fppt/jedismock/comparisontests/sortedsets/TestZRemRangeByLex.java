@@ -6,9 +6,12 @@ import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import redis.clients.jedis.Jedis;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ComparisonBase.class)
 public class TestZRemRangeByLex {
@@ -99,6 +102,6 @@ public class TestZRemRangeByLex {
     public void testZRemRangeByLexEmpty(Jedis jedis) {
         assertEquals(9, jedis.zremrangeByLex(key, "-", "+"));
         assertEquals(0, jedis.zcard(key));
-        assertFalse(jedis.exists(key));
+        assertThat(jedis.exists(key)).isFalse();
     }
 }

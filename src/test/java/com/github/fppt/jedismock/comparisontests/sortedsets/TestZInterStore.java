@@ -10,7 +10,10 @@ import redis.clients.jedis.resps.Tuple;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static java.lang.Double.NaN;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ComparisonBase.class)
 public class TestZInterStore {
@@ -27,7 +30,7 @@ public class TestZInterStore {
     @TestTemplate
     public void testZInterStoreNotExistKeyToNotExistDest(Jedis jedis) {
         assertEquals(0, jedis.zinterstore(ZSET_KEY_OUT, ZSET_KEY_1));
-        assertFalse(jedis.exists(ZSET_KEY_OUT));
+        assertThat(jedis.exists(ZSET_KEY_OUT)).isFalse();
     }
 
     @TestTemplate
@@ -35,7 +38,7 @@ public class TestZInterStore {
         jedis.zadd(ZSET_KEY_1, 1, "a");
         jedis.zadd(ZSET_KEY_1, 2, "b");
         assertEquals(0, jedis.zinterstore(ZSET_KEY_OUT, ZSET_KEY_1, ZSET_KEY_2));
-        assertFalse(jedis.exists(ZSET_KEY_OUT));
+        assertThat(jedis.exists(ZSET_KEY_OUT)).isFalse();
     }
 
     @TestTemplate
@@ -135,8 +138,8 @@ public class TestZInterStore {
     public void testZInterStoreWithNanScores(Jedis jedis) {
         jedis.zadd(ZSET_KEY_1, 1, "a");
         jedis.zadd(ZSET_KEY_2, 1, "a");
-        assertThrows(RuntimeException.class,
-                () -> jedis.zinterstore(ZSET_KEY_OUT,
-                        new ZParams().weights(Double.NaN, Double.NaN), ZSET_KEY_1, ZSET_KEY_2));
+        assertThatThrownBy(() -> jedis.zinterstore(ZSET_KEY_OUT,
+                new ZParams().weights(NaN, NaN), ZSET_KEY_1, ZSET_KEY_2))
+                .isInstanceOf(RuntimeException.class);
     }
 }

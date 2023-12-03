@@ -5,7 +5,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import redis.clients.jedis.Jedis;
-import static org.junit.jupiter.api.Assertions.assertNull;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ComparisonBase.class)
@@ -20,13 +21,13 @@ public class TestZScore {
 
     @TestTemplate
     public void testZScoreNotExistKey(Jedis jedis) {
-        assertNull(jedis.zscore(ZSET_KEY, "a"));
+        assertThat(jedis.zscore(ZSET_KEY, "a")).isNull();
     }
 
     @TestTemplate
     public void testZScoreNotExistMember(Jedis jedis) {
         jedis.zadd(ZSET_KEY, 2, "b");
-        assertNull(jedis.zscore(ZSET_KEY, "a"));
+        assertThat(jedis.zscore(ZSET_KEY, "a")).isNull();
     }
 
     @TestTemplate

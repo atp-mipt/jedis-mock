@@ -1,7 +1,6 @@
 package com.github.fppt.jedismock.comparisontests.sets;
 
 import com.github.fppt.jedismock.comparisontests.ComparisonBase;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,6 +12,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ComparisonBase.class)
 public class SRandMemberTest {
@@ -28,10 +30,10 @@ public class SRandMemberTest {
         Set<String> usedElements = new HashSet<>();
         for (int i = 0; i < 5000; i++) {
             String member = jedis.srandmember("foo");
-            Assertions.assertTrue(set.contains(member));
+            assertThat(set).contains(member);
             usedElements.add(member);
         }
-        Assertions.assertEquals(new HashSet<>(set), usedElements);
+        assertEquals(new HashSet<>(set), usedElements);
     }
 
     @TestTemplate
@@ -39,14 +41,14 @@ public class SRandMemberTest {
         Set<String> set = Collections.singleton("d");
         jedis.sadd("foo", set.toArray(new String[0]));
         for (int i = 0; i < 100; i++) {
-            Assertions.assertEquals("d", jedis.srandmember("foo"));
+            assertEquals("d", jedis.srandmember("foo"));
         }
     }
 
     @TestTemplate
     void randMemberReturnsNullForAnEmptySet(Jedis jedis) {
         for (int i = 0; i < 100; i++) {
-            Assertions.assertNull(jedis.srandmember("foo"));
+            assertThat(jedis.srandmember("foo")).isNull();
         }
     }
 
@@ -54,7 +56,7 @@ public class SRandMemberTest {
     void randMemberOverNonExistentMustReturnEmptyList(Jedis jedis) {
         //Checking negative, positive and zero range
         for (int i = -3; i < 4; i++) {
-            Assertions.assertTrue(jedis.srandmember("foo", i).isEmpty());
+            assertThat(jedis.srandmember("foo", i)).isEmpty();
         }
     }
 
@@ -64,8 +66,8 @@ public class SRandMemberTest {
         jedis.sadd("foo", set.toArray(new String[0]));
         for (int i = 0; i < 1000; i++) {
             List<String> members = jedis.srandmember("foo", 3);
-            Assertions.assertTrue(set.containsAll(members));
-            Assertions.assertEquals(3, new HashSet<>(members).size());
+            assertThat(set).containsAll(members);
+            assertEquals(3, new HashSet<>(members).size());
         }
     }
 
@@ -74,7 +76,7 @@ public class SRandMemberTest {
         Collection<String> set = Arrays.asList("a", "b", "c", "d", "e");
         jedis.sadd("foo", set.toArray(new String[0]));
         List<String> members = jedis.srandmember("foo", 10);
-        Assertions.assertEquals(new HashSet<>(set), new HashSet<>(members));
+        assertEquals(new HashSet<>(set), new HashSet<>(members));
     }
 
     @TestTemplate
@@ -82,7 +84,7 @@ public class SRandMemberTest {
         Collection<String> set = Arrays.asList("a", "b", "c", "d", "e");
         jedis.sadd("foo", set.toArray(new String[0]));
         List<String> members = jedis.srandmember("foo", 0);
-        Assertions.assertEquals(0, members.size());
+        assertEquals(0, members.size());
     }
 
     @TestTemplate
@@ -90,15 +92,15 @@ public class SRandMemberTest {
         Collection<String> set = Arrays.asList("a", "b", "c");
         jedis.sadd("foo", set.toArray(new String[0]));
         List<String> members = jedis.srandmember("foo", -100);
-        Assertions.assertEquals(100, members.size());
-        Assertions.assertTrue(set.containsAll(members));
+        assertThat(members).hasSize(100);
+        assertThat(set).containsAll(members);
     }
 
     @TestTemplate
     void randMemberReturnOneElementAsSingletonList(Jedis jedis) {
         jedis.sadd("key", "a");
-        Assertions.assertEquals(Collections.singletonList("a"), jedis.srandmember("key", 1));
-        Assertions.assertEquals(Collections.emptyList(), jedis.srandmember("key", 0));
-        Assertions.assertEquals(Collections.singletonList("a"), jedis.srandmember("key", -1));
+        assertEquals(Collections.singletonList("a"), jedis.srandmember("key", 1));
+        assertEquals(Collections.emptyList(), jedis.srandmember("key", 0));
+        assertEquals(Collections.singletonList("a"), jedis.srandmember("key", -1));
     }
 }

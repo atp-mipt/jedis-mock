@@ -13,9 +13,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import static redis.clients.jedis.args.SortedSetOption.MIN;
 
 @ExtendWith(ComparisonBase.class)
 public class TestZMPop {
@@ -30,7 +32,7 @@ public class TestZMPop {
 
     @TestTemplate
     public void testZMPopKeyNotExist(Jedis jedis) {
-        assertNull(jedis.zmpop(SortedSetOption.MIN, "aaa"));
+        assertThat(jedis.zmpop(MIN, "aaa")).isNull();
     }
 
     @TestTemplate
@@ -57,9 +59,9 @@ public class TestZMPop {
 
     @TestTemplate
     public void testZMPopKeyNegativeCount(Jedis jedis) {
-        assertThrows(RuntimeException.class, () ->
-                jedis.zmpop(SortedSetOption.MIN, -1, "aaa")
-        );
+        assertThatThrownBy(() ->
+                jedis.zmpop(MIN, -1, "aaa"))
+                .isInstanceOf(RuntimeException.class);
     }
 
 }

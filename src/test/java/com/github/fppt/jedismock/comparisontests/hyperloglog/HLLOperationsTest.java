@@ -7,10 +7,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisDataException;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(ComparisonBase.class)
 public class HLLOperationsTest {
@@ -64,9 +63,9 @@ public class HLLOperationsTest {
     @TestTemplate
     public void testFailingGetOperation(Jedis jedis) {
         jedis.set("not_a_hll", "bar");
-        assertTrue(
-                assertThrows(JedisDataException.class, () ->
-                        jedis.pfadd("not_a_hll", "value")).getMessage().startsWith("WRONGTYPE"));
+        assertThatThrownBy(() -> jedis.pfadd("not_a_hll", "value"))
+                .isInstanceOf(JedisDataException.class)
+                .hasMessageStartingWith("WRONGTYPE");
     }
 
     @TestTemplate

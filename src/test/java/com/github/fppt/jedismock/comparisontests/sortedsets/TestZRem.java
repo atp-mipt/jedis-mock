@@ -10,8 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @ExtendWith(ComparisonBase.class)
 public class TestZRem {
@@ -53,12 +53,12 @@ public class TestZRem {
     public void testZRemLastValue(Jedis jedis) {
         jedis.zadd(ZSET_KEY, 1, "aaa");
         assertEquals(1, jedis.zrem(ZSET_KEY, "aaa"));
-        assertFalse(jedis.exists(ZSET_KEY));
+        assertThat(jedis.exists(ZSET_KEY)).isFalse();
     }
 
     @TestTemplate
     public void testZRemKeyNotExist(Jedis jedis) {
         assertEquals(0, jedis.zrem(ZSET_KEY, "aaa"));
-        assertFalse(jedis.exists(ZSET_KEY));
+        assertThat(jedis.exists(ZSET_KEY)).isFalse();
     }
 }

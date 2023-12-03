@@ -13,8 +13,10 @@ import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.github.fppt.jedismock.commands.RedisCommandParser.parse;
+import static com.github.fppt.jedismock.server.Response.integer;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Created by Xiaolu on 2015/4/20.
@@ -227,9 +229,9 @@ public class TestRedisOperationExecutor {
         assertCommandOK(array("SET", "ab", "abd"));
         assertCommandEquals(-1, array("pttl", "ab"));
         assertCommandEquals(1, array("expire", "ab", "2"));
-        assertTrue(executor.execCommand(RedisCommandParser.parse(array("pttl", "ab"))).compareTo(Response.integer(1900L)) > 0);
+        assertThat(executor.execCommand(parse(array("pttl", "ab"))).compareTo(integer(1900L))).isGreaterThan(0);
         Thread.sleep(1100);
-        assertTrue(executor.execCommand(RedisCommandParser.parse(array("pttl", "ab"))).compareTo(Response.integer(999L)) < 0);
+        assertThat(executor.execCommand(parse(array("pttl", "ab"))).compareTo(integer(999L))).isLessThan(0);
         Thread.sleep(1000);
         assertCommandEquals(-2, array("pttl", "ab"));
     }
@@ -331,8 +333,8 @@ public class TestRedisOperationExecutor {
     @Test
     public void testPsetex() throws ParseErrorException {
         assertCommandOK(array("pSETex", "ab", "99", "k"));
-        assertTrue(executor.execCommand(RedisCommandParser.parse(array("pttl", "ab"))).compareTo(Response.integer(90)) > 0);
-        assertTrue(executor.execCommand(RedisCommandParser.parse(array("pttl", "ab"))).compareTo(Response.integer(99)) <= 0);
+        assertThat(executor.execCommand(parse(array("pttl", "ab"))).compareTo(integer(90))).isGreaterThan(0);
+        assertThat(executor.execCommand(parse(array("pttl", "ab"))).compareTo(integer(99))).isLessThanOrEqualTo(0);
         assertCommandError(array("pSETex", "ab", "10a", "k"));
     }
 

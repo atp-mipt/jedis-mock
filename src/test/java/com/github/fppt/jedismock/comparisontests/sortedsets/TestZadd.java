@@ -8,12 +8,15 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.params.ZAddParams;
 import redis.clients.jedis.resps.Tuple;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 @ExtendWith(ComparisonBase.class)
 public class TestZadd {
@@ -143,14 +146,14 @@ public class TestZadd {
 
     @TestTemplate
     public void testZAddXXandNX(Jedis jedis) {
-        assertThrows(RuntimeException.class,
-                () -> jedis.zadd(ZSET_KEY, 10, "x", new ZAddParams().xx().nx()));
+        assertThatThrownBy(() -> jedis.zadd(ZSET_KEY, 10, "x", new ZAddParams().xx().nx()))
+                .isInstanceOf(RuntimeException.class);
     }
 
     @TestTemplate
     public void testZAddLTandGT(Jedis jedis) {
-        assertThrows(RuntimeException.class,
-                () -> jedis.zadd(ZSET_KEY, 10, "x", new ZAddParams().lt().gt()));
+        assertThatThrownBy(() -> jedis.zadd(ZSET_KEY, 10, "x", new ZAddParams().lt().gt()))
+                .isInstanceOf(RuntimeException.class);
     }
 
     @TestTemplate
@@ -250,7 +253,7 @@ public class TestZadd {
     public void testZAddIncrLTIfScoreNotUpdate(Jedis jedis) {
         jedis.zadd(ZSET_KEY, 28, "x");
 
-        assertNull(jedis.zaddIncr(ZSET_KEY, 1, "x", new ZAddParams().lt()));
+        assertThat(jedis.zaddIncr(ZSET_KEY, 1, "x", new ZAddParams().lt())).isNull();
         assertEquals(28, jedis.zscore(ZSET_KEY, "x"));
     }
 
@@ -258,7 +261,7 @@ public class TestZadd {
     public void testZAddIncrGTIfScoreNotUpdate(Jedis jedis) {
         jedis.zadd(ZSET_KEY, 28, "x");
 
-        assertNull(jedis.zaddIncr(ZSET_KEY, -1, "x", new ZAddParams().gt()));
+        assertThat(jedis.zaddIncr(ZSET_KEY, -1, "x", new ZAddParams().gt())).isNull();
         assertEquals(28, jedis.zscore(ZSET_KEY, "x"));
     }
 

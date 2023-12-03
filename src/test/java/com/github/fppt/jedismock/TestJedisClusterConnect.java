@@ -14,8 +14,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class TestJedisClusterConnect {
 
@@ -52,8 +52,9 @@ public class TestJedisClusterConnect {
     @Test
     void selectOperationDoesNotWorkInClusterMode() {
         try (Jedis jedis = new Jedis(new HostAndPort(server.getHost(), server.getBindPort()))) {
-            String msg = assertThrows(JedisDataException.class, () -> jedis.select(1)).getMessage();
-            assertEquals("ERR SELECT is not allowed in cluster mode", msg);
+            assertThatThrownBy(() -> jedis.select(1))
+                    .isInstanceOf(JedisDataException.class)
+                    .hasMessage("ERR SELECT is not allowed in cluster mode");
         }
     }
 }

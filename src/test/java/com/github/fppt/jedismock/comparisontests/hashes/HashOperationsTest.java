@@ -14,12 +14,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import static org.junit.jupiter.api.Assertions.fail;
 
 @ExtendWith(ComparisonBase.class)
@@ -86,7 +86,7 @@ public class HashOperationsTest {
         String hash = "my-hash";
         String value = "my-value";
 
-        assertNull(jedis.hget(hash, field));
+        assertThat(jedis.hget(hash, field)).isNull();
         jedis.hset(hash, field, value);
         assertEquals(value, jedis.hget(hash, field));
     }
@@ -97,9 +97,9 @@ public class HashOperationsTest {
         String hash = "my-hash";
         String value = "my-value";
 
-        assertNull(jedis.hget(hash, field));
+        assertThat(jedis.hget(hash, field)).isNull();
         jedis.hset(hash, field, value);
-        assertTrue(jedis.hexists(hash, field));
+        assertThat(jedis.hexists(hash, field)).isTrue();
     }
 
     @TestTemplate
@@ -189,12 +189,7 @@ public class HashOperationsTest {
 
         List<String> result = jedis.hmget(HASH, FIELD_1, FIELD_2, FIELD_5, FIELD_3, FIELD_4);
 
-        assertEquals(5, result.size());
-        assertEquals(VALUE_1, result.get(0));
-        assertEquals(VALUE_2, result.get(1));
-        assertNull(result.get(2));
-        assertEquals(VALUE_3, result.get(3));
-        assertNull(result.get(4));
+        assertThat(result).containsExactly(VALUE_1, VALUE_2, null, VALUE_3, null);
     }
 
     @TestTemplate
@@ -215,7 +210,7 @@ public class HashOperationsTest {
 
     @TestTemplate
     public void whenUsingHsetnx_EnsureValueIsOnlyPutIfOtherValueDoesNotExist(Jedis jedis) {
-        assertNull(jedis.hget(HASH, FIELD_3));
+        assertThat(jedis.hget(HASH, FIELD_3)).isNull();
         assertEquals(1, jedis.hsetnx(HASH, FIELD_3, VALUE_1));
         assertEquals(VALUE_1, jedis.hget(HASH, FIELD_3));
         assertEquals(0, jedis.hsetnx(HASH, FIELD_3, VALUE_2));
@@ -243,8 +238,10 @@ public class HashOperationsTest {
     @TestTemplate
     public void whenHIncrementingText_ensureException(Jedis jedis) {
         jedis.hset("key", "subkey", "foo");
-        assertThrows(JedisDataException.class, () -> jedis.hincrBy("key", "subkey", 1));
-        assertThrows(JedisDataException.class, () -> jedis.hincrByFloat("key", "subkey", 1.5));
+        assertThatThrownBy(() -> jedis.hincrBy("key", "subkey", 1))
+                .isInstanceOf(JedisDataException.class);
+        assertThatThrownBy(() -> jedis.hincrByFloat("key", "subkey", 1.5))
+                .isInstanceOf(JedisDataException.class);
     }
 
     @TestTemplate
@@ -283,7 +280,8 @@ public class HashOperationsTest {
         Map<String, String> hash = new HashMap<>();
         hash.put("key1", "1");
         jedis.hset("foo", hash);
-        assertThrows(JedisDataException.class, () -> jedis.get("foo"));
+        assertThatThrownBy(() -> jedis.get("foo"))
+                .isInstanceOf(JedisDataException.class);
     }
 
     @TestTemplate

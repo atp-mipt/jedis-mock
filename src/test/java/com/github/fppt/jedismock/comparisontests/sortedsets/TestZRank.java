@@ -6,8 +6,9 @@ import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import redis.clients.jedis.Jedis;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+
 
 @ExtendWith(ComparisonBase.class)
 public class TestZRank {
@@ -40,6 +41,6 @@ public class TestZRank {
         assertEquals(1, jedis.zrank(ZSET_KEY, "y"));
         assertEquals(2, jedis.zrank(ZSET_KEY, "z"));
 
-        assertNull(jedis.zrank(ZSET_KEY, "foo"));
+        assertThat(jedis.zrank(ZSET_KEY, "foo")).isNull();
     }
 }

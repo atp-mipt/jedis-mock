@@ -10,8 +10,9 @@ import redis.clients.jedis.resps.Tuple;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ComparisonBase.class)
 public class TestZPopMax {
@@ -50,24 +51,24 @@ public class TestZPopMax {
 
     @TestTemplate
     public void testZPopMaxFromEmptyKey(Jedis jedis) {
-        assertNull(jedis.zpopmax(ZSET_KEY));
+        assertThat(jedis.zpopmax(ZSET_KEY)).isNull();
     }
 
     @TestTemplate
     public void testZPopMinWithNegativeCount(Jedis jedis) {
         jedis.set(ZSET_KEY, "foo");
-        assertThrows(RuntimeException.class,
-                () -> jedis.zpopmax(ZSET_KEY, -1));
+        assertThatThrownBy(() -> jedis.zpopmax(ZSET_KEY, -1))
+                .isInstanceOf(RuntimeException.class);
 
         jedis.del(ZSET_KEY);
-        assertThrows(RuntimeException.class,
-                () -> jedis.zpopmax(ZSET_KEY, -2));
+        assertThatThrownBy(() -> jedis.zpopmax(ZSET_KEY, -2))
+                .isInstanceOf(RuntimeException.class);
 
         jedis.zadd(ZSET_KEY, 1, "a");
         jedis.zadd(ZSET_KEY, 2, "b");
         jedis.zadd(ZSET_KEY, 3, "c");
-        assertThrows(RuntimeException.class,
-                () -> jedis.zpopmax(ZSET_KEY, -3));
+        assertThatThrownBy(() -> jedis.zpopmax(ZSET_KEY, -3))
+                .isInstanceOf(RuntimeException.class);
 
     }
 }

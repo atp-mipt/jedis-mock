@@ -13,8 +13,8 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import static java.util.concurrent.CompletableFuture.runAsync;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 @ExtendWith(ComparisonBase.class)
 public class TestWatchUnwatch {
@@ -43,7 +43,7 @@ public class TestWatchUnwatch {
         runAsync(() -> anotherJedis.set(FIRST_KEY, ANOTHER_VALUE)).get();
         transaction.set(FIRST_KEY, SECOND_VALUE);
         List<Object> result = transaction.exec();
-        assertNull(result);
+        assertThat(result).isNull();
     }
 
     @TestTemplate
@@ -54,7 +54,7 @@ public class TestWatchUnwatch {
         runAsync(() -> anotherJedis.set(FIRST_KEY, FIRST_VALUE)).get();
         transaction.set(FIRST_KEY, SECOND_VALUE);
         List<Object> result = transaction.exec();
-        assertNull(result);
+        assertThat(result).isNull();
     }
 
     @TestTemplate
@@ -65,7 +65,7 @@ public class TestWatchUnwatch {
         Transaction transaction = jedis.multi();
         transaction.hset(FIRST_KEY, SECOND_KEY, SECOND_VALUE);
         List<Object> result = transaction.exec();
-        assertNull(result);
+        assertThat(result).isNull();
     }
 
     @TestTemplate
@@ -76,7 +76,7 @@ public class TestWatchUnwatch {
         Transaction transaction = jedis.multi();
         transaction.set(SECOND_KEY, SECOND_VALUE);
         List<Object> result = transaction.exec();
-        assertNull(result);
+        assertThat(result).isNull();
     }
 
     @TestTemplate
@@ -100,7 +100,7 @@ public class TestWatchUnwatch {
         Thread.sleep(200);
         transaction.set(FIRST_KEY, SECOND_VALUE);
         List<Object> result = transaction.exec();
-        assertNull(result);
+        assertThat(result).isNull();
     }
 
     @TestTemplate
@@ -111,7 +111,7 @@ public class TestWatchUnwatch {
         Transaction transaction = jedis.multi();
         transaction.set(FIRST_KEY, SECOND_VALUE);
         List<Object> result = transaction.exec();
-        assertNull(result);
+        assertThat(result).isNull();
     }
 
     @TestTemplate
@@ -122,7 +122,7 @@ public class TestWatchUnwatch {
         Transaction transaction = jedis.multi();
         transaction.set(FIRST_KEY, SECOND_VALUE);
         List<Object> result = transaction.exec();
-        assertNull(result);
+        assertThat(result).isNull();
     }
 
     @TestTemplate
@@ -147,7 +147,7 @@ public class TestWatchUnwatch {
         Transaction transaction = jedis.multi();
         transaction.set(FIRST_KEY, SECOND_VALUE);
         List<Object> result = transaction.exec();
-        assertNull(result);
+        assertThat(result).isNull();
     }
 
     @TestTemplate

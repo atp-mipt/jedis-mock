@@ -11,7 +11,9 @@ import java.util.List;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ComparisonBase.class)
 public class ListOperationsTest {
@@ -41,7 +43,7 @@ public class ListOperationsTest {
         jedis.rpush(key, "1", "2", "3", "4");
         assertEquals(asList("1", "2", "3"), jedis.lpop(key, 3));
         assertEquals(singletonList("4"), jedis.lpop(key, 5));
-        assertNull(jedis.lpop(key, 5));
+        assertThat(jedis.lpop(key, 5)).isNull();
     }
 
     @TestTemplate
@@ -57,7 +59,7 @@ public class ListOperationsTest {
         jedis.rpush(key, "1", "2", "3", "4");
         assertEquals(asList("4", "3", "2"), jedis.rpop(key, 3));
         assertEquals(singletonList("1"), jedis.rpop(key, 5));
-        assertNull(jedis.rpop(key, 5));
+        assertThat(jedis.rpop(key, 5)).isNull();
     }
 
     @TestTemplate
@@ -66,7 +68,7 @@ public class ListOperationsTest {
         String list2key = "list 2";
 
         String nullResult = jedis.rpoplpush(list1key, list2key);
-        assertNull(nullResult);
+        assertThat(nullResult).isNull();
 
         jedis.rpush(list1key, "1", "2", "3");
         jedis.rpush(list2key, "a", "b", "c");
@@ -75,13 +77,9 @@ public class ListOperationsTest {
         List<String> results1 = jedis.lrange(list1key, 0, -1);
         List<String> results2 = jedis.lrange(list2key, 0, -1);
 
-        assertTrue(results1.contains("1"));
-        assertTrue(results1.contains("2"));
-        assertTrue(results1.contains("3"));
+        assertThat(results1).contains("1", "2", "3");
 
-        assertTrue(results2.contains("a"));
-        assertTrue(results2.contains("b"));
-        assertTrue(results2.contains("c"));
+        assertThat(results2).contains("a", "b", "c");
 
         //Check that the one list has been pushed into the other
         String result = jedis.rpoplpush(list1key, list2key);
@@ -90,14 +88,10 @@ public class ListOperationsTest {
         results1 = jedis.lrange(list1key, 0, -1);
         results2 = jedis.lrange(list2key, 0, -1);
 
-        assertTrue(results1.contains("1"));
-        assertTrue(results1.contains("2"));
-        assertFalse(results1.contains("3"));
+        assertThat(results1).contains("1", "2");
+        assertThat(results1.contains("3")).isFalse();
 
-        assertTrue(results2.contains("3"));
-        assertTrue(results2.contains("a"));
-        assertTrue(results2.contains("b"));
-        assertTrue(results2.contains("c"));
+        assertThat(results2).contains("3", "a", "b", "c");
     }
 
     @TestTemplate
@@ -131,6 +125,7 @@ public class ListOperationsTest {
     public void testGetOperation(Jedis jedis) {
         String key = "Another key";
         jedis.rpush(key, "1", "2", "3");
-        assertThrows(JedisDataException.class, () -> jedis.get("Another key"));
+        assertThatThrownBy(() -> jedis.get("Another key"))
+                .isInstanceOf(JedisDataException.class);
     }
 }

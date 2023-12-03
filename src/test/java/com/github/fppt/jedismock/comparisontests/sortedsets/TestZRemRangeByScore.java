@@ -11,7 +11,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import static java.util.Collections.singletonList;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ComparisonBase.class)
 public class TestZRemRangeByScore {
@@ -124,12 +125,12 @@ public class TestZRemRangeByScore {
         jedis.zadd(ZSET_KEY, 3, "three");
 
         // then
-        assertThrows(JedisDataException.class,
-                () -> jedis.zremrangeByScore(ZSET_KEY, "(dd", "(sd"));
-        assertThrows(JedisDataException.class,
-                () -> jedis.zremrangeByScore(ZSET_KEY, "1.e", "2.d"));
-        assertThrows(RuntimeException.class,
-                () -> jedis.zremrangeByScore(ZSET_KEY, "FOO", "BAR"));
+        assertThatThrownBy(() -> jedis.zremrangeByScore(ZSET_KEY, "(dd", "(sd"))
+                .isInstanceOf(JedisDataException.class);
+        assertThatThrownBy(() -> jedis.zremrangeByScore(ZSET_KEY, "1.e", "2.d"))
+                .isInstanceOf(JedisDataException.class);
+        assertThatThrownBy(() -> jedis.zremrangeByScore(ZSET_KEY, "FOO", "BAR"))
+                .isInstanceOf(RuntimeException.class);
     }
 
     @TestTemplate

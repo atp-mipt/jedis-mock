@@ -6,9 +6,12 @@ import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import redis.clients.jedis.Jedis;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ComparisonBase.class)
 public class HKeysOperation {
@@ -20,13 +23,13 @@ public class HKeysOperation {
     @TestTemplate
     void hkeysUnknownKey(Jedis jedis) {
         Set<String> res = jedis.hkeys("foo");
-        assertTrue(res.isEmpty());
+        assertThat(res).isEmpty();
     }
 
     @TestTemplate
     void hvalsUnknownKey(Jedis jedis) {
         List<String> res = jedis.hvals("foo");
-        assertTrue(res.isEmpty());
+        assertThat(res).isEmpty();
     }
 
     @TestTemplate
@@ -38,6 +41,6 @@ public class HKeysOperation {
     @TestTemplate
     void hGetAllUnknownKey(Jedis jedis) {
         Map<String, String> result = jedis.hgetAll("foo");
-        assertTrue(result.isEmpty());
+        assertThat(result).isEmpty();
     }
 }

@@ -14,7 +14,10 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ComparisonBase.class)
 public class StringOperationsTest {
@@ -31,7 +34,7 @@ public class StringOperationsTest {
         String key = "key";
         String value = "value";
 
-        assertNull(jedis.get(key));
+        assertThat(jedis.get(key)).isNull();
         jedis.set(key, value);
         assertEquals(value, jedis.get(key));
     }
@@ -89,7 +92,7 @@ public class StringOperationsTest {
         jedis.incr(key);
         long ttl = jedis.ttl(key);
 
-        assertTrue(ttl > 0);
+        assertThat(ttl).isGreaterThan(0);
     }
 
     @TestTemplate
@@ -101,7 +104,7 @@ public class StringOperationsTest {
         jedis.incrBy(key, 10);
         long ttl = jedis.ttl(key);
 
-        assertTrue(ttl > 0);
+        assertThat(ttl).isGreaterThan(0);
     }
 
     @TestTemplate
@@ -125,8 +128,10 @@ public class StringOperationsTest {
     @TestTemplate
     public void whenIncrementingText_ensureException(Jedis jedis) {
         jedis.set("key", "foo");
-        assertThrows(JedisDataException.class, () -> jedis.incrBy("key", 1));
-        assertThrows(JedisDataException.class, () -> jedis.incrByFloat("key", 1.5));
+        assertThatThrownBy(() -> jedis.incrBy("key", 1))
+                .isInstanceOf(JedisDataException.class);
+        assertThatThrownBy(() -> jedis.incrByFloat("key", 1.5))
+                .isInstanceOf(JedisDataException.class);
     }
 
     @TestTemplate
@@ -138,7 +143,7 @@ public class StringOperationsTest {
         jedis.decr(key);
         long ttl = jedis.ttl(key);
 
-        assertTrue(ttl > 0);
+        assertThat(ttl).isGreaterThan(0);
     }
 
     @TestTemplate
@@ -150,7 +155,7 @@ public class StringOperationsTest {
         jedis.decrBy(key, 10);
         long ttl = jedis.ttl(key);
 
-        assertTrue(ttl > 0);
+        assertThat(ttl).isGreaterThan(0);
     }
 
     @TestTemplate

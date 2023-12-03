@@ -12,7 +12,10 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ComparisonBase.class)
 public class SetOperationsTest {
@@ -90,7 +93,7 @@ public class SetOperationsTest {
         do {
             poppedValue = jedis.spop(key);
             if (poppedValue != null) {
-                assertTrue(mySet.contains(poppedValue), "Popped value not in set");
+                assertThat(mySet).as("Popped value not in set").contains(poppedValue);
             }
         } while (poppedValue != null);
     }
@@ -108,35 +111,35 @@ public class SetOperationsTest {
     public void poppingZeroAndOneKey(Jedis jedis) {
         String key = "key-pop";
         jedis.sadd(key, "a");
-        assertTrue(jedis.exists(key));
+        assertThat(jedis.exists(key)).isTrue();
         assertEquals(Collections.singleton("a"), jedis.spop(key, 1));
-        assertFalse(jedis.exists(key));
+        assertThat(jedis.exists(key)).isFalse();
         assertEquals(0, jedis.spop(key, 0).size());
     }
 
     @TestTemplate
     public void poppingNonExistentSet(Jedis jedis) {
         String key = "non-existent";
-        assertTrue(jedis.spop(key, 1).isEmpty());
-        assertNull(jedis.spop(key));
+        assertThat(jedis.spop(key, 1)).isEmpty();
+        assertThat(jedis.spop(key)).isNull();
     }
 
     @TestTemplate
     public void ensureSismemberReturnsCorrectValues(Jedis jedis) {
         String key = "my-set-key-sismember";
         jedis.sadd(key, "A", "B");
-        assertTrue(jedis.sismember(key, "A"));
-        assertFalse(jedis.sismember(key, "C"));
-        assertFalse(jedis.sismember(key + "-nonexistent", "A"));
+        assertThat(jedis.sismember(key, "A")).isTrue();
+        assertThat(jedis.sismember(key, "C")).isFalse();
+        assertThat(jedis.sismember(key + "-nonexistent", "A")).isFalse();
     }
 
 
     @TestTemplate
     public void testFailingGetOperation(Jedis jedis) {
         jedis.sadd("my-set-key", "a", "b", "c", "d");
-        assertTrue(
-                assertThrows(JedisDataException.class, () -> jedis.get("my-set-key"))
-                        .getMessage().startsWith("WRONGTYPE"));
+        assertThatThrownBy(() -> jedis.get("my-set-key"))
+                .isInstanceOf(JedisDataException.class)
+                .hasMessageStartingWith("WRONGTYPE");
     }
 
     @TestTemplate
@@ -177,11 +180,11 @@ public class SetOperationsTest {
         jedis.set(key1, "a");
         jedis.sadd(key2, "b");
 
-        assertTrue(
-                assertThrows(JedisDataException.class, () -> jedis.smove(key1, key2, "a"))
-                        .getMessage().startsWith("WRONGTYPE"));
-        assertTrue(
-                assertThrows(JedisDataException.class, () -> jedis.smove(key2, key1, "a"))
-                        .getMessage().startsWith("WRONGTYPE"));
+        assertThatThrownBy(() -> jedis.smove(key1, key2, "a"))
+                .isInstanceOf(JedisDataException.class)
+                .hasMessageStartingWith("WRONGTYPE");
+        assertThatThrownBy(() -> jedis.smove(key2, key1, "a"))
+                .isInstanceOf(JedisDataException.class)
+                .hasMessageStartingWith("WRONGTYPE");
     }
 }

@@ -6,8 +6,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.Jedis;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+
 
 @ExtendWith(ComparisonBase.class)
 public class ConnectionOperationsTest {
@@ -35,7 +36,7 @@ public class ConnectionOperationsTest {
 
     @TestTemplate
     public void whenSettingClientName_EnsureOkResponseIsReturned(Jedis jedis) {
-        assertNull(jedis.clientGetname());
+        assertThat(jedis.clientGetname()).isNull();
         assertEquals("OK", jedis.clientSetname("P.Myo"));
         assertEquals("P.Myo", jedis.clientGetname());
     }

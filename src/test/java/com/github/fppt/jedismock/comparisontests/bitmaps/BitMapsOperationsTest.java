@@ -10,9 +10,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(ComparisonBase.class)
 public class BitMapsOperationsTest {
@@ -54,9 +54,9 @@ public class BitMapsOperationsTest {
     @TestTemplate
     void testValueAftersetbit(Jedis jedis) {
         jedis.setbit("foo", 0L, true);
-        assertTrue(jedis.getbit("foo", 0L));
+        assertThat(jedis.getbit("foo", 0L)).isTrue();
         jedis.setbit("foo", 1L, true);
-        assertTrue(jedis.getbit("foo", 0L));
+        assertThat(jedis.getbit("foo", 0L)).isTrue();
     }
 
     @TestTemplate
@@ -64,7 +64,7 @@ public class BitMapsOperationsTest {
         jedis.set("something", "foo");
         jedis.setbit("something", 41, true);
         jedis.set("something2".getBytes(), jedis.get("something".getBytes()));
-        assertTrue(jedis.getbit("something2", 1));
-        assertTrue(jedis.getbit("something2", 41));
+        assertThat(jedis.getbit("something2", 1)).isTrue();
+        assertThat(jedis.getbit("something2", 41)).isTrue();
     }
 }

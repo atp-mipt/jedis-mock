@@ -11,7 +11,10 @@ import redis.clients.jedis.resps.Tuple;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static java.lang.Double.NaN;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ComparisonBase.class)
 public class TestZUnionStore {
@@ -28,7 +31,7 @@ public class TestZUnionStore {
     @TestTemplate
     public void testZUnionStoreNotExistKeyToNotExistDest(Jedis jedis) {
         assertEquals(0, jedis.zunionstore(ZSET_KEY_OUT, ZSET_KEY_1));
-        assertFalse(jedis.exists(ZSET_KEY_OUT));
+        assertThat(jedis.exists(ZSET_KEY_OUT)).isFalse();
     }
 
     @TestTemplate
@@ -165,9 +168,9 @@ public class TestZUnionStore {
     public void testZUnionStoreWithNanScores(Jedis jedis) {
         jedis.zadd(ZSET_KEY_1, 1, "a");
         jedis.zadd(ZSET_KEY_2, 1, "a");
-        assertThrows(RuntimeException.class,
-                () -> jedis.zunionstore(ZSET_KEY_OUT,
-                        new ZParams().weights(Double.NaN, Double.NaN), ZSET_KEY_1, ZSET_KEY_2));
+        assertThatThrownBy(() -> jedis.zunionstore(ZSET_KEY_OUT,
+                new ZParams().weights(NaN, NaN), ZSET_KEY_1, ZSET_KEY_2))
+                .isInstanceOf(RuntimeException.class);
     }
 
     @TestTemplate

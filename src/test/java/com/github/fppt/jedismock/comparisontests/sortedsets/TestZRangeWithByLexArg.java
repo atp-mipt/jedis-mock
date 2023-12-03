@@ -8,10 +8,14 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisDataException;
 import redis.clients.jedis.params.ZRangeParams;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static redis.clients.jedis.params.ZRangeParams.zrangeByLexParams;
 
 @ExtendWith(ComparisonBase.class)
 public class TestZRangeWithByLexArg {
@@ -56,9 +60,13 @@ public class TestZRangeWithByLexArg {
 
     @TestTemplate
     public void zrangebylexKeysThrowsOnIncorrectParameters(Jedis jedis) {
-        assertThrows(JedisDataException.class, () -> jedis.zrange(key, ZRangeParams.zrangeByLexParams("b", "[d")));
-        assertThrows(JedisDataException.class, () -> jedis.zrange(key, ZRangeParams.zrangeByLexParams("b", "[d").rev()));
-        assertThrows(JedisDataException.class, () -> jedis.zrange(key, ZRangeParams.zrangeByLexParams("[b", "d")));
-        assertThrows(JedisDataException.class, () -> jedis.zrange(key, ZRangeParams.zrangeByLexParams("[b", "d").rev()));
+        assertThatThrownBy(() -> jedis.zrange(key, zrangeByLexParams("b", "[d")))
+                .isInstanceOf(JedisDataException.class);
+        assertThatThrownBy(() -> jedis.zrange(key, zrangeByLexParams("b", "[d").rev()))
+                .isInstanceOf(JedisDataException.class);
+        assertThatThrownBy(() -> jedis.zrange(key, zrangeByLexParams("[b", "d")))
+                .isInstanceOf(JedisDataException.class);
+        assertThatThrownBy(() -> jedis.zrange(key, zrangeByLexParams("[b", "d").rev()))
+                .isInstanceOf(JedisDataException.class);
     }
 }

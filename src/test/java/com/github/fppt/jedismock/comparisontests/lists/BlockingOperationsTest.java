@@ -22,9 +22,9 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 @ExtendWith(ComparisonBase.class)
 public class BlockingOperationsTest {
@@ -79,7 +79,7 @@ public class BlockingOperationsTest {
 
         String result = jedis.brpoplpush(list1key, list2key, 1);
 
-        assertNull(result);
+        assertThat(result).isNull();
     }
 
     @TestTemplate
@@ -161,7 +161,7 @@ public class BlockingOperationsTest {
         //Block on performing the BLPOP
         Future<?> future = blockingThread.submit(() -> {
             List<String> result = blockedClient.blpop(1, list1key, list2key, list3key);
-            assertNull(result);
+            assertThat(result).isNull();
         });
         //Check the list is not modified
         jedis.getClient().setSoTimeout(2000);
@@ -176,7 +176,7 @@ public class BlockingOperationsTest {
 
         Future<?> future = blockingThread.submit(() -> {
             List<String> result = blockedClient.blpop(0, listKey);
-            assertNotNull(result);
+            assertThat(result).isNotNull();
             assertEquals(2, result.size());
             assertEquals(listKey, result.get(0));
             assertEquals("b", result.get(1));
@@ -221,12 +221,12 @@ public class BlockingOperationsTest {
     @TestTemplate
     public void whenUsingBlpop_EnsureThrowsErrorOnNegativeTimeout(Jedis jedis) {
         String key = "blpop_negative_timeout_key";
-
-        JedisDataException exception = Assertions.assertThrows(JedisDataException.class, () -> jedis.blpop(-5, key));
-        assertEquals("ERR timeout is negative", exception.getMessage());
-
-        exception = Assertions.assertThrows(JedisDataException.class, () -> jedis.blpop(-0.1, key));
-        assertEquals("ERR timeout is negative", exception.getMessage());
+        assertThatThrownBy(() -> jedis.blpop(-5, key))
+                .isInstanceOf(JedisDataException.class)
+                .hasMessage("ERR timeout is negative");
+        assertThatThrownBy(() -> jedis.blpop(-0.1, key))
+                .isInstanceOf(JedisDataException.class)
+                .hasMessage("ERR timeout is negative");
     }
 
     @TestTemplate

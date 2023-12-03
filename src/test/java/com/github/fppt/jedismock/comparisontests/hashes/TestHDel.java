@@ -8,7 +8,10 @@ import redis.clients.jedis.Jedis;
 
 import java.util.HashMap;
 import java.util.Map;
-import static org.junit.jupiter.api.Assertions.*;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ComparisonBase.class)
 public class TestHDel {
@@ -27,7 +30,7 @@ public class TestHDel {
         jedis.hset(hash, field, value);
         assertEquals(value, jedis.hget(hash, field));
         assertEquals(1, jedis.hdel(hash, field));
-        assertNull(jedis.hget(hash, field));
+        assertThat(jedis.hget(hash, field)).isNull();
     }
 
     @TestTemplate
@@ -38,7 +41,7 @@ public class TestHDel {
         jedis.hset("foo", hash);
         final Long res = jedis.hdel("foo", "key1", "key2");
         assertEquals(2, res);
-        assertTrue(jedis.hgetAll("foo").isEmpty());
+        assertThat(jedis.hgetAll("foo")).isEmpty();
     }
 
     @TestTemplate
@@ -47,8 +50,8 @@ public class TestHDel {
         hash.put("key1", "1");
         hash.put("key2", "2");
         jedis.hset("foo", hash);
-        assertThrows(RuntimeException.class,
-                () -> jedis.hdel("foo"));
+        assertThatThrownBy(() -> jedis.hdel("foo"))
+                .isInstanceOf(RuntimeException.class);
         assertEquals(2, jedis.hlen("foo"));
     }
 }

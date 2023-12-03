@@ -1,7 +1,6 @@
 package com.github.fppt.jedismock.comparisontests.scripting;
 
 import com.github.fppt.jedismock.comparisontests.ComparisonBase;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,10 +12,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(ComparisonBase.class)
 public class EvalTest {
@@ -95,9 +93,9 @@ public class EvalTest {
     @TestTemplate
     void errFieldConversion(Jedis jedis) {
         String script = "return {err='bad'}";
-        String message = assertThrows(JedisDataException.class,
-                () -> jedis.eval(script, 0)).getMessage();
-        assertEquals("bad", message);
+        assertThatThrownBy(() -> jedis.eval(script, 0))
+                .isInstanceOf(JedisDataException.class)
+                .hasMessage("bad");
     }
 
     @TestTemplate
@@ -109,9 +107,9 @@ public class EvalTest {
     @TestTemplate
     void errorReplyAPI(Jedis jedis) {
         String script = "return redis.error_reply('Something bad happened')";
-        String message = assertThrows(JedisDataException.class,
-                () -> jedis.eval(script, 0)).getMessage();
-        assertEquals("Something bad happened", message);
+        assertThatThrownBy(() -> jedis.eval(script, 0))
+                .isInstanceOf(JedisDataException.class)
+                .hasMessage("Something bad happened");
     }
 
     @TestTemplate
@@ -124,10 +122,10 @@ public class EvalTest {
 
     @TestTemplate
     void logAPI(Jedis jedis) {
-        assertNull(jedis.eval("return redis.log(redis.LOG_DEBUG, 'Something is happening')"));
-        assertNull(jedis.eval("return redis.log(redis.LOG_VERBOSE, 'Blah-blah')"));
-        assertNull(jedis.eval("return redis.log(redis.LOG_NOTICE, 'Notice this')"));
-        assertNull(jedis.eval("return redis.log(redis.LOG_WARNING, 'Something is wrong')"));
+        assertThat(jedis.eval("return redis.log(redis.LOG_DEBUG, 'Something is happening')")).isNull();
+        assertThat(jedis.eval("return redis.log(redis.LOG_VERBOSE, 'Blah-blah')")).isNull();
+        assertThat(jedis.eval("return redis.log(redis.LOG_NOTICE, 'Notice this')")).isNull();
+        assertThat(jedis.eval("return redis.log(redis.LOG_WARNING, 'Something is wrong')")).isNull();
     }
 
     @TestTemplate
@@ -166,14 +164,16 @@ public class EvalTest {
 
     @TestTemplate
     void evalRedisRecursiveTest(Jedis jedis) {
-        Exception e = assertThrows(RuntimeException.class, () -> jedis.eval("return redis.call('EVAL', 'return { 1, 2, 3 }', '0')", 0));
-        assertNotNull(e);
+        assertThatThrownBy(() -> jedis.eval("return redis.call('EVAL', 'return { 1, 2, 3 }', '0')", 0))
+                .isInstanceOf(RuntimeException.class)
+                .isNotNull();
     }
 
     @TestTemplate
     void evalRedisReturnPcallResultsInExceptionTest(Jedis jedis) {
-        JedisDataException e = assertThrows(JedisDataException.class, () -> jedis.eval("return redis.pcall('RENAME','A','B')", 0));
-        assertNotNull(e);
+        assertThatThrownBy(() -> jedis.eval("return redis.pcall('RENAME','A','B')", 0))
+                .isInstanceOf(JedisDataException.class)
+                .isNotNull();
     }
 
     @TestTemplate
@@ -189,7 +189,7 @@ public class EvalTest {
 
     @TestTemplate
     void evalRedisPCallDoesNotThrowTest(Jedis jedis) {
-        assertNull(jedis.eval("redis.pcall('RENAME','A','B')", 0));
+        assertThat(jedis.eval("redis.pcall('RENAME','A','B')", 0)).isNull();
     }
 
     @TestTemplate
@@ -228,7 +228,7 @@ public class EvalTest {
     @TestTemplate
     void booleanFalseConversion(Jedis jedis) {
         String script = "return false";
-        assertNull(jedis.eval(script, 0));
+        assertThat(jedis.eval(script, 0)).isNull();
     }
 
     @TestTemplate
@@ -263,7 +263,7 @@ public class EvalTest {
         String s = "return redis.call('hget', KEYS[1], ARGV[1])";
         Object res = jedis.eval(s, Collections.singletonList("foo"),
                 Collections.singletonList("bar"));
-        assertNull(res);
+        assertThat(res).isNull();
     }
 
     @TestTemplate
@@ -271,7 +271,7 @@ public class EvalTest {
         String s = "return redis.call('get', KEYS[1])";
         Object res = jedis.eval(s, Collections.singletonList("foo"),
                 Collections.emptyList());
-        assertNull(res);
+        assertThat(res).isNull();
     }
 
     @TestTemplate
@@ -281,7 +281,7 @@ public class EvalTest {
                 Collections.singletonList("an-example-key"),
                 Collections.emptyList()
         );
-        Assertions.assertNull(result);
+        assertThat(result).isNull();
     }
 
     @TestTemplate
@@ -291,6 +291,6 @@ public class EvalTest {
                 Collections.singletonList("an-example-key"),
                 Collections.emptyList()
         );
-        Assertions.assertEquals(1L, result);
+        assertEquals(1L, result);
     }
 }

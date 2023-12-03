@@ -8,8 +8,8 @@ import redis.clients.jedis.Jedis;
 
 import java.util.Arrays;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(ComparisonBase.class)
 class ScriptTest {
@@ -24,7 +24,7 @@ class ScriptTest {
         String sha = jedis.scriptLoad("return 'Hello'");
         assertEquals(sha, sha.toLowerCase());
         assertEquals("Hello", jedis.evalsha(sha));
-        assertTrue(jedis.scriptExists(sha));
+        assertThat(jedis.scriptExists(sha)).isTrue();
     }
 
     @TestTemplate
@@ -34,7 +34,7 @@ class ScriptTest {
         Object response = jedis.evalsha(sha, 0, supposedReturn);
         assertEquals(String.class, response.getClass());
         assertEquals(supposedReturn, response);
-        assertTrue(jedis.scriptExists(sha));
+        assertThat(jedis.scriptExists(sha)).isTrue();
     }
 
     @TestTemplate

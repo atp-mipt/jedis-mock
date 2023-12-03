@@ -12,7 +12,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ComparisonBase.class)
 public class SortedSetOperationsTest {
@@ -125,7 +127,7 @@ public class SortedSetOperationsTest {
         assertEquals(0d, jedis.zscore(key, "aaa"));
         assertEquals(1d, jedis.zscore(key, "bbb"));
         assertEquals(1d, jedis.zscore(key, "ddd"));
-        assertNull(jedis.zscore(key, "ccc"));
+        assertThat(jedis.zscore(key, "ccc")).isNull();
     }
 
     @TestTemplate
@@ -136,6 +138,7 @@ public class SortedSetOperationsTest {
         members.put("bbb", 1d);
         members.put("ddd", 1d);
         jedis.zadd(key, members);
-        assertThrows(JedisDataException.class, () -> jedis.get("a_key"));
+        assertThatThrownBy(() -> jedis.get("a_key"))
+                .isInstanceOf(JedisDataException.class);
     }
 }

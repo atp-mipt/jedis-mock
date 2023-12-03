@@ -6,10 +6,11 @@ import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import redis.clients.jedis.Jedis;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(ComparisonBase.class)
 public class TestZLexCount {
@@ -75,13 +76,13 @@ public class TestZLexCount {
 
     @TestTemplate
     public void testZLexCountErrorMinValue(Jedis jedis) {
-        assertThrows(RuntimeException.class,
-                () -> jedis.zlexcount(ZSET_KEY, "bar", "(foo"));
+        assertThatThrownBy(() -> jedis.zlexcount(ZSET_KEY, "bar", "(foo"))
+                .isInstanceOf(RuntimeException.class);
     }
 
     @TestTemplate
     public void testZLexCountErrorMaxValue(Jedis jedis) {
-        assertThrows(RuntimeException.class,
-                () -> jedis.zlexcount(ZSET_KEY, "(bar", "foo"));
+        assertThatThrownBy(() -> jedis.zlexcount(ZSET_KEY, "(bar", "foo"))
+                .isInstanceOf(RuntimeException.class);
     }
 }

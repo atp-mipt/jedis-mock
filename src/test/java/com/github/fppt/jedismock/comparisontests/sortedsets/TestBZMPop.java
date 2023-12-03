@@ -21,9 +21,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import static redis.clients.jedis.args.SortedSetOption.MIN;
 
 @ExtendWith(ComparisonBase.class)
 public class TestBZMPop {
@@ -43,7 +45,7 @@ public class TestBZMPop {
 
     @TestTemplate
     public void testBZMPopKeyNotExist(Jedis jedis) {
-            assertNull(jedis.bzmpop(1, SortedSetOption.MIN, "aaa"));
+        assertThat(jedis.bzmpop(1, MIN, "aaa")).isNull();
     }
 
     @TestTemplate
@@ -70,9 +72,9 @@ public class TestBZMPop {
 
     @TestTemplate
     public void testBZMPopNegativeCount(Jedis jedis) {
-        assertThrows(RuntimeException.class, () ->
-                jedis.bzmpop(1, SortedSetOption.MIN, -1, "aaa")
-        );
+        assertThatThrownBy(() ->
+                jedis.bzmpop(1, MIN, -1, "aaa"))
+                .isInstanceOf(RuntimeException.class);
     }
 
     @TestTemplate

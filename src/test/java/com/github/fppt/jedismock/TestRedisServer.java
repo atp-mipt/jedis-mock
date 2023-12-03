@@ -7,7 +7,9 @@ import redis.clients.jedis.exceptions.JedisConnectionException;
 import java.io.IOException;
 import java.net.BindException;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Created by Xiaolu on 2015/4/18.
@@ -61,7 +63,8 @@ public class TestRedisServer {
             try (Jedis jedis = new Jedis(server.getHost(), server.getBindPort())) {
                 assertEquals("PONG", jedis.ping());
                 server.stop();
-                assertThrows(JedisConnectionException.class, jedis::ping);
+                assertThatThrownBy(jedis::ping)
+                        .isInstanceOf(JedisConnectionException.class);
             }
         }
     }
@@ -81,7 +84,8 @@ public class TestRedisServer {
         }
         server.stop();
         for (Jedis j : jedis) {
-            assertThrows(JedisConnectionException.class, j::ping);
+            assertThatThrownBy(j::ping)
+                    .isInstanceOf(JedisConnectionException.class);
             j.close();
         }
     }
@@ -94,7 +98,8 @@ public class TestRedisServer {
             try (Jedis jedis = new Jedis(server.getHost(), server.getBindPort())) {
                 assertEquals("PONG", jedis.ping());
                 server.stop();
-                assertThrows(JedisConnectionException.class, jedis::ping);
+                assertThatThrownBy(jedis::ping)
+                        .isInstanceOf(JedisConnectionException.class);
             }
         }
     }

@@ -7,9 +7,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.resps.KeyedZSetElement;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(ComparisonBase.class)
 public class TestBZPopMin {
@@ -53,10 +53,10 @@ public class TestBZPopMin {
     public void testBZPopMinFromEmptySortedSetAndTimeOut(Jedis jedis) {
         long timeout = 1;
         long startTime = System.currentTimeMillis();
-        assertThrows(NullPointerException.class, () ->
-               jedis.bzpopmin(timeout, ZSET_KEY_2, ZSET_KEY_1, "aaa")
-        );
+        assertThatThrownBy(() ->
+                jedis.bzpopmin(timeout, ZSET_KEY_2, ZSET_KEY_1, "aaa"))
+                .isInstanceOf(NullPointerException.class);
         long finishTime = System.currentTimeMillis();
-        assertTrue(finishTime - startTime >= timeout * 1000);
+        assertThat(finishTime - startTime).isGreaterThanOrEqualTo(timeout * 1000);
     }
 }

@@ -6,7 +6,6 @@ import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisDataException;
-import redis.clients.jedis.params.ZRangeParams;
 import redis.clients.jedis.resps.Tuple;
 
 import java.util.Arrays;
@@ -16,9 +15,9 @@ import java.util.List;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(ComparisonBase.class)
 public class TestZRangeByScore {
@@ -41,11 +40,9 @@ public class TestZRangeByScore {
         jedis.zadd(ZSET_KEY, 1, "one");
         jedis.zadd(ZSET_KEY, 1, "two");
         jedis.zadd(ZSET_KEY, 1, "three");
-        assertTrue(asList("one", "two", "three").containsAll(
-                jedis.zrangeByScore(ZSET_KEY, "-inf", "+inf")));
-        assertTrue(asList(new Tuple("one", 1.),
-                new Tuple("two", 1.), new Tuple("three", 1.)).containsAll(
-                jedis.zrangeByScoreWithScores(ZSET_KEY, "-inf", "+inf")));
+        assertThat(jedis.zrangeByScore(ZSET_KEY, "-inf", "+inf")).contains("one", "two", "three");
+        assertThat(jedis.zrangeByScoreWithScores(ZSET_KEY, "-inf", "+inf"))
+                .contains(new Tuple("one", 1.), new Tuple("two", 1.), new Tuple("three", 1.));
     }
 
 
@@ -174,14 +171,14 @@ public class TestZRangeByScore {
         jedis.zadd(ZSET_KEY, 3, "three");
 
         // then
-        assertThrows(JedisDataException.class,
-                () -> jedis.zrangeByScore(ZSET_KEY, "(dd", "(sd"));
-        assertThrows(JedisDataException.class,
-                () -> jedis.zrangeByScoreWithScores(ZSET_KEY, "(dd", "(sd"));
-        assertThrows(JedisDataException.class,
-                () -> jedis.zrangeByScore(ZSET_KEY, "1.e", "2.d"));
-        assertThrows(RuntimeException.class,
-                () -> jedis.zrangeByScore(ZSET_KEY, "FOO", "BAR"));
+        assertThatThrownBy(() -> jedis.zrangeByScore(ZSET_KEY, "(dd", "(sd"))
+                .isInstanceOf(JedisDataException.class);
+        assertThatThrownBy(() -> jedis.zrangeByScoreWithScores(ZSET_KEY, "(dd", "(sd"))
+                .isInstanceOf(JedisDataException.class);
+        assertThatThrownBy(() -> jedis.zrangeByScore(ZSET_KEY, "1.e", "2.d"))
+                .isInstanceOf(JedisDataException.class);
+        assertThatThrownBy(() -> jedis.zrangeByScore(ZSET_KEY, "FOO", "BAR"))
+                .isInstanceOf(RuntimeException.class);
     }
 
     @TestTemplate
@@ -284,8 +281,8 @@ public class TestZRangeByScore {
 
     @TestTemplate
     void testZRangeByScoreNonValueMin(Jedis jedis) {
-        assertThrows(RuntimeException.class,
-                () -> jedis.zrangeByScore("fooz", "str", "2.6"));
+        assertThatThrownBy(() -> jedis.zrangeByScore("fooz", "str", "2.6"))
+                .isInstanceOf(RuntimeException.class);
     }
 
     @TestTemplate

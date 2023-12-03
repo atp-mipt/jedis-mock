@@ -12,7 +12,8 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.TreeSet;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ComparisonBase.class)
 public class TestZUnion {
@@ -36,8 +37,7 @@ public class TestZUnion {
         jedis.zadd(ZSET_KEY_1, 2, "b");
         Set<Tuple> results = jedis.zunionWithScores(new ZParams(), ZSET_KEY_1, ZSET_KEY_2);
 
-        assertTrue(results.contains(new Tuple("a", 1.0)));
-        assertTrue(results.contains(new Tuple("b", 2.0)));
+        assertThat(results).contains(new Tuple("a", 1.0), new Tuple("b", 2.0));
     }
 
     @TestTemplate

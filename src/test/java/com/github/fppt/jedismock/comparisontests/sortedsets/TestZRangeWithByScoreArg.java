@@ -13,8 +13,8 @@ import java.util.List;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(ComparisonBase.class)
 public class TestZRangeWithByScoreArg {
@@ -37,13 +37,11 @@ public class TestZRangeWithByScoreArg {
         jedis.zadd(ZSET_KEY, 1, "one");
         jedis.zadd(ZSET_KEY, 1, "two");
         jedis.zadd(ZSET_KEY, 1, "three");
-        assertTrue(asList("one", "two", "three").containsAll(
-                jedis.zrange(ZSET_KEY, ZRangeParams.zrangeByScoreParams(Double.MIN_VALUE, Double.MAX_VALUE))));
-        assertTrue(asList(new Tuple("one", 1.),
-                new Tuple("two", 1.), new Tuple("three", 1.)).containsAll(
-                jedis.zrangeWithScores(ZSET_KEY, ZRangeParams.zrangeByScoreParams(Double.MIN_VALUE, Double.MAX_VALUE))));
+        assertThat(jedis.zrange(ZSET_KEY, ZRangeParams.zrangeByScoreParams(Double.MIN_VALUE, Double.MAX_VALUE)))
+                .contains("one", "two", "three");
+        assertThat(jedis.zrangeWithScores(ZSET_KEY, ZRangeParams.zrangeByScoreParams(Double.MIN_VALUE, Double.MAX_VALUE)))
+                .contains(new Tuple("one", 1.), new Tuple("two", 1.), new Tuple("three", 1.));
     }
-
 
     @TestTemplate
     public void whenUsingZrangeByScore_EnsureItReturnsSetWhenLowestAndHighestScoresSpecified(Jedis jedis) {

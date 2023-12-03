@@ -9,8 +9,8 @@ import redis.clients.jedis.Jedis;
 import java.util.Arrays;
 import java.util.Collections;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @ExtendWith(ComparisonBase.class)
 public class TestZDiffStore {
@@ -45,7 +45,7 @@ public class TestZDiffStore {
     @TestTemplate
     public void testZDiffStoreFromItSelf(Jedis jedis) {
         assertEquals(0, jedis.zdiffStore(ZSET_KEY_3, ZSET_KEY_1, ZSET_KEY_1));
-        assertFalse(jedis.exists(ZSET_KEY_3));
+        assertThat(jedis.exists(ZSET_KEY_3)).isFalse();
         assertEquals(Collections.EMPTY_LIST, jedis.zrange(ZSET_KEY_3, 0, -1));
     }
 

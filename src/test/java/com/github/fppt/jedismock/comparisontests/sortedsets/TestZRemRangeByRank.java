@@ -6,9 +6,13 @@ import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import redis.clients.jedis.Jedis;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ComparisonBase.class)
 public class TestZRemRangeByRank {
@@ -61,6 +65,6 @@ public class TestZRemRangeByRank {
     @TestTemplate
     public void testZRemRangeByRankDeleteWhenEmpty(Jedis jedis) {
         assertEquals(5, jedis.zremrangeByRank(ZSET_KEY, 0, 4));
-        assertFalse(jedis.exists(ZSET_KEY));
+        assertThat(jedis.exists(ZSET_KEY)).isFalse();
     }
 }

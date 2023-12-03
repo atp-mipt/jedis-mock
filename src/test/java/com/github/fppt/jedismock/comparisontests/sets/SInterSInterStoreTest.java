@@ -11,9 +11,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(ComparisonBase.class)
 public class SInterSInterStoreTest {
@@ -72,9 +71,9 @@ public class SInterSInterStoreTest {
         jedis.sadd("dest", "a", "b");
         jedis.sadd("src", "c", "d");
         jedis.sadd("other", "e", "f");
-        assertTrue(jedis.exists("dest"));
+        assertThat(jedis.exists("dest")).isTrue();
         jedis.sinterstore("dest", "src", "other");
-        assertFalse(jedis.exists("dest"));
+        assertThat(jedis.exists("dest")).isFalse();
     }
 
 }

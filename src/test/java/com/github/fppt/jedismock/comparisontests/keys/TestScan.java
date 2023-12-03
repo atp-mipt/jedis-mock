@@ -10,7 +10,10 @@ import redis.clients.jedis.resps.ScanResult;
 
 import java.util.Collections;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static redis.clients.jedis.params.ScanParams.SCAN_POINTER_START;
 
 @ExtendWith(ComparisonBase.class)
 public class TestScan {
@@ -28,12 +31,10 @@ public class TestScan {
         jedis.set(key, value);
         jedis.set(key2, value);
 
-        ScanResult<String> result = jedis.scan(ScanParams.SCAN_POINTER_START);
+        ScanResult<String> result = jedis.scan(SCAN_POINTER_START);
 
-        assertEquals(ScanParams.SCAN_POINTER_START, result.getCursor());
-        assertEquals(2, result.getResult().size());
-        assertTrue(result.getResult().contains(key));
-        assertTrue(result.getResult().contains(key2));
+        assertEquals(SCAN_POINTER_START, result.getCursor());
+        assertThat(result.getResult()).containsExactlyInAnyOrder(key, key2);
     }
 
     @TestTemplate
@@ -44,12 +45,11 @@ public class TestScan {
         jedis.set(key, value);
         jedis.set(key2, value);
 
-        ScanResult<String> result = jedis.scan(ScanParams.SCAN_POINTER_START,
+        ScanResult<String> result = jedis.scan(SCAN_POINTER_START,
                 new ScanParams().match("scankeymatch:1*"));
 
-        assertEquals(ScanParams.SCAN_POINTER_START, result.getCursor());
-        assertEquals(1, result.getResult().size());
-        assertTrue(result.getResult().contains(key));
+        assertEquals(SCAN_POINTER_START, result.getCursor());
+        assertThat(result.getResult()).containsExactly(key);
     }
 
     @TestTemplate

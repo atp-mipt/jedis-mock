@@ -7,8 +7,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisDataException;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(ComparisonBase.class)
 public class TestZCount {
@@ -102,12 +102,12 @@ public class TestZCount {
         jedis.zadd(ZSET_KEY, 3, "three");
 
         // then
-        assertThrows(JedisDataException.class,
-                () -> jedis.zcount(ZSET_KEY, "(dd", "(sd"));
-        assertThrows(JedisDataException.class,
-                () -> jedis.zcount(ZSET_KEY, "1.e", "2.d"));
-        assertThrows(RuntimeException.class,
-                () -> jedis.zcount(ZSET_KEY, "FOO", "BAR"));
+        assertThatThrownBy(() -> jedis.zcount(ZSET_KEY, "(dd", "(sd"))
+                .isInstanceOf(JedisDataException.class);
+        assertThatThrownBy(() -> jedis.zcount(ZSET_KEY, "1.e", "2.d"))
+                .isInstanceOf(JedisDataException.class);
+        assertThatThrownBy(() -> jedis.zcount(ZSET_KEY, "FOO", "BAR"))
+                .isInstanceOf(RuntimeException.class);
     }
 
     @TestTemplate

@@ -6,8 +6,8 @@ import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import redis.clients.jedis.Jedis;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(ComparisonBase.class)
 public class TestZInterCard {
@@ -68,7 +68,7 @@ public class TestZInterCard {
         jedis.zadd(ZSET_KEY_2, 1, "1");
         jedis.zadd(ZSET_KEY_2, 4, "4");
         assertEquals(1, jedis.zintercard(ZSET_KEY_1, ZSET_KEY_2));
-        assertThrows(RuntimeException.class,
-                () -> jedis.zintercard(-10, ZSET_KEY_1, ZSET_KEY_2));
+        assertThatThrownBy(() -> jedis.zintercard(-10, ZSET_KEY_1, ZSET_KEY_2))
+                .isInstanceOf(RuntimeException.class);
     }
 }

@@ -1,7 +1,6 @@
 package com.github.fppt.jedismock.comparisontests.lists;
 
 import com.github.fppt.jedismock.comparisontests.ComparisonBase;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.Timeout;
@@ -20,8 +19,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
 
 @ExtendWith(ComparisonBase.class)
 public class SortTest {
@@ -60,9 +59,9 @@ public class SortTest {
 
     @TestTemplate
     public void whenUsingSort_EnsureThrowsOnInvalidType(Jedis jedis) {
-        JedisDataException e = Assertions.assertThrows(JedisDataException.class, () -> jedis.sort(key));
-
-        assertEquals(e.getMessage(), "ERR One or more scores can't be converted into double");
+        assertThatThrownBy(() -> jedis.sort(key))
+                .isInstanceOf(JedisDataException.class)
+                .hasMessage("ERR One or more scores can't be converted into double");
     }
 
     @TestTemplate

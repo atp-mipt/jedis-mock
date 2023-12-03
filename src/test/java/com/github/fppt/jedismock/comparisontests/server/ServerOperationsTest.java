@@ -8,7 +8,10 @@ import redis.clients.jedis.Jedis;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static java.lang.Long.parseLong;
+import static java.lang.Math.abs;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ComparisonBase.class)
 public class ServerOperationsTest {
@@ -33,7 +36,7 @@ public class ServerOperationsTest {
         assertEquals(value, jedis.get(key));
 
         jedis.flushAll();
-        assertNull(jedis.get(key));
+        assertThat(jedis.get(key)).isNull();
     }
 
     @TestTemplate
@@ -45,7 +48,7 @@ public class ServerOperationsTest {
         assertEquals(value, jedis.get(key));
 
         jedis.flushDB();
-        assertNull(jedis.get(key));
+        assertThat(jedis.get(key)).isNull();
     }
 
     @TestTemplate
@@ -59,7 +62,7 @@ public class ServerOperationsTest {
 
     @TestTemplate
     public void whenGettingInfo_EnsureSomeDateIsReturned(Jedis jedis) {
-        assertNotNull(jedis.info());
+        assertThat(jedis.info()).isNotNull();
     }
 
     @TestTemplate
@@ -67,7 +70,7 @@ public class ServerOperationsTest {
         long currentTime = System.currentTimeMillis() / 1000;
         List<String> time = jedis.time();
         //We believe that results difference will be within one second
-        assertTrue(Math.abs(currentTime - Long.parseLong(time.get(0))) < 2);
+        assertThat(abs(currentTime - parseLong(time.get(0)))).isLessThan(2);
         //Microseconds are correct integer value
         Long.parseLong(time.get(1));
     }

@@ -10,9 +10,10 @@ import redis.clients.jedis.exceptions.JedisDataException;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import static redis.clients.jedis.params.LPosParams.lPosParams;
 
 @ExtendWith(ComparisonBase.class)
@@ -33,7 +34,7 @@ public class LPosTest {
         assertEquals(2, jedis.lpos(key, "c"));
         assertEquals(5, jedis.lpos(key, "3"));
         assertEquals(0, jedis.lpos(key, "a"));
-        assertNull(jedis.lpos(key, "d"));
+        assertThat(jedis.lpos(key, "d")).isNull();
     }
 
     @TestTemplate
@@ -43,10 +44,11 @@ public class LPosTest {
         assertEquals(6, jedis.lpos(key, "c", lPosParams().rank(2)));
         assertEquals(7, jedis.lpos(key, "c", lPosParams().rank(-1)));
         assertEquals(6, jedis.lpos(key, "c", lPosParams().rank(-2)));
-        assertNull(jedis.lpos(key, "c", lPosParams().rank(4)));
-        assertNull(jedis.lpos(key, "c", lPosParams().rank(-4)));
+        assertThat(jedis.lpos(key, "c", lPosParams().rank(4))).isNull();
+        assertThat(jedis.lpos(key, "c", lPosParams().rank(-4))).isNull();
 
-        assertThrows(JedisDataException.class, () -> jedis.lpos(key, "c", lPosParams().rank(0)));
+        assertThatThrownBy(() -> jedis.lpos(key, "c", lPosParams().rank(0)))
+                .isInstanceOf(JedisDataException.class);
     }
 
     @TestTemplate
@@ -61,7 +63,7 @@ public class LPosTest {
     @TestTemplate
     @DisplayName("Check for maxlen param")
     public void whenUsingLPos_EnsureMaxlenWorksCorrectly(Jedis jedis) {
-        assertNull(jedis.lpos(key, "1", lPosParams().maxlen(3)));
+        assertThat(jedis.lpos(key, "1", lPosParams().maxlen(3))).isNull();
         assertEquals(3L, jedis.lpos(key, "1", lPosParams().maxlen(4)));
         assertEquals(3L, jedis.lpos(key, "1", lPosParams().maxlen(0)));
     }
@@ -78,9 +80,9 @@ public class LPosTest {
     @DisplayName("Check for rank and maxlen params cobined")
     public void whenUsingLPos_EnsureRankAndMaxlenWorkCorrectly(Jedis jedis) {
         assertEquals(2L, jedis.lpos(key, "c", lPosParams().rank(1).maxlen(3)));
-        assertNull(jedis.lpos(key, "c", lPosParams().rank(1).maxlen(2)));
+        assertThat(jedis.lpos(key, "c", lPosParams().rank(1).maxlen(2))).isNull();
         assertEquals(7L, jedis.lpos(key, "c", lPosParams().rank(-1).maxlen(1)));
-        assertNull(jedis.lpos(key, "3", lPosParams().rank(-1).maxlen(1)));
+        assertThat(jedis.lpos(key, "3", lPosParams().rank(-1).maxlen(1))).isNull();
         assertEquals(5L, jedis.lpos(key, "3", lPosParams().rank(-1).maxlen(3)));
     }
 

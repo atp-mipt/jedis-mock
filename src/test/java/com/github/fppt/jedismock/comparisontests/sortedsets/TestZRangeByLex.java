@@ -7,10 +7,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisDataException;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(ComparisonBase.class)
 public class TestZRangeByLex {
@@ -56,10 +60,14 @@ public class TestZRangeByLex {
 
     @TestTemplate
     public void zrangebylexKeysThrowsOnIncorrectParameters(Jedis jedis) {
-        assertThrows(JedisDataException.class, () -> jedis.zrangeByLex(key, "b", "[d"));
-        assertThrows(JedisDataException.class, () -> jedis.zrevrangeByLex(key, "b", "[d"));
-        assertThrows(JedisDataException.class, () -> jedis.zrangeByLex(key, "[b", "d"));
-        assertThrows(JedisDataException.class, () -> jedis.zrevrangeByLex(key, "[b", "d"));
+        assertThatThrownBy(() -> jedis.zrangeByLex(key, "b", "[d"))
+                .isInstanceOf(JedisDataException.class);
+        assertThatThrownBy(() -> jedis.zrevrangeByLex(key, "b", "[d"))
+                .isInstanceOf(JedisDataException.class);
+        assertThatThrownBy(() -> jedis.zrangeByLex(key, "[b", "d"))
+                .isInstanceOf(JedisDataException.class);
+        assertThatThrownBy(() -> jedis.zrevrangeByLex(key, "[b", "d"))
+                .isInstanceOf(JedisDataException.class);
     }
 
     @TestTemplate

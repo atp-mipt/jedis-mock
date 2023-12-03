@@ -9,8 +9,8 @@ import redis.clients.jedis.resps.Tuple;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(ComparisonBase.class)
 public class TestZincrBy {
@@ -68,13 +68,13 @@ public class TestZincrBy {
         String value4 = "value4";
 
         jedis.zadd(key, minusInfScore, value1);
-        assertThrows(RuntimeException.class,
-                () -> jedis.zincrby(key, plusInfIncrement, value1));
+        assertThatThrownBy(() -> jedis.zincrby(key, plusInfIncrement, value1))
+                .isInstanceOf(RuntimeException.class);
         assertEquals(minusInfIncrement, jedis.zincrby(key, minusInfIncrement, value1));
 
         jedis.zadd(key, plusInfScore, value2);
-        assertThrows(RuntimeException.class,
-                () -> jedis.zincrby(key, minusInfIncrement, value2));
+        assertThatThrownBy(() -> jedis.zincrby(key, minusInfIncrement, value2))
+                .isInstanceOf(RuntimeException.class);
         assertEquals(plusInfIncrement, jedis.zincrby(key, plusInfIncrement, value2));
 
         jedis.zadd(key, minusInfScore, value3);

@@ -11,8 +11,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import static redis.clients.jedis.params.ZRangeParams.zrangeByLexParams;
 
 @ExtendWith(ComparisonBase.class)
 public class TestZRange {
@@ -84,13 +86,13 @@ public class TestZRange {
 
     @TestTemplate
     public void whenUsingZrange_EnsureItReturnsErrorWhenByLexAndWithscores(Jedis jedis) {
-        assertThrows(RuntimeException.class,
-                () -> jedis.zrangeWithScores(ZSET_KEY, ZRangeParams.zrangeByLexParams("1", "-6")));
+        assertThatThrownBy(() -> jedis.zrangeWithScores(ZSET_KEY, zrangeByLexParams("1", "-6")))
+                .isInstanceOf(RuntimeException.class);
     }
 
     @TestTemplate
     public void whenUsingZrange_EnsureItReturnsErrorWhenLimitNotByLexNotByScore(Jedis jedis) {
-        assertThrows(RuntimeException.class,
-                () -> jedis.zrange(ZSET_KEY, new ZRangeParams(1, -6).limit(1, 1)));
+        assertThatThrownBy(() -> jedis.zrange(ZSET_KEY, new ZRangeParams(1, -6).limit(1, 1)))
+                .isInstanceOf(RuntimeException.class);
     }
 }

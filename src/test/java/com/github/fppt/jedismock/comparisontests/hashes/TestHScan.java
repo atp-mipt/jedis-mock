@@ -11,7 +11,9 @@ import redis.clients.jedis.resps.ScanResult;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ComparisonBase.class)
 public class TestHScan {
@@ -36,7 +38,7 @@ public class TestHScan {
 
         Map<String, String> mapResult = new HashMap<>();
         for (Map.Entry<String, String> entry : result.getResult()) {
-            assertNull(mapResult.put(entry.getKey(), entry.getValue()));
+            assertThat(mapResult.put(entry.getKey(), entry.getValue())).isNull();
         }
         assertEquals(expected, mapResult);
     }
@@ -82,11 +84,11 @@ public class TestHScan {
             ScanResult<Map.Entry<String, String>> result = jedis.hscan(key, cursor);
             cursor = result.getCursor();
             for (Map.Entry<String, String> entry : result.getResult()) {
-                assertNull(results.put(entry.getKey(), entry.getValue()));
+                assertThat(results.put(entry.getKey(), entry.getValue())).isNull();
             }
             count++;
         } while (!ScanParams.SCAN_POINTER_START.equals(cursor));
         assertEquals(expected, results);
-        assertTrue(count > 1);
+        assertThat(count).isGreaterThan(1);
     }
 }
