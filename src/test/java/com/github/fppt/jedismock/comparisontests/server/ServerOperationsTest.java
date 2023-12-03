@@ -16,12 +16,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @ExtendWith(ComparisonBase.class)
 public class ServerOperationsTest {
 
-    private final String HASH = "hash";
-    private final String FIELD_1 = "field1";
-    private final String VALUE_1 = "value1";
-    private final String FIELD_2 = "field2";
-    private final String VALUE_2 = "value2";
-
     @BeforeEach
     public void setUp(Jedis jedis) {
         jedis.flushAll();
@@ -77,6 +71,11 @@ public class ServerOperationsTest {
 
     @TestTemplate
     public void dbSizeReturnsCount(Jedis jedis) {
+        String HASH = "hash";
+        String FIELD_1 = "field1";
+        String VALUE_1 = "value1";
+        String FIELD_2 = "field2";
+        String VALUE_2 = "value2";
         jedis.hset(HASH, FIELD_1, VALUE_1);
         jedis.hset(HASH, FIELD_2, VALUE_2);
 

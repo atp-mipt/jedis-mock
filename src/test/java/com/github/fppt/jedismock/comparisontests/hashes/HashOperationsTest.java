@@ -32,8 +32,6 @@ public class HashOperationsTest {
     private final String VALUE_2 = "value2";
     private final String FIELD_3 = "field3";
     private final String VALUE_3 = "value3";
-    private final String FIELD_4 = "field4";
-    private final String FIELD_5 = "field5";
 
     @BeforeEach
     public void setUp(Jedis jedis) {
@@ -187,6 +185,8 @@ public class HashOperationsTest {
         jedis.hset(HASH, FIELD_2, VALUE_2);
         jedis.hset(HASH, FIELD_3, VALUE_3);
 
+        String FIELD_4 = "field4";
+        String FIELD_5 = "field5";
         List<String> result = jedis.hmget(HASH, FIELD_1, FIELD_2, FIELD_5, FIELD_3, FIELD_4);
 
         assertThat(result).containsExactly(VALUE_1, VALUE_2, null, VALUE_3, null);

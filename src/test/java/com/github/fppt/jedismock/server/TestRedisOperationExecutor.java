@@ -29,7 +29,7 @@ public class TestRedisOperationExecutor {
     private RedisOperationExecutor executor;
 
     private static String bulkString(CharSequence param) {
-        return "$" + param.length() + CRLF + param.toString() + CRLF;
+        return "$" + param.length() + CRLF + param + CRLF;
     }
 
     private static String array(CharSequence... params) {
