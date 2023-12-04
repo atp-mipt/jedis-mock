@@ -3,12 +3,10 @@ package com.github.fppt.jedismock.operations.streams;
 import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.datastructures.streams.LinkedMap;
 import com.github.fppt.jedismock.datastructures.streams.StreamId;
-import com.github.fppt.jedismock.exception.WrongStreamKeyException;
 import com.github.fppt.jedismock.operations.RedisCommand;
 import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.storage.RedisBase;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
