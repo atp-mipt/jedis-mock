@@ -9,13 +9,19 @@ import com.github.fppt.jedismock.exception.WrongStreamKeyException;
 import com.github.fppt.jedismock.operations.AbstractRedisOperation;
 import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.storage.RedisBase;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+
 public class Ranges extends AbstractRedisOperation {
+    @SuppressFBWarnings(
+            value = "UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR",
+            justification = "'it' is to be initialized in inheritors"
+    )
     protected LinkedMapIterator<StreamId, LinkedMap<Slice, Slice>> it;
     /**
      * Multiplier for comparison:<br>
