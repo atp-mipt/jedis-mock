@@ -16,6 +16,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static com.github.fppt.jedismock.datastructures.streams.StreamErrors.NOT_AN_INTEGER_ERROR;
+import static com.github.fppt.jedismock.datastructures.streams.StreamErrors.SYNTAX_ERROR;
 
 public class Ranges extends AbstractRedisOperation {
     @SuppressFBWarnings(
@@ -73,7 +75,6 @@ public class Ranges extends AbstractRedisOperation {
         LinkedMap<StreamId, LinkedMap<Slice, Slice>> map = stream.getStoredData();
 
         /* Begin parsing arguments */
-
         StreamId start;
         StreamId end;
         int count = map.size();
@@ -87,26 +88,26 @@ public class Ranges extends AbstractRedisOperation {
 
         if (params().size() > 3) {
             if (params().size() != 5) {
-                return Response.error("ERR syntax error");
+                return Response.error(SYNTAX_ERROR);
             }
 
-            if (!params().get(3).toString().equalsIgnoreCase("count")) {
-                return Response.error("ERR syntax error");
+            if (!"count".equalsIgnoreCase(params().get(3).toString())) {
+                return Response.error(SYNTAX_ERROR);
             }
 
             try {
-                count = Integer.parseInt(params().get(4).toString()); // TODO non-positive count returns (nil)
+                count = Integer.parseInt(params().get(4).toString());
             } catch (NumberFormatException e) {
-                return Response.error("ERR value is not an integer or out of range");
+                return Response.error(NOT_AN_INTEGER_ERROR);
             }
         }
-
         /* End parsing arguments */
 
         if (map.size() == 0) { // empty map case
             return Response.array(Collections.emptyList());
         }
 
+        /* Compare with the last item in map */
         if (multiplier == 1) {
             if (start.compareTo(map.getTail()) > 0) {
                 return Response.array(Collections.emptyList());
@@ -121,27 +122,25 @@ public class Ranges extends AbstractRedisOperation {
 
         List<Slice> output = new ArrayList<>();
 
-        int i = 1;
+        int entriesAdded = 1;
 
-        while (it.hasNext()) {
-            if (i++ > count) {
-                break;
-            }
-
-            List<Slice> s = new ArrayList<>();
+        while (it.hasNext() && entriesAdded++ <= count) {
+            List<Slice> entrySlice = new ArrayList<>();
             Map.Entry<StreamId, LinkedMap<Slice, Slice>> entry = it.next();
 
             if (multiplier * entry.getKey().compareTo(end) > 0) {
                 break;
             }
 
-
             entry.getValue().forEach((key, value) -> {
-                s.add(Response.bulkString(key));
-                s.add(Response.bulkString(value));
+                entrySlice.add(Response.bulkString(key));
+                entrySlice.add(Response.bulkString(value));
             });
 
-            output.add(Response.array(List.of(Response.bulkString(entry.getKey().toSlice()), Response.array(s))));
+            output.add(Response.array(List.of(
+                    Response.bulkString(entry.getKey().toSlice()),
+                    Response.array(entrySlice)
+            )));
         }
 
         return Response.array(output);

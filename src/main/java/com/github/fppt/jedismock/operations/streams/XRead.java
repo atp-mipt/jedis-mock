@@ -21,13 +21,13 @@ import static com.github.fppt.jedismock.datastructures.streams.StreamErrors.XREA
 /**
  * XREAD [COUNT count] [BLOCK milliseconds] STREAMS key [key ...] id
  *   [id ...]<br>
- * Supported options: COUNT<br>
- * Unsupported options (TODO): BLOCK
+ * All options are supported
  */
 @RedisCommand("xread")
 public class XRead extends AbstractRedisOperation {
     private final Object lock;
     private final boolean isInTransaction;
+
     public XRead(OperationExecutorState state, List<Slice> params) {
         super(state.base(), params);
         lock = state.lock();
@@ -45,29 +45,29 @@ public class XRead extends AbstractRedisOperation {
         long blockTimeNanosec = 0;
         boolean isBlocking = false;
 
-        if (params().get(streamInd).toString().equalsIgnoreCase("count")) {
+        if ("count".equalsIgnoreCase(params().get(streamInd).toString())) {
             count = Integer.parseInt(params().get(++streamInd).toString());
             ++streamInd;
         } else {
             count = Integer.MAX_VALUE;
         }
 
-        if (params().get(streamInd).toString().equalsIgnoreCase("block")) {
+        if ("block".equalsIgnoreCase(params().get(streamInd).toString())) {
             blockTimeNanosec = Long.parseLong(params().get(++streamInd).toString()) * 1_000_000;
             isBlocking = true;
 
             if (blockTimeNanosec < 0) {
                 return Response.error(NEGATIVE_TIMEOUT_ERROR);
             }
-            ++streamInd;
 
-            // TODO currently ignored
+            ++streamInd;
         }
 
-        if (!params().get(streamInd++).toString().equalsIgnoreCase("streams")) {
+        if (!"streams".equalsIgnoreCase(params().get(streamInd++).toString())) {
             return Response.error(SYNTAX_ERROR);
         }
 
+        /* After STREAMS args go in pairs */
         if ((params().size() - streamInd) % 2 != 0) {
             return Response.error(XREAD_ARGS_ERROR);
         }
@@ -81,23 +81,19 @@ public class XRead extends AbstractRedisOperation {
             Slice key = params().get(streamInd + i);
             Slice id = params().get(streamInd + streamsCount + i);
 
-//            /* check whether stream exists */
-//            if (!base().exists(key)) {
-//                continue;
-//            }
-
             try {
                 if (!base().exists(key)) {
                     mapKeyToBeginEntryId.append(
                             key,
-                            id.toString().equalsIgnoreCase("$")
-                                    ? new StreamId(0, 1)
+                            "$".equalsIgnoreCase(id.toString())
+                                    ? new StreamId(0, 1) // lowest possible id
                                     : new StreamId(id)
                     );
                 } else {
                     mapKeyToBeginEntryId.append(
                             key,
-                            id.toString().equalsIgnoreCase("$")
+                            "$".equalsIgnoreCase(id.toString())
+                                    /* last id added to stream */
                                     ? getStreamFromBaseOrCreateEmpty(key).getStoredData().getTail()
                                     : new StreamId(id)
                     );
@@ -112,6 +108,7 @@ public class XRead extends AbstractRedisOperation {
         /* Blocking */
         long waitEnd = System.nanoTime() + blockTimeNanosec;
         long waitTimeNanos;
+
         if (isBlocking) {
             if (blockTimeNanosec > 0) {
                 try {
@@ -122,8 +119,9 @@ public class XRead extends AbstractRedisOperation {
                     Thread.currentThread().interrupt();
                     return Response.NULL;
                 }
-            } else {
+            } else { // should be blocked until XADD was invoked
                 boolean updated = false;
+
                 try {
                     while (!isInTransaction && !updated) {
                         for (Map.Entry<Slice, StreamId> entry : mapKeyToBeginEntryId) {
@@ -151,11 +149,11 @@ public class XRead extends AbstractRedisOperation {
             LinkedMapIterator<StreamId, LinkedMap<Slice, Slice>> it = map.iterator();
 
             if (!base().exists(key)) {
-                return;
+                return; // skip
             }
 
             if (id.compareTo(map.getTail()) >= 0) {
-                return;
+                return; // skip
             }
 
             try {
