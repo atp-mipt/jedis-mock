@@ -9,6 +9,7 @@ import com.github.fppt.jedismock.operations.AbstractRedisOperation;
 import com.github.fppt.jedismock.operations.RedisCommand;
 import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.storage.RedisBase;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import java.util.List;
 
@@ -41,6 +42,10 @@ public class XAdd extends AbstractRedisOperation {
     }
 
     @Override
+    @SuppressFBWarnings(
+            value = {"SF_SWITCH_FALLTHROUGH", "SF_SWITCH_NO_DEFAULT"},
+            justification = "expected behaviour"
+    )
     protected Slice response() {
         if (params().size() < 3) {
             return Response.invalidArgumentsCountError("xadd");
