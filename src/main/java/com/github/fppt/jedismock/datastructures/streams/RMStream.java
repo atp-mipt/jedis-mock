@@ -11,6 +11,7 @@ import static java.lang.Long.parseUnsignedLong;
 import static com.github.fppt.jedismock.datastructures.streams.StreamErrors.TOP_ERROR;
 import static com.github.fppt.jedismock.datastructures.streams.StreamErrors.ID_OVERFLOW_ERROR;
 import static com.github.fppt.jedismock.datastructures.streams.StreamErrors.INVALID_ID_ERROR;
+import static java.lang.Long.toUnsignedString;
 
 public class RMStream implements RMDataStructure {
     private final LinkedMap<StreamId, LinkedMap<Slice, Slice>> storedData;
@@ -44,7 +45,7 @@ public class RMStream implements RMDataStructure {
             long secondPart = lastId.getSecondPart() + 1;
             long firstPart = lastId.getFirstPart() + (lastId.getSecondPart() == -1 ? 1 : 0);
 
-            return Slice.create(firstPart + "-" + secondPart);
+            return Slice.create(toUnsignedString(firstPart) + "-" + toUnsignedString(secondPart));
         }
 
         String[] parsedKey = key.toString().split("-");
@@ -66,7 +67,7 @@ public class RMStream implements RMDataStructure {
                     }
 
                     /* Incrementing the second part */
-                    return Slice.create(parsedKey[0] + "-" + (lastId.getSecondPart() + 1));
+                    return Slice.create(parsedKey[0] + "-" + toUnsignedString(lastId.getSecondPart() + 1));
                 }
 
                 /* Use 0 as the smallest unsigned long number */
