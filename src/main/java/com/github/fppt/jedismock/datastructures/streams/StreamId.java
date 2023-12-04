@@ -3,6 +3,8 @@ package com.github.fppt.jedismock.datastructures.streams;
 import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.exception.WrongStreamKeyException;
 
+import static com.github.fppt.jedismock.datastructures.streams.StreamErrors.RANGES_END_ID_ERROR;
+import static com.github.fppt.jedismock.datastructures.streams.StreamErrors.RANGES_START_ID_ERROR;
 import static java.lang.Long.compareUnsigned;
 import static java.lang.Long.parseUnsignedLong;
 import static java.lang.Long.toUnsignedString;
@@ -83,8 +85,7 @@ public class StreamId implements Comparable<StreamId> {
 
         if (compareUnsigned(second, 0) == 0) { // the previous one was 0xFFFFFFFFFFFFFFFF => update the first part
             if (compareUnsigned(first, -1) == 0) {
-                /* TODO unsure of exception message */
-                throw new WrongStreamKeyException("ERR invalid start ID for the interval");
+                throw new WrongStreamKeyException(RANGES_START_ID_ERROR);
             }
 
             ++first;
@@ -99,8 +100,7 @@ public class StreamId implements Comparable<StreamId> {
 
         if (compareUnsigned(second, -1) == 0) { // the previous one was 0x0000000000000000 => update the first part
             if (compareUnsigned(first, 0) == 0) {
-                /* TODO unsure of exception message */
-                throw new WrongStreamKeyException("ERR invalid end ID for the interval");
+                throw new WrongStreamKeyException(RANGES_END_ID_ERROR);
             }
 
             --first;

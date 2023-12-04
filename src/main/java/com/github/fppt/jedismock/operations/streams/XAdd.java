@@ -9,7 +9,6 @@ import com.github.fppt.jedismock.operations.AbstractRedisOperation;
 import com.github.fppt.jedismock.operations.RedisCommand;
 import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.storage.RedisBase;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import java.util.List;
 
@@ -34,6 +33,7 @@ public class XAdd extends AbstractRedisOperation {
 
     public StreamId compareWithTopKey(StreamId key) throws WrongStreamKeyException {
         RMStream stream = getStreamFromBaseOrCreateEmpty(params().get(0));
+
         if (key.compareTo(stream.getLastId()) <= 0) {
             throw new WrongStreamKeyException(TOP_ERROR);
         }
@@ -42,24 +42,19 @@ public class XAdd extends AbstractRedisOperation {
     }
 
     @Override
-    @SuppressFBWarnings(
-            value = {"SF_SWITCH_FALLTHROUGH", "SF_SWITCH_NO_DEFAULT"},
-            justification = "expected behaviour"
-    )
     protected Slice response() {
         if (params().size() < 3) {
             return Response.invalidArgumentsCountError("xadd");
         }
 
         Slice key = params().get(0);
-
         RMStream stream = getStreamFromBaseOrCreateEmpty(key);
         LinkedMap<StreamId, LinkedMap<Slice, Slice>> map = stream.getStoredData();
 
-        int idInd = 1; // the first field index
+        int idInd = 1; // 'id' index
 
         /* Parsing NOMSTREAM option */
-        if (params().get(1).toString().equalsIgnoreCase("nomkstream")) {
+        if ("nomkstream".equalsIgnoreCase(params().get(1).toString())) {
             if (!base().exists(key)) {
                 return Response.bulkString(Slice.empty());
             }
@@ -72,29 +67,26 @@ public class XAdd extends AbstractRedisOperation {
         }
 
         /*  Begin trim options parsing */
-
-        String criterion = "";
+        String criterion = ""; // (MAXLEN|MINID) option
         int thresholdPosition = idInd + 1;
         int limit = map.size() + 1;
 
-        if (params().get(idInd).toString().equalsIgnoreCase("maxlen")
-                || params().get(idInd).toString().equalsIgnoreCase("minid")) {
-
-            criterion = params().get(idInd++).toString(); // (MAXLEN|MINID) option
+        String param = params().get(idInd).toString();
+        if ("maxlen".equalsIgnoreCase(param) || "minid".equalsIgnoreCase(param)) {
+            criterion = params().get(idInd++).toString();
 
             boolean aproxTrim = false;
-            switch (params().get(idInd).toString()) {
-                case "~":
-                    aproxTrim = true;
-                case "=":
-                    ++thresholdPosition;
-                    ++idInd; // '~' or '='
-                default:
-                    ++idInd; // threshold value
+
+            param = params().get(idInd++).toString();
+
+            aproxTrim = "~".equals(param);
+
+            if ("~".equals(param) || "=".equals(param)) {
+                ++thresholdPosition;
+                ++idInd;
             }
 
-
-            if (params().get(idInd).toString().equalsIgnoreCase("limit")) {
+            if ("limit".equalsIgnoreCase(params().get(idInd).toString())) {
                 try {
                     limit = Integer.parseInt(params().get(++idInd).toString());
                 } catch (NumberFormatException e) {
@@ -108,14 +100,13 @@ public class XAdd extends AbstractRedisOperation {
                 ++idInd;
             }
         }
-
         /*  End trim options parsing */
 
         Slice id = params().get(idInd++);
-
-        LinkedMap<Slice, Slice> entryValue = new LinkedMap<>();
+        LinkedMap<Slice, Slice> entryValues = new LinkedMap<>();
 
         StreamId nodeId;
+
         try {
            nodeId = compareWithTopKey(new StreamId(stream.replaceAsterisk(id)).compareToZero());
         } catch (WrongStreamKeyException e) {
@@ -123,18 +114,16 @@ public class XAdd extends AbstractRedisOperation {
         }
 
         for (int i = idInd; i < params().size(); i += 2) {
-            entryValue.append(params().get(i), params().get(i + 1));
+            entryValues.append(params().get(i), params().get(i + 1));
         }
 
-        map.append(nodeId, entryValue);
+        map.append(nodeId, entryValues);
         stream.updateLastId(nodeId);
 
         base().putValue(key, stream);
 
-
         switch (criterion.toUpperCase()) {
             case "MAXLEN":
-                /* Parsing threshold value */
                 try {
                     int threshold = Integer.parseInt(params().get(thresholdPosition).toString());
                     trimLen(map, threshold, limit);
@@ -145,8 +134,8 @@ public class XAdd extends AbstractRedisOperation {
 
             case "MINID":
                 try {
-                    StreamId minId = new StreamId(params().get(thresholdPosition));
-                    trimID(map, minId, limit);
+                    StreamId threshold = new StreamId(params().get(thresholdPosition));
+                    trimID(map, threshold, limit);
                 } catch (WrongStreamKeyException e) {
                     return Response.error(e.getMessage());
                 }

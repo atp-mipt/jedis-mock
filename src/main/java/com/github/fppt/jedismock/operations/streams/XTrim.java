@@ -29,6 +29,7 @@ public class XTrim extends AbstractRedisOperation {
 
     static int trimLen(LinkedMap<?, ?> map, int threshold, int limit) {
         int numberOfEvictedNodes = 0;
+
         while (map.size() > threshold && numberOfEvictedNodes < limit) {
             ++numberOfEvictedNodes;
             map.removeHead();
@@ -40,13 +41,14 @@ public class XTrim extends AbstractRedisOperation {
     static int trimID(LinkedMap<StreamId, ?> map, StreamId threshold, int limit) {
         int numberOfEvictedNodes = 0;
         LinkedMapIterator<StreamId, ?> it = map.iterator();
+
         while (it.hasNext() && numberOfEvictedNodes < limit) {
-            if (it.next().getKey().compareTo(threshold) < 0) {
-                ++numberOfEvictedNodes;
-                it.remove();
-            } else {
+            if (it.next().getKey().compareTo(threshold) >= 0) {
                 break;
             }
+
+            ++numberOfEvictedNodes;
+            it.remove();
         }
 
         return numberOfEvictedNodes;
@@ -59,22 +61,20 @@ public class XTrim extends AbstractRedisOperation {
         }
 
         /* Begin parsing arguments */
-
         Slice key = params().get(0);
         LinkedMap<StreamId, LinkedMap<Slice, Slice>> map = getStreamFromBaseOrCreateEmpty(key).getStoredData();
 
         String criterion = params().get(1).toString(); // (MAXLEN|MINID) option
         int thresholdPosition = 2;
 
+        String param = params().get(2).toString();
+
         /* Checking for "=", "~" options */
-        if (params().get(2).toString().equals("~") || params().get(2).toString().equals("=")) {
+        if ("~".equals(param) || "=".equals(param)) {
             ++thresholdPosition;
         }
 
-        boolean aproxTrim = false;
-        if (params().get(2).toString().equals("~")) {
-            aproxTrim = true;
-        }
+        boolean aproxTrim = "~".equals(param);
 
         int limit = map.size() + 1;
 
@@ -83,7 +83,7 @@ public class XTrim extends AbstractRedisOperation {
         }
 
         if (params().size() > thresholdPosition + 1) {
-            if (params().get(thresholdPosition + 1).toString().equalsIgnoreCase("limit")) {
+            if ("limit".equalsIgnoreCase(params().get(thresholdPosition + 1).toString())) {
                 try {
                     limit = Integer.parseInt(params().get(thresholdPosition + 2).toString());
                 } catch (NumberFormatException e) {
@@ -108,8 +108,8 @@ public class XTrim extends AbstractRedisOperation {
                 }
             case "MINID":
                 try {
-                    StreamId id = new StreamId(params().get(thresholdPosition));
-                    return Response.integer(trimID(map, id, limit));
+                    StreamId threshold = new StreamId(params().get(thresholdPosition));
+                    return Response.integer(trimID(map, threshold, limit));
                 } catch (WrongStreamKeyException e) {
                     return Response.error(e.getMessage());
                 }

@@ -258,7 +258,16 @@ public class LinkedMap<K extends Comparable<K>, V> implements Iterable<Map.Entry
         return new LinkedMapReverseIterator<>(key, this);
     }
 
-    // TODO javadoc
+    /**
+     * Performs the given action for each element of the map.<br>
+     * Method's behaviour:
+     * <pre>{@code
+     * for (Map.entry<K, V> entry: map) {
+     *      action.accept(entry.getKey(), entry.getValue());
+     * }
+     * }</pre>
+     * @param action function to be executed for each element of the map
+     */
     public void forEach(BiConsumer<? super K, ? super V> action) {
         if (action == null) {
             throw new NullPointerException();
