@@ -10,8 +10,8 @@ import static com.github.fppt.jedismock.datastructures.streams.StreamErrors.INVA
 import static com.github.fppt.jedismock.datastructures.streams.StreamErrors.ZERO_ERROR;
 
 public class StreamId implements Comparable<StreamId> {
-    private long firstPart = 0;
-    private long secondPart = 0;
+    private final long firstPart;
+    private final long secondPart;
 
     public long getFirstPart() {
         return firstPart;
@@ -22,7 +22,15 @@ public class StreamId implements Comparable<StreamId> {
     }
 
     /* 0-0 ID for PRIVATE API usage */
-    StreamId() {}
+    StreamId() {
+        this(0, 0);
+    }
+
+    /* ID from long numbers for PRIVATE API usage */
+    public StreamId(long firstPart, long secondPart) {
+        this.firstPart = firstPart;
+        this.secondPart = secondPart;
+    }
 
     public StreamId(String key) throws WrongStreamKeyException {
         String[] parsed = key.split("-");
@@ -34,16 +42,31 @@ public class StreamId implements Comparable<StreamId> {
                 } catch (NumberFormatException e) {
                     throw new WrongStreamKeyException(INVALID_ID_ERROR);
                 }
-            case 1:
+
                 try {
                     firstPart = parseUnsignedLong(parsed[0]);
                 } catch (NumberFormatException e) {
                     throw new WrongStreamKeyException(INVALID_ID_ERROR);
                 }
+
+                break;
+            case 1:
+                secondPart = 0;
+
+                try {
+                    firstPart = parseUnsignedLong(parsed[0]);
+                } catch (NumberFormatException e) {
+                    throw new WrongStreamKeyException(INVALID_ID_ERROR);
+                }
+
                 break;
             default:
                 throw new WrongStreamKeyException(INVALID_ID_ERROR);
         }
+    }
+
+    public StreamId(Slice slice) throws WrongStreamKeyException {
+        this(slice.toString());
     }
 
     public StreamId compareToZero() throws WrongStreamKeyException {
@@ -54,35 +77,36 @@ public class StreamId implements Comparable<StreamId> {
         return this;
     }
 
+    public StreamId increment() throws WrongStreamKeyException {
+        long second = secondPart + 1;
+        long first = firstPart;
 
-    public StreamId(Slice slice) throws WrongStreamKeyException {
-        this(slice.toString());
-    }
-
-    public void increment() throws WrongStreamKeyException {
-        ++secondPart;
-
-        if (compareUnsigned(secondPart, 0) == 0) { // the previous one was 0xFFFFFFFFFFFFFFFF => update the first part
-            if (compareUnsigned(firstPart, -1) == 0) {
+        if (compareUnsigned(second, 0) == 0) { // the previous one was 0xFFFFFFFFFFFFFFFF => update the first part
+            if (compareUnsigned(first, -1) == 0) {
                 /* TODO unsure of exception message */
                 throw new WrongStreamKeyException("ERR invalid start ID for the interval");
             }
 
-            ++firstPart;
+            ++first;
         }
+
+        return new StreamId(first, second);
     }
 
-    public void decrement() throws WrongStreamKeyException {
-        --secondPart;
+    public StreamId decrement() throws WrongStreamKeyException {
+        long second = secondPart - 1;
+        long first = firstPart;
 
-        if (compareUnsigned(secondPart, -1) == 0) { // the previous one was 0x0000000000000000 => update the first part
-            if (compareUnsigned(firstPart, 0) == 0) {
+        if (compareUnsigned(second, -1) == 0) { // the previous one was 0x0000000000000000 => update the first part
+            if (compareUnsigned(first, 0) == 0) {
                 /* TODO unsure of exception message */
                 throw new WrongStreamKeyException("ERR invalid end ID for the interval");
             }
 
-            --firstPart;
+            --first;
         }
+
+        return new StreamId(first, second);
     }
 
     @Override

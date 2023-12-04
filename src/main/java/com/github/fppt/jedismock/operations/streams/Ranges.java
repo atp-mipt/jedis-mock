@@ -28,12 +28,12 @@ public class Ranges extends AbstractRedisOperation {
         super(base, params);
     }
 
-    protected void preprocessExclusiveBorder(StreamId key, boolean isStart) throws WrongStreamKeyException {
+    protected StreamId preprocessExclusiveBorder(StreamId key, boolean isStart) throws WrongStreamKeyException {
         if (isStart) {
-            key.increment();
-        } else {
-            key.decrement();
+            return key.increment();
         }
+
+        return key.decrement();
     }
 
     protected StreamId preprocessKey(Slice key, RMStream stream, boolean isStart) throws WrongStreamKeyException {
@@ -56,7 +56,7 @@ public class Ranges extends AbstractRedisOperation {
         }
 
         if (exclusive) {
-            preprocessExclusiveBorder(id, isStart);
+            id = preprocessExclusiveBorder(id, isStart);
         }
 
         return id;
