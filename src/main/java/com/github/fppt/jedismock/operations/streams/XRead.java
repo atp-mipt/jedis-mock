@@ -9,7 +9,6 @@ import com.github.fppt.jedismock.operations.AbstractRedisOperation;
 import com.github.fppt.jedismock.operations.RedisCommand;
 import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.storage.OperationExecutorState;
-import com.github.fppt.jedismock.storage.RedisBase;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +43,7 @@ public class XRead extends AbstractRedisOperation {
         int streamInd = 0;
         int count;
         long blockTimeNanosec = 0;
+        boolean isBlocking = false;
 
         if (params().get(streamInd).toString().equalsIgnoreCase("count")) {
             count = Integer.parseInt(params().get(++streamInd).toString());
@@ -54,6 +54,7 @@ public class XRead extends AbstractRedisOperation {
 
         if (params().get(streamInd).toString().equalsIgnoreCase("block")) {
             blockTimeNanosec = Long.parseLong(params().get(++streamInd).toString()) * 1_000_000;
+            isBlocking = true;
 
             if (blockTimeNanosec < 0) {
                 return Response.error(NEGATIVE_TIMEOUT_ERROR);
@@ -80,18 +81,27 @@ public class XRead extends AbstractRedisOperation {
             Slice key = params().get(streamInd + i);
             Slice id = params().get(streamInd + streamsCount + i);
 
-            /* check whether stream exists */
-            if (!base().exists(key)) {
-                continue;
-            }
+//            /* check whether stream exists */
+//            if (!base().exists(key)) {
+//                continue;
+//            }
 
             try {
-                mapKeyToBeginEntryId.append(
-                        key,
-                        id.toString().equalsIgnoreCase("$")
-                                ? getStreamFromBaseOrCreateEmpty(key).getStoredData().getTail()
-                                : new StreamId(id)
-                );
+                if (!base().exists(key)) {
+                    mapKeyToBeginEntryId.append(
+                            key,
+                            id.toString().equalsIgnoreCase("$")
+                                    ? new StreamId(0, 1)
+                                    : new StreamId(id)
+                    );
+                } else {
+                    mapKeyToBeginEntryId.append(
+                            key,
+                            id.toString().equalsIgnoreCase("$")
+                                    ? getStreamFromBaseOrCreateEmpty(key).getStoredData().getTail()
+                                    : new StreamId(id)
+                    );
+                }
             } catch (WrongStreamKeyException e) {
                 return Response.error(e.getMessage());
             }
@@ -102,14 +112,36 @@ public class XRead extends AbstractRedisOperation {
         /* Blocking */
         long waitEnd = System.nanoTime() + blockTimeNanosec;
         long waitTimeNanos;
-        if (blockTimeNanosec != 0) {
-            try {
-                while (!isInTransaction && (waitTimeNanos = waitEnd - System.nanoTime()) >= 0) {
-                    lock.wait(waitTimeNanos / 1_000_000, (int) (waitTimeNanos % 1_000_000));
+        if (isBlocking) {
+            if (blockTimeNanosec > 0) {
+                try {
+                    while (!isInTransaction && (waitTimeNanos = waitEnd - System.nanoTime()) >= 0) {
+                        lock.wait(waitTimeNanos / 1_000_000, (int) (waitTimeNanos % 1_000_000));
+                    }
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return Response.NULL;
                 }
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                return Response.NULL;
+            } else {
+                boolean updated = false;
+                try {
+                    while (!isInTransaction && !updated) {
+                        for (Map.Entry<Slice, StreamId> entry : mapKeyToBeginEntryId) {
+                            if (base().exists(entry.getKey())
+                                    && getStreamFromBaseOrCreateEmpty(entry.getKey())
+                                        .getStoredData()
+                                        .getTail()
+                                        .compareTo(entry.getValue()) > 0) {
+                                updated = true;
+                                break;
+                            }
+                        }
+                        lock.wait(500, 0);
+                    }
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return Response.NULL;
+                }
             }
         }
 
@@ -118,12 +150,16 @@ public class XRead extends AbstractRedisOperation {
             LinkedMap<StreamId, LinkedMap<Slice, Slice>> map = getStreamFromBaseOrCreateEmpty(key).getStoredData();
             LinkedMapIterator<StreamId, LinkedMap<Slice, Slice>> it = map.iterator();
 
+            if (!base().exists(key)) {
+                return;
+            }
+
             if (id.compareTo(map.getTail()) >= 0) {
                 return;
             }
 
             try {
-                id.increment();
+                id = id.increment();
             } catch (WrongStreamKeyException e) {
                 return; // impossible as 0xFFFFFFFFFFFFFFFF is greater or equal to all keys
             }
