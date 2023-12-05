@@ -63,10 +63,23 @@ public class LinkedMapForwardIterator<K extends Comparable<K>, V> implements Lin
         }
     }
 
+    /**
+     * Sets {@code curr} equal to the first element not less than {@code border}.
+     * If {@code border} is {@code null} than {@code NullPointerException} is thrown.
+     * @param border must be not null
+     */
     @Override
     public void findFirstSuitable(K border) {
+        if (border == null) {
+            throw new NullPointerException("Border is null");
+        }
+
         if (map.contains(border)) {
             curr = border;
+        }
+
+        if (curr != null && border.compareTo(curr) < 0) { // reset curr
+            curr = null;
         }
 
         if (border != (curr == null ? map.getHead() : curr)) { // searching the first node

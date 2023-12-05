@@ -49,10 +49,23 @@ public class LinkedMapReverseIterator<K extends Comparable<K>, V> implements Lin
         return Map.entry(curr, map.get(curr));
     }
 
+    /**
+     * Sets {@code curr} equal to the first element not less than {@code border}.
+     * If {@code border} is {@code null} than {@code NullPointerException} is thrown.
+     * @param border must be not null
+     */
     @Override
     public void findFirstSuitable(K border) {
+        if (border == null) {
+            throw new NullPointerException("Border is null");
+        }
+
         if (map.contains(border)) {
             curr = border;
+        }
+
+        if (curr != null && border.compareTo(curr) > 0) { // reset curr
+            curr = null;
         }
 
         if (border != (curr == null ? map.getTail() : curr)) { // searching the first node
@@ -67,13 +80,4 @@ public class LinkedMapReverseIterator<K extends Comparable<K>, V> implements Lin
 
         curr = curr == null ? null : map.getNextKey(curr); // map might be empty
     }
-
-//    @Override
-//    public void remove() {
-//        if (curr == null) {
-//            map.removeHead();
-//        } else {
-//            map.remove(map.getNextKey(curr));
-//        }
-//    }
 }
