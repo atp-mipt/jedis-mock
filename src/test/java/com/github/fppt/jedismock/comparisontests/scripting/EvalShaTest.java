@@ -9,7 +9,6 @@ import redis.clients.jedis.Jedis;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ComparisonBase.class)
 class EvalShaTest {
@@ -27,7 +26,7 @@ class EvalShaTest {
         Object evalResult = jedis.eval(script, 0);
         String sha = Script.getScriptSHA(script).toLowerCase();
         assertThat(jedis.scriptExists(sha)).isTrue();
-        assertEquals(evalResult, jedis.evalsha(sha, 0));
+        assertThat(jedis.evalsha(sha, 0)).isEqualTo(evalResult);
     }
 
     @TestTemplate
@@ -38,7 +37,7 @@ class EvalShaTest {
         Object evalResult = jedis.eval(script, 0);
         String sha = Script.getScriptSHA(script).toUpperCase();
         assertThat(jedis.scriptExists(sha)).isTrue();
-        assertEquals(evalResult, jedis.evalsha(sha, 0));
+        assertThat(jedis.evalsha(sha, 0)).isEqualTo(evalResult);
     }
 
 
@@ -46,7 +45,7 @@ class EvalShaTest {
     public void evalShaWithScriptLoadingWorks(Jedis jedis) {
         String script = "return 'Hello, ' .. ARGV[1] .. '!'";
         String sha = jedis.scriptLoad(script);
-        assertEquals("Hello, world!", jedis.evalsha(sha, 0, "world"));
+        assertThat(jedis.evalsha(sha, 0, "world")).isEqualTo("Hello, world!");
     }
 
     @TestTemplate

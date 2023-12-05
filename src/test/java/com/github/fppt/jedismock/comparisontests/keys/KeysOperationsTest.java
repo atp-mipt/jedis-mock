@@ -6,11 +6,9 @@ import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import redis.clients.jedis.Jedis;
 
-import java.util.Collections;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ComparisonBase.class)
 public class KeysOperationsTest {
@@ -41,9 +39,9 @@ public class KeysOperationsTest {
     public void whenGettingKeys_EnsureExpiredKeysAreNotReturned(Jedis jedis) throws InterruptedException {
         jedis.hset("test", "key", "value");
         jedis.expire("test", 1L);
-        assertEquals(Collections.singleton("test"), jedis.keys("*"));
+        assertThat(jedis.keys("*")).containsExactly("test");
         Thread.sleep(2000);
-        assertEquals(Collections.emptySet(), jedis.keys("*"));
+        assertThat(jedis.keys("*")).isEmpty();
     }
 
     @TestTemplate
@@ -66,7 +64,7 @@ public class KeysOperationsTest {
         assertThat(jedis.exists(key1)).isTrue();
         assertThat(jedis.exists(key2)).isTrue();
         long count = jedis.del(key1, key2);
-        assertEquals(2, count);
+        assertThat(count).isEqualTo(2);
         assertThat(jedis.exists(key1)).isFalse();
         assertThat(jedis.exists(key2)).isFalse();
     }
@@ -76,7 +74,7 @@ public class KeysOperationsTest {
         jedis.set("key1", "Hello");
         jedis.set("key2", "World");
         long count = jedis.unlink("key1", "key2", "key3");
-        assertEquals(2, count);
+        assertThat(count).isEqualTo(2);
     }
 
     @TestTemplate
@@ -99,10 +97,10 @@ public class KeysOperationsTest {
         jedis.psetex("a", 300, "v");
         assertThat(jedis.ttl("a")).isLessThanOrEqualTo(300);
         jedis.persist("a");
-        assertEquals(-1, jedis.ttl("a"));
+        assertThat(jedis.ttl("a")).isEqualTo(-1);
         Thread.sleep(500);
         //Check that the value is still there
-        assertEquals("v", jedis.get("a"));
+        assertThat(jedis.get("a")).isEqualTo("v");
     }
 
     @TestTemplate
@@ -118,7 +116,7 @@ public class KeysOperationsTest {
         jedis.sadd("foo", "bar");
         jedis.srem("foo", "bar");
         assertThat(jedis.exists("foo")).isFalse();
-        assertEquals(-2, jedis.ttl("foo"));
+        assertThat(jedis.ttl("foo")).isEqualTo(-2);
     }
 
     @TestTemplate
@@ -126,7 +124,7 @@ public class KeysOperationsTest {
         jedis.zadd("foo", 42, "bar");
         jedis.zrem("foo", "bar");
         assertThat(jedis.exists("foo")).isFalse();
-        assertEquals(-2, jedis.ttl("foo"));
+        assertThat(jedis.ttl("foo")).isEqualTo(-2);
     }
 
     @TestTemplate
@@ -134,7 +132,7 @@ public class KeysOperationsTest {
         jedis.zadd("foo", 42, "bar");
         jedis.zremrangeByScore("foo", 41, 43);
         assertThat(jedis.exists("foo")).isFalse();
-        assertEquals(-2, jedis.ttl("foo"));
+        assertThat(jedis.ttl("foo")).isEqualTo(-2);
     }
 
     @TestTemplate
@@ -142,7 +140,7 @@ public class KeysOperationsTest {
         jedis.lpush("foo", "bar");
         jedis.lpop("foo");
         assertThat(jedis.exists("foo")).isFalse();
-        assertEquals(-2, jedis.ttl("foo"));
+        assertThat(jedis.ttl("foo")).isEqualTo(-2);
     }
 
     @TestTemplate
@@ -150,7 +148,7 @@ public class KeysOperationsTest {
         jedis.hset("foo", "bar", "baz");
         jedis.hdel("foo", "bar");
         assertThat(jedis.exists("foo")).isFalse();
-        assertEquals(-2, jedis.ttl("foo"));
+        assertThat(jedis.ttl("foo")).isEqualTo(-2);
     }
 
     @TestTemplate
@@ -159,6 +157,6 @@ public class KeysOperationsTest {
         jedis.set("foo2", "bar");
         jedis.expire("foo1", 0);
         jedis.expire("foo2", 0);
-        assertEquals(0, jedis.dbSize());
+        assertThat(jedis.dbSize()).isEqualTo(0);
     }
 }

@@ -9,7 +9,6 @@ import redis.clients.jedis.exceptions.JedisDataException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ComparisonBase.class)
 public class TestGetDel {
@@ -26,7 +25,7 @@ public class TestGetDel {
     public void testGetAndDel(Jedis jedis) {
         jedis.set(key, value);
         String deletedValue = jedis.getDel(key);
-        assertEquals(value, deletedValue);
+        assertThat(deletedValue).isEqualTo(value);
         assertThat(jedis.exists(key)).isFalse();
     }
 
@@ -43,6 +42,6 @@ public class TestGetDel {
         assertThatThrownBy(() -> jedis.getDel(key))
                 .isInstanceOf(JedisDataException.class)
                 .hasMessageStartingWith("WRONGTYPE");
-        assertEquals("bar", jedis.hget(key, "foo"));
+        assertThat(jedis.hget(key, "foo")).isEqualTo("bar");
     }
 }

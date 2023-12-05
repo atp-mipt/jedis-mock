@@ -8,14 +8,11 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisDataException;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ComparisonBase.class)
 public class SetOperationsTest {
@@ -34,14 +31,14 @@ public class SetOperationsTest {
         mySet.forEach(value -> jedis.sadd(key, value));
 
         //Get it all back
-        assertEquals(mySet, jedis.smembers(key));
+        assertThat(jedis.smembers(key)).isEqualTo(mySet);
     }
 
     @TestTemplate
     public void whenDuplicateValuesAddedToSet_ReturnsAddedValuesCountOnly(Jedis jedis) {
         String key = "my-set-key-sadd";
-        assertEquals(3, jedis.sadd(key, "A", "B", "C", "B"));
-        assertEquals(1, jedis.sadd(key, "A", "C", "E", "B"));
+        assertThat(jedis.sadd(key, "A", "B", "C", "B")).isEqualTo(3);
+        assertThat(jedis.sadd(key, "A", "C", "E", "B")).isEqualTo(1);
     }
 
     @TestTemplate
@@ -53,13 +50,13 @@ public class SetOperationsTest {
         mySet.forEach(value -> jedis.sadd(key, value));
 
         //Get it all back
-        assertEquals(mySet.size(), jedis.scard(key));
+        assertThat(jedis.scard(key)).isEqualTo(mySet.size());
     }
 
     @TestTemplate
     public void whenCalledForNonExistentSet_ensureScardReturnsZero(Jedis jedis) {
         String key = "non-existent";
-        assertEquals(0, jedis.scard(key));
+        assertThat(jedis.scard(key)).isEqualTo(0);
     }
 
     @TestTemplate
@@ -77,8 +74,8 @@ public class SetOperationsTest {
         long removed = jedis.srem(key, "c", "d", "f");
 
         //Get it all back
-        assertEquals(mySet, jedis.smembers(key));
-        assertEquals(2, removed);
+        assertThat(jedis.smembers(key)).isEqualTo(mySet);
+        assertThat(removed).isEqualTo(2);
     }
 
     @TestTemplate
@@ -102,9 +99,8 @@ public class SetOperationsTest {
     public void poppingManyKeys(Jedis jedis) {
         String key = "my-set-key-spop";
         jedis.sadd(key, "a", "b", "c", "d");
-        assertEquals(3,
-                jedis.spop(key, 3).size());
-        assertEquals(1, jedis.scard(key));
+        assertThat(jedis.spop(key, 3)).hasSize(3);
+        assertThat(jedis.scard(key)).isEqualTo(1);
     }
 
     @TestTemplate
@@ -112,9 +108,9 @@ public class SetOperationsTest {
         String key = "key-pop";
         jedis.sadd(key, "a");
         assertThat(jedis.exists(key)).isTrue();
-        assertEquals(Collections.singleton("a"), jedis.spop(key, 1));
+        assertThat(jedis.spop(key, 1)).containsExactly("a");
         assertThat(jedis.exists(key)).isFalse();
-        assertEquals(0, jedis.spop(key, 0).size());
+        assertThat(jedis.spop(key, 0)).hasSize(0);
     }
 
     @TestTemplate
@@ -147,28 +143,25 @@ public class SetOperationsTest {
         byte[] msg = new byte[]{(byte) 0xbe};
         jedis.sadd("foo".getBytes(), msg);
         byte[] newMsg = jedis.spop("foo".getBytes());
-        assertArrayEquals(msg, newMsg);
+        assertThat(newMsg).containsExactlyInAnyOrder(msg);
     }
 
     @TestTemplate
     public void testSMoveExistingElement(Jedis jedis) {
         jedis.sadd("myset", "one", "two");
         jedis.sadd("myotherset", "three");
-        assertEquals(1, jedis.smove("myset", "myotherset", "two"));
-        assertEquals(Collections.singleton("one"), jedis.smembers("myset"));
-        assertEquals(new HashSet<>(Arrays.asList("two", "three")),
-                jedis.smembers("myotherset"));
+        assertThat(jedis.smove("myset", "myotherset", "two")).isEqualTo(1);
+        assertThat(jedis.smembers("myset")).containsExactly("one");
+        assertThat(jedis.smembers("myotherset")).containsExactlyInAnyOrder("two", "three");
     }
 
     @TestTemplate
     public void testSMoveNonExistingElement(Jedis jedis) {
         jedis.sadd("myset", "one", "two");
         jedis.sadd("myotherset", "three");
-        assertEquals(0, jedis.smove("myset", "myotherset", "four"));
-        assertEquals(new HashSet<>(Arrays.asList("one", "two")),
-                jedis.smembers("myset"));
-        assertEquals(Collections.singleton("three"),
-                jedis.smembers("myotherset"));
+        assertThat(jedis.smove("myset", "myotherset", "four")).isEqualTo(0);
+        assertThat(jedis.smembers("myset")).containsExactlyInAnyOrder("one", "two");
+        assertThat(jedis.smembers("myotherset")).containsExactly("three");
     }
 
     @TestTemplate

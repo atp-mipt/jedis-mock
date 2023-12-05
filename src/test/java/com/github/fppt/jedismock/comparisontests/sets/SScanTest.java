@@ -8,13 +8,10 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.params.ScanParams;
 import redis.clients.jedis.resps.ScanResult;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static redis.clients.jedis.params.ScanParams.SCAN_POINTER_START;
 
 @ExtendWith(ComparisonBase.class)
@@ -51,7 +48,7 @@ public class SScanTest {
         jedis.sadd(key, values);
 
         ScanResult<String> result = jedis.sscan(key, ScanParams.SCAN_POINTER_START, new ScanParams().count(13));
-        assertNotEquals(ScanParams.SCAN_POINTER_START, result.getCursor());
+        assertThat(result.getCursor()).isNotEqualTo(SCAN_POINTER_START);
     }
 
     @TestTemplate
@@ -65,7 +62,7 @@ public class SScanTest {
         ScanResult<String> result = jedis.sscan(key, SCAN_POINTER_START,
                 new ScanParams().match("21_value_0"));
 
-        assertEquals(SCAN_POINTER_START, result.getCursor());
+        assertThat(result.getCursor()).isEqualTo(SCAN_POINTER_START);
         assertThat(result.getResult()).containsExactly(values[0]);
     }
 
@@ -88,7 +85,7 @@ public class SScanTest {
             results.addAll(result.getResult());
             count++;
         } while (!ScanParams.SCAN_POINTER_START.equals(cursor));
-        assertEquals(new HashSet<>(Arrays.asList(values)), results);
+        assertThat(results).containsExactlyInAnyOrder(values);
         assertThat(count).isGreaterThan(1);
 
     }

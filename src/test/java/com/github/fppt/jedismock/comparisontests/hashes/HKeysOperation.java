@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ComparisonBase.class)
 public class HKeysOperation {
@@ -35,7 +34,7 @@ public class HKeysOperation {
     @TestTemplate
     void hlenUnknownKey(Jedis jedis) {
         long hlen = jedis.hlen("foo");
-        assertEquals(0, hlen);
+        assertThat(hlen).isEqualTo(0);
     }
 
     @TestTemplate

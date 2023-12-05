@@ -12,7 +12,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ComparisonBase.class)
 public class SInterSInterStoreTest {
@@ -39,10 +38,10 @@ public class SInterSInterStoreTest {
         mySet3.forEach(value -> jedis.sadd(key3, value));
 
         Set<String> intersection = jedis.sinter(key1, key2);
-        assertEquals(expectedIntersection1, intersection);
+        assertThat(intersection).isEqualTo(expectedIntersection1);
 
         intersection = jedis.sinter(key1, key2, key3);
-        assertEquals(expectedIntersection2, intersection);
+        assertThat(intersection).isEqualTo(expectedIntersection2);
     }
 
     @TestTemplate
@@ -61,9 +60,9 @@ public class SInterSInterStoreTest {
         String destination = "set3";
 
         Long elementsInIntersection = jedis.sinterstore(destination, key1, key2);
-        assertEquals(2, elementsInIntersection);
+        assertThat(elementsInIntersection).isEqualTo(2);
 
-        assertEquals(expectedIntersection, jedis.smembers(destination));
+        assertThat(jedis.smembers(destination)).isEqualTo(expectedIntersection);
     }
 
     @TestTemplate

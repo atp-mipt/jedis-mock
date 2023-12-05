@@ -9,7 +9,6 @@ import redis.clients.jedis.Transaction;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ComparisonBase.class)
 public class TransactionOperationsTest {
@@ -22,7 +21,7 @@ public class TransactionOperationsTest {
     @TestTemplate
     public void whenTransactionWithMultiplePushesIsExecuted_EnsureResultsAreSaved(Jedis jedis) {
         String key = "my-list";
-        assertEquals(new Long(0), jedis.llen(key));
+        assertThat(jedis.llen(key)).isEqualTo(0);
 
         Transaction transaction = jedis.multi();
         transaction.lpush(key, "1");
@@ -30,13 +29,13 @@ public class TransactionOperationsTest {
         transaction.lpush(key, "3");
         transaction.exec();
 
-        assertEquals(new Long(3), jedis.llen(key));
+        assertThat(jedis.llen(key)).isEqualTo(3);
     }
 
     @TestTemplate
     public void whenDiscardIsExecuted_EnsureResultsAreDiscarded(Jedis jedis) {
         String key = "my-list";
-        assertEquals(new Long(0), jedis.llen(key));
+        assertThat(jedis.llen(key)).isEqualTo(new Long(0));
 
         Transaction transaction = jedis.multi();
         transaction.lpush(key, "1");
@@ -44,7 +43,7 @@ public class TransactionOperationsTest {
         transaction.discard();
         jedis.lpush(key, "3");
 
-        assertEquals(new Long(1), jedis.llen(key));
+        assertThat(jedis.llen(key)).isEqualTo(1);
     }
 
     @TestTemplate

@@ -7,7 +7,6 @@ import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.Jedis;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 @ExtendWith(ComparisonBase.class)
@@ -18,26 +17,26 @@ public class ConnectionOperationsTest {
         //Create a new connection
         try (Jedis newJedis = new Jedis(hostAndPort.getHost(), hostAndPort.getPort())) {
             newJedis.set("A happy lucky key", "A sad value");
-            assertEquals("OK", newJedis.quit());
-            assertEquals("A sad value", jedis.get("A happy lucky key"));
+            assertThat(newJedis.quit()).isEqualTo("OK");
+            assertThat(jedis.get("A happy lucky key")).isEqualTo("A sad value");
         }
     }
 
     @TestTemplate
     public void whenPinging_Pong(Jedis jedis) {
-        assertEquals("PONG", jedis.ping());
-        assertEquals("foo", jedis.ping("foo"));
+        assertThat(jedis.ping()).isEqualTo("PONG");
+        assertThat(jedis.ping("foo")).isEqualTo("foo");
     }
 
     @TestTemplate
     public void echo(Jedis jedis) {
-        assertEquals("foobar", jedis.echo("foobar"));
+        assertThat(jedis.echo("foobar")).isEqualTo("foobar");
     }
 
     @TestTemplate
     public void whenSettingClientName_EnsureOkResponseIsReturned(Jedis jedis) {
         assertThat(jedis.clientGetname()).isNull();
-        assertEquals("OK", jedis.clientSetname("P.Myo"));
-        assertEquals("P.Myo", jedis.clientGetname());
+        assertThat(jedis.clientSetname("P.Myo")).isEqualTo("OK");
+        assertThat(jedis.clientGetname()).isEqualTo("P.Myo");
     }
 }

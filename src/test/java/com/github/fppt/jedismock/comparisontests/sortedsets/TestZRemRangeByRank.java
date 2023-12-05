@@ -6,13 +6,10 @@ import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import redis.clients.jedis.Jedis;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ComparisonBase.class)
 public class TestZRemRangeByRank {
@@ -29,42 +26,42 @@ public class TestZRemRangeByRank {
         members.put("d", 4d);
         members.put("e", 5d);
         long result = jedis.zadd(ZSET_KEY, members);
-        assertEquals(5L, result);
+        assertThat(result).isEqualTo(5L);
     }
 
     @TestTemplate
     public void testZRemRangeByRankInnerRange(Jedis jedis) {
-        assertEquals(3, jedis.zremrangeByRank(ZSET_KEY, 1, 3));
-        assertEquals(Arrays.asList("a", "e"), jedis.zrange(ZSET_KEY, 0, -1));
+        assertThat(jedis.zremrangeByRank(ZSET_KEY, 1, 3)).isEqualTo(3);
+        assertThat(jedis.zrange(ZSET_KEY, 0, -1)).containsExactly("a", "e");
     }
 
     @TestTemplate
     public void testZRemRangeByRankStartUnderflow(Jedis jedis) {
-        assertEquals(1, jedis.zremrangeByRank(ZSET_KEY, -10, 0));
-        assertEquals(Arrays.asList("b", "c", "d", "e"), jedis.zrange(ZSET_KEY, 0, -1));
+        assertThat(jedis.zremrangeByRank(ZSET_KEY, -10, 0)).isEqualTo(1);
+        assertThat(jedis.zrange(ZSET_KEY, 0, -1)).containsExactly("b", "c", "d", "e");
     }
 
     @TestTemplate
     public void testZRemRangeByRankStartOverflow(Jedis jedis) {
-        assertEquals(0, jedis.zremrangeByRank(ZSET_KEY, 10, -1));
-        assertEquals(Arrays.asList("a", "b", "c", "d", "e"), jedis.zrange(ZSET_KEY, 0, -1));
+        assertThat(jedis.zremrangeByRank(ZSET_KEY, 10, -1)).isEqualTo(0);
+        assertThat(jedis.zrange(ZSET_KEY, 0, -1)).containsExactly("a", "b", "c", "d", "e");
     }
 
     @TestTemplate
     public void testZRemRangeByRankEndUnderflow(Jedis jedis) {
-        assertEquals(0, jedis.zremrangeByRank(ZSET_KEY, 0, -10));
-        assertEquals(Arrays.asList("a", "b", "c", "d", "e"), jedis.zrange(ZSET_KEY, 0, -1));
+        assertThat(jedis.zremrangeByRank(ZSET_KEY, 0, -10)).isEqualTo(0);
+        assertThat(jedis.zrange(ZSET_KEY, 0, -1)).containsExactly("a", "b", "c", "d", "e");
     }
 
     @TestTemplate
     public void testZRemRangeByRankEndOverflow(Jedis jedis) {
-        assertEquals(5, jedis.zremrangeByRank(ZSET_KEY, 0, 10));
-        assertEquals(Collections.emptyList(), jedis.zrange(ZSET_KEY, 0, -1));
+        assertThat(jedis.zremrangeByRank(ZSET_KEY, 0, 10)).isEqualTo(5);
+        assertThat(jedis.zrange(ZSET_KEY, 0, -1)).isEmpty();
     }
 
     @TestTemplate
     public void testZRemRangeByRankDeleteWhenEmpty(Jedis jedis) {
-        assertEquals(5, jedis.zremrangeByRank(ZSET_KEY, 0, 4));
+        assertThat(jedis.zremrangeByRank(ZSET_KEY, 0, 4)).isEqualTo(5);
         assertThat(jedis.exists(ZSET_KEY)).isFalse();
     }
 }

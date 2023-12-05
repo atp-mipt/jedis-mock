@@ -7,9 +7,9 @@ import redis.clients.jedis.exceptions.JedisConnectionException;
 import java.io.IOException;
 import java.net.BindException;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * Created by Xiaolu on 2015/4/18.
@@ -20,7 +20,7 @@ public class TestRedisServer {
     public void testBindPort() throws IOException {
         RedisServer server = RedisServer.newRedisServer(8080);
         server.start();
-        assertEquals(server.getBindPort(), 8080);
+        assertThat(server.getBindPort()).isEqualTo(8080);
         server.stop();
     }
 
@@ -36,7 +36,7 @@ public class TestRedisServer {
         RedisServer server = RedisServer.newRedisServer(100000);
         try {
             server.start();
-            fail();
+            fail("");
         } catch (IllegalArgumentException e) {
             // OK
         }
@@ -49,7 +49,7 @@ public class TestRedisServer {
         RedisServer server2 = RedisServer.newRedisServer(server1.getBindPort());
         try {
             server2.start();
-            fail();
+            fail("");
         } catch (BindException e) {
             // OK
         }
@@ -61,7 +61,7 @@ public class TestRedisServer {
             RedisServer server = RedisServer.newRedisServer();
             server.start();
             try (Jedis jedis = new Jedis(server.getHost(), server.getBindPort())) {
-                assertEquals("PONG", jedis.ping());
+                assertThat(jedis.ping()).isEqualTo("PONG");
                 server.stop();
                 assertThatThrownBy(jedis::ping)
                         .isInstanceOf(JedisConnectionException.class);
@@ -76,7 +76,7 @@ public class TestRedisServer {
         Jedis[] jedis = new Jedis[5];
         for (int i = 0; i < jedis.length; i++) {
             jedis[i] = new Jedis(server.getHost(), server.getBindPort());
-            assertEquals("PONG", jedis[i].ping());
+            assertThat(jedis[i].ping()).isEqualTo("PONG");
             if (i % 2 == 1) {
                 //Part of the clients quit
                 jedis[i].quit();
@@ -96,7 +96,7 @@ public class TestRedisServer {
         for (int i = 0; i < 20; i++) {
             server.start();
             try (Jedis jedis = new Jedis(server.getHost(), server.getBindPort())) {
-                assertEquals("PONG", jedis.ping());
+                assertThat(jedis.ping()).isEqualTo("PONG");
                 server.stop();
                 assertThatThrownBy(jedis::ping)
                         .isInstanceOf(JedisConnectionException.class);

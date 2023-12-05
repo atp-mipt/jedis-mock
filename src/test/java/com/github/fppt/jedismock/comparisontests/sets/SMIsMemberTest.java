@@ -7,13 +7,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisDataException;
 
-import java.util.Arrays;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 
 @ExtendWith(ComparisonBase.class)
 public class SMIsMemberTest {
@@ -25,32 +22,24 @@ public class SMIsMemberTest {
     @TestTemplate
     public void simpleCase(Jedis jedis) {
         jedis.sadd("myset", "one");
-        assertEquals(
-                Arrays.asList(true, false),
-                jedis.smismember("myset", "one", "notamemeber"));
+        assertThat(jedis.smismember("myset", "one", "notamemeber")).containsExactly(true, false);
     }
 
     @TestTemplate
     public void whenElementsExist_EnsureReturnsTrue(Jedis jedis) {
         jedis.sadd("set", "a", "b", "c");
-        assertEquals(
-                Arrays.asList(true, true, true),
-                jedis.smismember("set", "a", "b", "c"));
+        assertThat(jedis.smismember("set", "a", "b", "c")).containsExactly(true, true, true);
     }
 
     @TestTemplate
     public void whenElementsDoNotExist_EnsureReturnsFalse(Jedis jedis) {
         jedis.sadd("set", "a", "b", "c");
-        assertEquals(
-                Arrays.asList(false, false, false),
-                jedis.smismember("set", "d", "e", "f"));
+        assertThat(jedis.smismember("set", "d", "e", "f")).containsExactly(false, false, false);
     }
 
     @TestTemplate
     public void whenSetDoesNotExist_EnsureReturnsFalse(Jedis jedis) {
-        assertEquals(
-                Arrays.asList(false, false, false),
-                jedis.smismember("otherSet", "a", "b", "f"));
+        assertThat(jedis.smismember("otherSet", "a", "b", "f")).containsExactly(false, false, false);
     }
 
     @TestTemplate

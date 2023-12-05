@@ -12,9 +12,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ComparisonBase.class)
 public class EvalTest {
@@ -26,68 +27,63 @@ public class EvalTest {
     @TestTemplate
     void evalTest(Jedis jedis) {
         Object eval_return = jedis.eval("return 'Hello, scripting!'", 0);
-        assertEquals(String.class, eval_return.getClass());
-        assertEquals("Hello, scripting!", eval_return);
+        assertThat(eval_return).isInstanceOf(String.class).isEqualTo("Hello, scripting!");
     }
 
     @TestTemplate
     void evalParametrizedTest(Jedis jedis) {
         Object eval_return = jedis.eval("return ARGV[1]", 0, "Hello");
-        assertEquals(String.class, eval_return.getClass());
-        assertEquals("Hello", eval_return);
+        assertThat(eval_return).isInstanceOf(String.class).isEqualTo("Hello");
     }
 
     @TestTemplate
     void evalIntTest(Jedis jedis) {
         Object eval_return = jedis.eval("return 0", 0);
-        assertEquals(Long.class, eval_return.getClass());
-        assertEquals(0L, eval_return);
+        assertThat(eval_return).isInstanceOf(Long.class).isEqualTo(0L);
     }
 
     @TestTemplate
     void evalLongTest(Jedis jedis) {
         Object eval_return = jedis.eval("return 1.123", 0);
-        assertEquals(Long.class, eval_return.getClass());
-        assertEquals(1L, eval_return);
+        assertThat(eval_return).isInstanceOf(Long.class).isEqualTo(1L);
     }
 
     @TestTemplate
     void evalTableOfStringsTest(Jedis jedis) {
         Object eval_return = jedis.eval("return { 'test' }", 0);
-        assertEquals(ArrayList.class, eval_return.getClass());
-        assertEquals(Collections.singletonList("test"), eval_return);
+        assertThat(eval_return).isInstanceOf(ArrayList.class).isEqualTo(singletonList("test"));
     }
 
     @TestTemplate
     void evalTableOfLongTest(Jedis jedis) {
         Object eval_return = jedis.eval("return { 1, 2, 3 }", 0);
-        assertEquals(ArrayList.class, eval_return.getClass());
-        assertEquals(Long.class, ((List<?>) eval_return).get(0).getClass());
-        assertEquals(Arrays.asList(1L, 2L, 3L), eval_return);
+        assertThat(eval_return).isInstanceOf(ArrayList.class)
+                .asList().containsExactly(1L, 2L, 3L);
+        assertThat(((List<?>) eval_return).get(0)).isInstanceOf(Long.class);
     }
 
     @TestTemplate
     void evalDeepListTest(Jedis jedis) {
         Object eval_return = jedis.eval("return { 'test', 2, {'test', 2} }", 0);
-        assertEquals(ArrayList.class, eval_return.getClass());
-        assertEquals(String.class, ((List<?>) eval_return).get(0).getClass());
-        assertEquals(Long.class, ((List<?>) eval_return).get(1).getClass());
-        assertEquals(ArrayList.class, ((List<?>) eval_return).get(2).getClass());
-        assertEquals(Arrays.asList("test", 2L, Arrays.asList("test", 2L)), eval_return);
+        assertThat(eval_return).isInstanceOf(ArrayList.class)
+                .asList().containsExactly("test", 2L, Arrays.asList("test", 2L));
+        assertThat(((List<?>) eval_return).get(0)).isInstanceOf(String.class);
+        assertThat(((List<?>) eval_return).get(1)).isInstanceOf(Long.class);
+        assertThat(((List<?>) eval_return).get(2)).isInstanceOf(ArrayList.class);
     }
 
     @TestTemplate
     void evalDictTest(Jedis jedis) {
         Object eval_return = jedis.eval("return { a = 1, 2 }", 0);
-        assertEquals(ArrayList.class, eval_return.getClass());
-        assertEquals(Long.class, ((List<?>) eval_return).get(0).getClass());
-        assertEquals(Collections.singletonList(2L), eval_return);
+        assertThat(eval_return).isInstanceOf(ArrayList.class)
+                .asList().containsExactly(2L);
+        assertThat(((List<?>) eval_return).get(0)).isInstanceOf(Long.class);
     }
 
     @TestTemplate
     void okFieldConversion(Jedis jedis) {
         String script = "return {ok='fine'}";
-        assertEquals("fine", jedis.eval(script, 0));
+        assertThat(jedis.eval(script, 0)).isEqualTo("fine");
     }
 
     @TestTemplate
@@ -101,7 +97,7 @@ public class EvalTest {
     @TestTemplate
     void statusReplyAPI(Jedis jedis) {
         String script = "return redis.status_reply('Everything is fine')";
-        assertEquals("Everything is fine", jedis.eval(script, 0));
+        assertThat(jedis.eval(script, 0)).isEqualTo("Everything is fine");
     }
 
     @TestTemplate
@@ -114,10 +110,10 @@ public class EvalTest {
 
     @TestTemplate
     void logLevelsAPI(Jedis jedis) {
-        assertEquals(0L, jedis.eval("return redis.LOG_DEBUG"));
-        assertEquals(1L, jedis.eval("return redis.LOG_VERBOSE"));
-        assertEquals(2L, jedis.eval("return redis.LOG_NOTICE"));
-        assertEquals(3L, jedis.eval("return redis.LOG_WARNING"));
+        assertThat(jedis.eval("return redis.LOG_DEBUG")).isEqualTo(0L);
+        assertThat(jedis.eval("return redis.LOG_VERBOSE")).isEqualTo(1L);
+        assertThat(jedis.eval("return redis.LOG_NOTICE")).isEqualTo(2L);
+        assertThat(jedis.eval("return redis.LOG_WARNING")).isEqualTo(3L);
     }
 
     @TestTemplate
@@ -135,8 +131,7 @@ public class EvalTest {
                 2, "key1", "key2",
                 "arg1", "arg2", "arg3"
         );
-        assertEquals(ArrayList.class, eval_return.getClass());
-        assertEquals(Arrays.asList("key1", "key2", "arg1", "arg2", "arg3"), eval_return);
+        assertThat(eval_return).isInstanceOf(ArrayList.class).isEqualTo(asList("key1", "key2", "arg1", "arg2", "arg3"));
     }
 
     @TestTemplate
@@ -146,20 +141,19 @@ public class EvalTest {
                 2, "key1", "key2",
                 "1"
         );
-        assertEquals(ArrayList.class, eval_return.getClass());
-        assertEquals(Arrays.asList("key1", "key2", 1L), eval_return);
+        assertThat(eval_return).isInstanceOf(ArrayList.class).isEqualTo(asList("key1", "key2", 1L));
     }
 
     @TestTemplate
     void evalRedisSetTest(Jedis jedis) {
-        assertEquals("OK", jedis.eval("return redis.call('SET', 'test', 'hello')", 0));
-        assertEquals("hello", jedis.get("test"));
+        assertThat(jedis.eval("return redis.call('SET', 'test', 'hello')", 0)).isEqualTo("OK");
+        assertThat(jedis.get("test")).isEqualTo("hello");
     }
 
     @TestTemplate
     void evalRedisDecrTest(Jedis jedis) {
         jedis.eval("redis.call('SET', 'count', '1')", 0);
-        assertEquals(0L, jedis.eval("return redis.call('DECR', 'count')", 0));
+        assertThat(jedis.eval("return redis.call('DECR', 'count')", 0)).isEqualTo(0L);
     }
 
     @TestTemplate
@@ -178,13 +172,13 @@ public class EvalTest {
 
     @TestTemplate
     void evalRedisPCallCanHandleExceptionTest(Jedis jedis) {
-        assertEquals("Handled error from pcall", jedis.eval(
-                        "local reply = redis.pcall('RENAME','A','B')\n" +
+        assertThat(jedis.eval(
+                "local reply = redis.pcall('RENAME','A','B')\n" +
                         "if reply['err'] ~= nil then\n" +
                         "  return 'Handled error from pcall'" +
                         "end\n" +
                         "return reply",
-                0));
+                0)).isEqualTo("Handled error from pcall");
     }
 
     @TestTemplate
@@ -203,26 +197,25 @@ public class EvalTest {
                         "  redis.call('RPUSH',KEYS[1], temp)\n" +
                         "end\n";
         jedis.eval(script, 1, "mylist", "10");
-        assertEquals(Arrays.asList("1", "2", "3", "5", "8", "13", "21", "34", "55"),
-                jedis.lrange("mylist", 0, -1));
+        assertThat(jedis.lrange("mylist", 0, -1)).containsExactly("1", "2", "3", "5", "8", "13", "21", "34", "55");
     }
 
     @TestTemplate
     void trailingComment(Jedis jedis) {
-        assertEquals("hello", jedis.eval("return 'hello' --trailing comment", 0));
+        assertThat(jedis.eval("return 'hello' --trailing comment", 0)).isEqualTo("hello");
     }
 
     @TestTemplate
     void manyArgumentsTest(Jedis jedis) {
         String script = "return redis.call('SADD', 'myset', 1, 2, 3, 4, 5, 6)";
         jedis.eval(script, 0);
-        assertEquals(6, jedis.scard("myset"));
+        assertThat(jedis.scard("myset")).isEqualTo(6);
     }
 
     @TestTemplate
     void booleanTrueConversion(Jedis jedis) {
         String script = "return true";
-        assertEquals(1L, jedis.eval(script, 0));
+        assertThat(jedis.eval(script, 0)).isEqualTo(1L);
     }
 
     @TestTemplate
@@ -234,8 +227,7 @@ public class EvalTest {
     @TestTemplate
     void sha1hexImplementation(Jedis jedis) {
         String script = "return redis.sha1hex('Pizza & Mandolino')";
-        assertEquals("74822d82031af7493c20eefa13bd07ec4fada82f",
-                jedis.eval(script, 0));
+        assertThat(jedis.eval(script, 0)).isEqualTo("74822d82031af7493c20eefa13bd07ec4fada82f");
     }
 
     @TestTemplate
@@ -245,7 +237,7 @@ public class EvalTest {
         jedis.select(6);
         jedis.set("foo", "DB6");
         jedis.select(5);
-        assertEquals("DB5", jedis.eval("return redis.call('get', 'foo')"));
+        assertThat(jedis.eval("return redis.call('get', 'foo')")).isEqualTo("DB5");
     }
 
     @TestTemplate
@@ -254,8 +246,8 @@ public class EvalTest {
         jedis.set("foo", "DB5");
         jedis.select(6);
         jedis.set("foo", "DB6");
-        assertEquals("DB5", jedis.eval("redis.call('select', 5); return redis.call('get', 'foo')"));
-        assertEquals("DB6", jedis.get("foo"));
+        assertThat(jedis.eval("redis.call('select', 5); return redis.call('get', 'foo')")).isEqualTo("DB5");
+        assertThat(jedis.get("foo")).isEqualTo("DB6");
     }
 
     @TestTemplate
@@ -291,6 +283,6 @@ public class EvalTest {
                 Collections.singletonList("an-example-key"),
                 Collections.emptyList()
         );
-        assertEquals(1L, result);
+        assertThat(result).isEqualTo(1L);
     }
 }

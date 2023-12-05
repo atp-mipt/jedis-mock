@@ -11,8 +11,13 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static com.github.fppt.jedismock.server.SliceParser.consumeByte;
+import static com.github.fppt.jedismock.server.SliceParser.consumeCount;
+import static com.github.fppt.jedismock.server.SliceParser.consumeLong;
+import static com.github.fppt.jedismock.server.SliceParser.consumeParameter;
+import static com.github.fppt.jedismock.server.SliceParser.consumeSlice;
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * Created by Xiaolu on 2015/4/20.
@@ -22,7 +27,7 @@ public class TestCommandParser {
     @Test
     public void testConsumeCharacter() throws ParseErrorException, EOFException {
         InputStream stream = new ByteArrayInputStream("a".getBytes());
-        assertEquals(SliceParser.consumeByte(stream), 'a');
+        assertThat(consumeByte(stream)).isEqualTo((byte) 'a');
     }
 
     @Test
@@ -34,19 +39,19 @@ public class TestCommandParser {
     @Test
     public void testConsumeLong() throws ParseErrorException {
         InputStream stream = new ByteArrayInputStream("12345678901234\r".getBytes());
-        assertEquals(SliceParser.consumeLong(stream), 12345678901234L);
+        assertThat(consumeLong(stream)).isEqualTo(12345678901234L);
     }
 
     @Test
     public void testConsumeString() throws ParseErrorException {
         InputStream stream = new ByteArrayInputStream("abcd".getBytes());
-        assertEquals(SliceParser.consumeSlice(stream, 4).toString(), "abcd");
+        assertThat(consumeSlice(stream, 4).toString()).isEqualTo("abcd");
     }
 
     @Test
     public void testConsumeCount1() throws ParseErrorException {
         InputStream stream = new ByteArrayInputStream("*12\r\n".getBytes());
-        assertEquals(SliceParser.consumeCount(stream), 12L);
+        assertThat(consumeCount(stream)).isEqualTo(12L);
     }
 
     @Test
@@ -54,7 +59,7 @@ public class TestCommandParser {
         InputStream stream = new ByteArrayInputStream("*2\r".getBytes());
         try {
             SliceParser.consumeCount(stream);
-            fail();
+            fail("");
         } catch (EOFException e) {
             // OK
         }
@@ -63,15 +68,15 @@ public class TestCommandParser {
     @Test
     public void testConsumeParameter() throws ParseErrorException {
         InputStream stream = new ByteArrayInputStream("$5\r\nabcde\r\n".getBytes());
-        assertEquals(SliceParser.consumeParameter(stream).toString(), "abcde");
+        assertThat(consumeParameter(stream).toString()).isEqualTo("abcde");
     }
 
     @Test
     public void testParse() throws ParseErrorException {
         RedisCommand cmd = RedisCommandParser.parse("*3\r\n$0\r\n\r\n$4\r\nabcd\r\n$2\r\nef\r\n");
-        assertEquals(cmd.parameters().get(0).toString(), "");
-        assertEquals(cmd.parameters().get(1).toString(), "abcd");
-        assertEquals(cmd.parameters().get(2).toString(), "ef");
+        assertThat(cmd.parameters().get(0).toString()).isEqualTo("");
+        assertThat(cmd.parameters().get(1).toString()).isEqualTo("abcd");
+        assertThat(cmd.parameters().get(2).toString()).isEqualTo("ef");
     }
 
     @Test
@@ -79,7 +84,7 @@ public class TestCommandParser {
         InputStream stream = new ByteArrayInputStream("".getBytes());
         try {
             SliceParser.consumeByte(stream);
-            fail();
+            fail("");
         } catch (EOFException e) {
             // OK
         }
@@ -90,7 +95,7 @@ public class TestCommandParser {
         InputStream stream = new ByteArrayInputStream("a".getBytes());
         try {
             SliceParser.expectByte(stream, (byte) 'b');
-            fail();
+            fail("");
         } catch (ParseErrorException e) {
             // OK
         }
@@ -106,7 +111,7 @@ public class TestCommandParser {
         };
         try {
             SliceParser.expectByte(in, (byte) 'b');
-            fail();
+            fail("");
         } catch (EOFException e) {
             // OK
         }
@@ -117,7 +122,7 @@ public class TestCommandParser {
         InputStream stream = new ByteArrayInputStream("\r".getBytes());
         try {
             SliceParser.consumeLong(stream);
-            fail();
+            fail("");
         } catch (ParseErrorException e) {
             // OK
         }
@@ -128,7 +133,7 @@ public class TestCommandParser {
         InputStream stream = new ByteArrayInputStream("100a".getBytes());
         try {
             SliceParser.consumeLong(stream);
-            fail();
+            fail("");
         } catch (ParseErrorException e) {
             // OK
         }
@@ -139,7 +144,7 @@ public class TestCommandParser {
         InputStream stream = new ByteArrayInputStream("".getBytes());
         try {
             SliceParser.consumeLong(stream);
-            fail();
+            fail("");
         } catch (EOFException e) {
             // OK
         }
@@ -150,7 +155,7 @@ public class TestCommandParser {
         InputStream stream = new ByteArrayInputStream("abc".getBytes());
         try {
             SliceParser.consumeSlice(stream, 4);
-            fail();
+            fail("");
         } catch (EOFException e) {
             // OK
         }
@@ -161,7 +166,7 @@ public class TestCommandParser {
         InputStream stream = new ByteArrayInputStream("$12\r\n".getBytes());
         try {
             SliceParser.consumeCount(stream);
-            fail();
+            fail("");
         } catch (ParseErrorException e) {
             // OK
         }
@@ -172,7 +177,7 @@ public class TestCommandParser {
         InputStream stream = new ByteArrayInputStream("*12\ra".getBytes());
         try {
             SliceParser.consumeCount(stream);
-            fail();
+            fail("");
         } catch (ParseErrorException e) {
             // OK
         }
@@ -183,7 +188,7 @@ public class TestCommandParser {
         InputStream stream = new ByteArrayInputStream("$4\r\nabcde\r\n".getBytes());
         try {
             SliceParser.consumeParameter(stream);
-            fail();
+            fail("");
         } catch (ParseErrorException e) {
             // OK
         }
@@ -194,7 +199,7 @@ public class TestCommandParser {
         InputStream stream = new ByteArrayInputStream("$4\r\nabc\r\n".getBytes());
         try {
             SliceParser.consumeParameter(stream);
-            fail();
+            fail("");
         } catch (ParseErrorException e) {
             // OK
         }
@@ -205,7 +210,7 @@ public class TestCommandParser {
         InputStream stream = new ByteArrayInputStream("$4\r\nabc".getBytes());
         try {
             SliceParser.consumeParameter(stream);
-            fail();
+            fail("");
         } catch (EOFException e) {
             // OK
         }
@@ -216,7 +221,7 @@ public class TestCommandParser {
         InputStream stream = new ByteArrayInputStream("$4\r".getBytes());
         try {
             SliceParser.consumeParameter(stream);
-            fail();
+            fail("");
         } catch (EOFException e) {
             // OK
         }
@@ -226,7 +231,7 @@ public class TestCommandParser {
     public void testParseError() throws ParseErrorException {
         try {
             RedisCommandParser.parse("*0\r\n");
-            fail();
+            fail("");
         } catch (ParseErrorException e) {
             // OK
         }

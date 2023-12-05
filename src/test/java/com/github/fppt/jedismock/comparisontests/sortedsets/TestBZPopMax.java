@@ -9,7 +9,6 @@ import redis.clients.jedis.resps.KeyedZSetElement;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ComparisonBase.class)
 public class TestBZPopMax {
@@ -31,7 +30,7 @@ public class TestBZPopMax {
         KeyedZSetElement result = jedis.bzpopmax(0, ZSET_KEY_2, ZSET_KEY_1, "aaa");
         KeyedZSetElement expected = new KeyedZSetElement(ZSET_KEY_1, "c", 2.0);
 
-        assertEquals(expected, result);
+        assertThat(result).isEqualTo(expected);
     }
 
     @TestTemplate
@@ -46,7 +45,7 @@ public class TestBZPopMax {
         KeyedZSetElement result = jedis.bzpopmax(0, ZSET_KEY_2, ZSET_KEY_1, "aaa");
         KeyedZSetElement expected = new KeyedZSetElement(ZSET_KEY_2, "f", 5.0);
 
-        assertEquals(expected, result);
+        assertThat(result).isEqualTo(expected);
     }
 
     @TestTemplate

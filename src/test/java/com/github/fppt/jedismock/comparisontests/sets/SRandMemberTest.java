@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ComparisonBase.class)
 public class SRandMemberTest {
@@ -33,7 +32,7 @@ public class SRandMemberTest {
             assertThat(set).contains(member);
             usedElements.add(member);
         }
-        assertEquals(new HashSet<>(set), usedElements);
+        assertThat(usedElements).containsExactlyElementsOf(set);
     }
 
     @TestTemplate
@@ -41,7 +40,7 @@ public class SRandMemberTest {
         Set<String> set = Collections.singleton("d");
         jedis.sadd("foo", set.toArray(new String[0]));
         for (int i = 0; i < 100; i++) {
-            assertEquals("d", jedis.srandmember("foo"));
+            assertThat(jedis.srandmember("foo")).isEqualTo("d");
         }
     }
 
@@ -67,7 +66,7 @@ public class SRandMemberTest {
         for (int i = 0; i < 1000; i++) {
             List<String> members = jedis.srandmember("foo", 3);
             assertThat(set).containsAll(members);
-            assertEquals(3, new HashSet<>(members).size());
+            assertThat(new HashSet<>(members)).hasSize(3);
         }
     }
 
@@ -76,7 +75,7 @@ public class SRandMemberTest {
         Collection<String> set = Arrays.asList("a", "b", "c", "d", "e");
         jedis.sadd("foo", set.toArray(new String[0]));
         List<String> members = jedis.srandmember("foo", 10);
-        assertEquals(new HashSet<>(set), new HashSet<>(members));
+        assertThat(members).containsExactlyInAnyOrderElementsOf(set);
     }
 
     @TestTemplate
@@ -84,7 +83,7 @@ public class SRandMemberTest {
         Collection<String> set = Arrays.asList("a", "b", "c", "d", "e");
         jedis.sadd("foo", set.toArray(new String[0]));
         List<String> members = jedis.srandmember("foo", 0);
-        assertEquals(0, members.size());
+        assertThat(members).hasSize(0);
     }
 
     @TestTemplate
@@ -99,8 +98,8 @@ public class SRandMemberTest {
     @TestTemplate
     void randMemberReturnOneElementAsSingletonList(Jedis jedis) {
         jedis.sadd("key", "a");
-        assertEquals(Collections.singletonList("a"), jedis.srandmember("key", 1));
-        assertEquals(Collections.emptyList(), jedis.srandmember("key", 0));
-        assertEquals(Collections.singletonList("a"), jedis.srandmember("key", -1));
+        assertThat(jedis.srandmember("key", 1)).containsExactly("a");
+        assertThat(jedis.srandmember("key", 0)).isEmpty();
+        assertThat(jedis.srandmember("key", -1)).containsExactly("a");
     }
 }

@@ -8,8 +8,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisDataException;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ComparisonBase.class)
 public class LSetTest {
@@ -24,14 +24,14 @@ public class LSetTest {
     @DisplayName("Change element")
     public void whenUsingLSet_EnsureElementIsSet(Jedis jedis) {
         jedis.lset(key, 1, "5");
-        assertEquals(jedis.lindex(key, 1), "5");
+        assertThat(jedis.lindex(key, 1)).isEqualTo("5");
     }
 
     @TestTemplate
     @DisplayName("Change element by negative index")
     public void whenUsingLSet_EnsureNegativeIndexWorks(Jedis jedis) {
         jedis.lset(key, -2, "5");
-        assertEquals(jedis.lindex(key, 1), "5");
+        assertThat(jedis.lindex(key, 1)).isEqualTo("5");
     }
 
     @TestTemplate

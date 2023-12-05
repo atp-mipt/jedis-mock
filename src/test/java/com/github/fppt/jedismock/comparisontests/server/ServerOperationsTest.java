@@ -11,7 +11,6 @@ import java.util.List;
 import static java.lang.Long.parseLong;
 import static java.lang.Math.abs;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ComparisonBase.class)
 public class ServerOperationsTest {
@@ -27,7 +26,7 @@ public class ServerOperationsTest {
         String value = "my-not-so-special-value";
 
         jedis.set(key, value);
-        assertEquals(value, jedis.get(key));
+        assertThat(jedis.get(key)).isEqualTo(value);
 
         jedis.flushAll();
         assertThat(jedis.get(key)).isNull();
@@ -39,7 +38,7 @@ public class ServerOperationsTest {
         String value = "my-not-so-special-value";
 
         jedis.set(key, value);
-        assertEquals(value, jedis.get(key));
+        assertThat(jedis.get(key)).isEqualTo(value);
 
         jedis.flushDB();
         assertThat(jedis.get(key)).isNull();
@@ -49,9 +48,9 @@ public class ServerOperationsTest {
     public void whenCountingKeys_EnsureExpiredKeysAreNotCounted(Jedis jedis) throws InterruptedException {
         jedis.hset("test", "key", "value");
         jedis.expire("test", 1L);
-        assertEquals(1, jedis.dbSize());
+        assertThat(jedis.dbSize()).isEqualTo(1);
         Thread.sleep(2000);
-        assertEquals(0, jedis.dbSize());
+        assertThat(jedis.dbSize()).isEqualTo(0);
     }
 
     @TestTemplate
@@ -83,6 +82,6 @@ public class ServerOperationsTest {
 
         long result = jedis.dbSize();
 
-        assertEquals(2, result);
+        assertThat(result).isEqualTo(2);
     }
 }

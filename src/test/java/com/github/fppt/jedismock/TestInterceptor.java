@@ -10,8 +10,8 @@ import redis.clients.jedis.exceptions.JedisConnectionException;
 
 import java.io.IOException;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TestInterceptor {
     @Test
@@ -20,14 +20,14 @@ public class TestInterceptor {
                 .newRedisServer()
                 .setOptions(ServiceOptions.withInterceptor((state, roName, params) -> {
                     //You can write any verification code here
-                    assertEquals("set", roName.toLowerCase());
+                    assertThat(roName.toLowerCase()).isEqualTo("set");
                     //You can can imitate any reply from Redis here
                     return Response.bulkString(Slice.create("MOCK"));
                 }))
                 .start();
         try (Jedis jedis = new Jedis(server.getHost(), server.getBindPort())) {
             String result = jedis.set("a", "b");
-            assertEquals("MOCK", result);
+            assertThat(result).isEqualTo("MOCK");
         }
         server.stop();
     }
@@ -39,9 +39,9 @@ public class TestInterceptor {
                 .setOptions(ServiceOptions.executeOnly(3))
                 .start();
         try (Jedis jedis = new Jedis(server.getHost(), server.getBindPort())) {
-            assertEquals(jedis.set("ab", "cd"), "OK");
-            assertEquals(jedis.set("ab", "cd"), "OK");
-            assertEquals(jedis.set("ab", "cd"), "OK");
+            assertThat(jedis.set("ab", "cd")).isEqualTo("OK");
+            assertThat(jedis.set("ab", "cd")).isEqualTo("OK");
+            assertThat(jedis.set("ab", "cd")).isEqualTo("OK");
             assertThatThrownBy(() -> jedis.set("ab", "cd"))
                     .isInstanceOf(JedisConnectionException.class);
         }
@@ -58,7 +58,7 @@ public class TestInterceptor {
                         return Response.bulkString(Slice.create("MOCK_VALUE"));
                     } else if ("echo".equalsIgnoreCase(roName)) {
                         //You can write any verification code
-                        assertEquals("hello", params.get(0).toString());
+                        assertThat(params.get(0).toString()).isEqualTo("hello");
                         //And imitate connection breaking
                         return MockExecutor.breakConnection(state);
                     } else {
@@ -68,8 +68,8 @@ public class TestInterceptor {
                 }))
                 .start();
         try (Jedis jedis = new Jedis(server.getHost(), server.getBindPort())) {
-            assertEquals("MOCK_VALUE", jedis.get("foo"));
-            assertEquals("OK", jedis.set("bar", "baz"));
+            assertThat(jedis.get("foo")).isEqualTo("MOCK_VALUE");
+            assertThat(jedis.set("bar", "baz")).isEqualTo("OK");
             assertThatThrownBy(() -> jedis.echo("hello"))
                     .isInstanceOf(JedisConnectionException.class);
         }

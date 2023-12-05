@@ -14,7 +14,6 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ComparisonBase.class)
 public class SortedSetOperationsTest {
@@ -30,7 +29,7 @@ public class SortedSetOperationsTest {
 
         long result = jedis.zcard(key);
 
-        assertEquals(0L, result);
+        assertThat(result).isEqualTo(0L);
     }
 
     @TestTemplate
@@ -44,7 +43,7 @@ public class SortedSetOperationsTest {
 
         long result = jedis.zcard(key);
 
-        assertEquals(2L, result);
+        assertThat(result).isEqualTo(2L);
     }
 
     @TestTemplate
@@ -58,15 +57,11 @@ public class SortedSetOperationsTest {
 
         long result = jedis.zadd(key, members);
 
-        assertEquals(4L, result);
+        assertThat(result).isEqualTo(4L);
 
         List<String> results = jedis.zrange(key, 0, -1);
-
-        assertEquals(4, results.size());
-        assertEquals("myvalue1", results.get(0));
-        assertEquals("myvalue2", results.get(1));
-        assertEquals("myvalue3", results.get(2));
-        assertEquals("myvalue4", results.get(3));
+        assertThat(results).hasSize(4)
+                        .containsExactly("myvalue1", "myvalue2", "myvalue3", "myvalue4");
     }
 
     @TestTemplate
@@ -80,11 +75,11 @@ public class SortedSetOperationsTest {
 
         long result = jedis.zadd(key, members);
 
-        assertEquals(4L, result);
+        assertThat(result).isEqualTo(4L);
 
         List<String> results = jedis.zrange(key, 0, -6);
 
-        assertEquals(0, results.size());
+        assertThat(results).hasSize(0);
     }
 
     @TestTemplate
@@ -98,19 +93,15 @@ public class SortedSetOperationsTest {
 
         long result = jedis.zadd(key, members);
 
-        assertEquals(4L, result);
+        assertThat(result).isEqualTo(4L);
 
         List<Tuple> results = jedis.zrangeWithScores(key, 0, -1);
 
-        assertEquals(4, results.size());
-        assertEquals("myvalue1", results.get(0).getElement());
-        assertEquals(9d, results.get(0).getScore(), 0);
-        assertEquals("myvalue2", results.get(1).getElement());
-        assertEquals(10d, results.get(1).getScore(), 0);
-        assertEquals("myvalue3", results.get(2).getElement());
-        assertEquals(15d, results.get(2).getScore(), 0);
-        assertEquals("myvalue4", results.get(3).getElement());
-        assertEquals(20d, results.get(3).getScore(), 0);
+        assertThat(results).hasSize(4)
+                .containsExactly(new Tuple("myvalue1", 9d),
+                        new Tuple("myvalue2", 10d),
+                        new Tuple("myvalue3", 15d),
+                        new Tuple("myvalue4", 20d));
     }
 
     @TestTemplate
@@ -122,11 +113,11 @@ public class SortedSetOperationsTest {
         members.put("ddd", 1d);
 
         long result = jedis.zadd(key, members);
-        assertEquals(3L, result);
+        assertThat(result).isEqualTo(3L);
 
-        assertEquals(0d, jedis.zscore(key, "aaa"));
-        assertEquals(1d, jedis.zscore(key, "bbb"));
-        assertEquals(1d, jedis.zscore(key, "ddd"));
+        assertThat(jedis.zscore(key, "aaa")).isEqualTo(0d);
+        assertThat(jedis.zscore(key, "bbb")).isEqualTo(1d);
+        assertThat(jedis.zscore(key, "ddd")).isEqualTo(1d);
         assertThat(jedis.zscore(key, "ccc")).isNull();
     }
 

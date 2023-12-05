@@ -14,7 +14,6 @@ import java.util.concurrent.ExecutionException;
 
 import static java.util.concurrent.CompletableFuture.runAsync;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ComparisonBase.class)
 public class TestWatchUnwatch {
@@ -87,9 +86,9 @@ public class TestWatchUnwatch {
         runAsync(() -> anotherJedis.set(ANOTHER_KEY, ANOTHER_VALUE)).get();
         transaction.set(FIRST_KEY, SECOND_VALUE);
         List<Object> result = transaction.exec();
-        assertEquals(1, result.size());
-        assertEquals("OK", result.get(0));
-        assertEquals(SECOND_VALUE, jedis.get(FIRST_KEY));
+        assertThat(result).hasSize(1)
+                .containsExactly("OK");
+        assertThat(jedis.get(FIRST_KEY)).isEqualTo(SECOND_VALUE);
     }
 
     @TestTemplate
@@ -134,9 +133,9 @@ public class TestWatchUnwatch {
         Transaction transaction = jedis.multi();
         transaction.set(FIRST_KEY, SECOND_VALUE);
         List<Object> result = transaction.exec();
-        assertEquals(1, result.size());
-        assertEquals("OK", result.get(0));
-        assertEquals(SECOND_VALUE, jedis.get(FIRST_KEY));
+        assertThat(result).hasSize(1)
+                .containsExactly("OK");
+        assertThat(jedis.get(FIRST_KEY)).isEqualTo(SECOND_VALUE);
     }
 
     @TestTemplate
@@ -156,8 +155,8 @@ public class TestWatchUnwatch {
         Transaction transaction = jedis.multi();
         transaction.set(FIRST_KEY, SECOND_VALUE);
         List<Object> result = transaction.exec();
-        assertEquals(1, result.size());
-        assertEquals("OK", result.get(0));
+        assertThat(result).hasSize(1)
+                .containsExactly("OK");
     }
 
 }

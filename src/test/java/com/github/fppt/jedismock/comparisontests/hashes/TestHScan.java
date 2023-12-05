@@ -12,8 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static redis.clients.jedis.params.ScanParams.SCAN_POINTER_START;
 
 @ExtendWith(ComparisonBase.class)
 public class TestHScan {
@@ -40,7 +39,7 @@ public class TestHScan {
         for (Map.Entry<String, String> entry : result.getResult()) {
             assertThat(mapResult.put(entry.getKey(), entry.getValue())).isNull();
         }
-        assertEquals(expected, mapResult);
+        assertThat(mapResult).isEqualTo(expected);
     }
 
     @TestTemplate
@@ -51,7 +50,7 @@ public class TestHScan {
         ScanResult<Map.Entry<String, String>> result = jedis.hscan(key,
                 ScanParams.SCAN_POINTER_START,
                 new ScanParams().count(7));
-        assertNotEquals(ScanParams.SCAN_POINTER_START, result.getCursor());
+        assertThat(result.getCursor()).isNotEqualTo(SCAN_POINTER_START);
     }
 
     @TestTemplate
@@ -64,10 +63,10 @@ public class TestHScan {
                 ScanParams.SCAN_POINTER_START,
                 new ScanParams().match("hkey7"));
 
-        assertEquals(ScanParams.SCAN_POINTER_START, result.getCursor());
-        assertEquals(1, result.getResult().size());
-        assertEquals("hkey7", result.getResult().get(0).getKey());
-        assertEquals("hval7", result.getResult().get(0).getValue());
+        assertThat(result.getCursor()).isEqualTo(SCAN_POINTER_START);
+        assertThat(result.getResult()).hasSize(1);
+        assertThat(result.getResult().get(0).getKey()).isEqualTo("hkey7");
+        assertThat(result.getResult().get(0).getValue()).isEqualTo("hval7");
     }
 
     @TestTemplate
@@ -88,7 +87,7 @@ public class TestHScan {
             }
             count++;
         } while (!ScanParams.SCAN_POINTER_START.equals(cursor));
-        assertEquals(expected, results);
+        assertThat(results).containsAllEntriesOf(expected);
         assertThat(count).isGreaterThan(1);
     }
 }

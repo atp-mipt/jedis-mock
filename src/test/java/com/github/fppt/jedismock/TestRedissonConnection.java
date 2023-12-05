@@ -11,10 +11,8 @@ import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TestRedissonConnection {
     private static RedisServer redisServer;
@@ -39,16 +37,16 @@ public class TestRedissonConnection {
     public void testStringMap() {
         RMap<String, String> map = client.getMap("stringMap");
         assertThat(map.put("foo", "bar")).isNull();
-        assertEquals("bar", map.get("foo"));
-        assertEquals("bar", map.put("foo", "baz"));
+        assertThat(map.get("foo")).isEqualTo("bar");
+        assertThat(map.put("foo", "baz")).isEqualTo("bar");
     }
 
     @Test
     public void testIntegerMap() {
         RMap<String, Integer> map = client.getMap("intMap");
         assertThat(map.put("foo", 42)).isNull();
-        assertEquals(42, map.get("foo"));
-        assertEquals(42, map.put("foo", 43));
+        assertThat(map.get("foo")).isEqualTo(42);
+        assertThat(map.put("foo", 43)).isEqualTo(42);
     }
 
     @Test
@@ -56,8 +54,8 @@ public class TestRedissonConnection {
         RList<Integer> list = client.getList("intList");
         assertThat(list.add(11)).isTrue();
         assertThat(list.add(15)).isTrue();
-        assertEquals(2, list.size());
-        assertEquals(Arrays.asList(11, 15), list.readAll());
+        assertThat(list).hasSize(2);
+        assertThat(list.readAll()).containsExactly(11, 15);
     }
 
     @Test

@@ -7,8 +7,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisDataException;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ComparisonBase.class)
 public class RPopLPushTest {
@@ -29,6 +29,6 @@ public class RPopLPushTest {
                 .isInstanceOf(JedisDataException.class)
                 .hasMessage("WRONGTYPE Operation against a key holding the wrong kind of value");
 
-        assertEquals(3, jedis.llen(listKey));
+        assertThat(jedis.llen(listKey)).isEqualTo(3);
     }
 }

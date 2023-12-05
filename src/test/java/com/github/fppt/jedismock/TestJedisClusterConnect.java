@@ -10,12 +10,11 @@ import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.exceptions.JedisDataException;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TestJedisClusterConnect {
 
@@ -43,9 +42,8 @@ public class TestJedisClusterConnect {
         String[] planets = new String[]{"Mars", "Jupyter", "Venus", "Earth", "Mercury", "Saturn"};
         try (JedisCluster jedis = new JedisCluster(jedisClusterNodes)) {
             jedis.sadd("planets", planets);
-            assertEquals(new HashSet<>(Arrays.asList(planets)),
-                    jedis.smembers("planets"));
-            assertEquals(1, jedis.getClusterNodes().size());
+            assertThat(jedis.smembers("planets")).containsExactlyInAnyOrder(planets);
+            assertThat(jedis.getClusterNodes()).hasSize(1);
         }
     }
 

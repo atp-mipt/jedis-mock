@@ -11,8 +11,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ComparisonBase.class)
 public class BitMapsOperationsTest {
@@ -30,7 +28,7 @@ public class BitMapsOperationsTest {
     @TestTemplate
     void testSetBitByBitValue(Jedis jedis) {
         for (int i = 0; i <= Collections.max(bits); i++) {
-            assertEquals(bits.contains(i), jedis.getbit("bm", i));
+            assertThat(jedis.getbit("bm", i)).isEqualTo(bits.contains(i));
         }
     }
 
@@ -38,7 +36,7 @@ public class BitMapsOperationsTest {
     void testGetStringRepresentation(Jedis jedis) {
         jedis.set("bm2".getBytes(), jedis.get("bm".getBytes()));
         for (int i = 0; i <= Collections.max(bits); i++) {
-            assertEquals(bits.contains(i), jedis.getbit("bm2", i));
+            assertThat(jedis.getbit("bm2", i)).isEqualTo(bits.contains(i));
         }
     }
 
@@ -47,7 +45,7 @@ public class BitMapsOperationsTest {
         byte[] buf = jedis.get("bm".getBytes());
         jedis.set("bm2".getBytes(), buf);
         byte[] buf2 = jedis.get("bm2".getBytes());
-        assertArrayEquals(buf, buf2);
+        assertThat(buf2).containsExactlyInAnyOrder(buf);
     }
 
 

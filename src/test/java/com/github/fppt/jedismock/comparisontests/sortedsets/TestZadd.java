@@ -8,15 +8,12 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.params.ZAddParams;
 import redis.clients.jedis.resps.Tuple;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ComparisonBase.class)
 public class TestZadd {
@@ -35,12 +32,12 @@ public class TestZadd {
 
         long result = jedis.zadd(ZSET_KEY, score, value);
 
-        assertEquals(1L, result);
+        assertThat(result).isEqualTo(1L);
 
         List<String> results = jedis.zrange(ZSET_KEY, 0, -1);
 
-        assertEquals(1, results.size());
-        assertEquals(value, results.get(0));
+        assertThat(results).hasSize(1)
+                .containsExactly(value);
     }
 
     @TestTemplate
@@ -51,13 +48,12 @@ public class TestZadd {
 
         long result = jedis.zadd(ZSET_KEY, members);
 
-        assertEquals(2L, result);
+        assertThat(result).isEqualTo(2L);
 
         List<String> results = jedis.zrange(ZSET_KEY, 0, -1);
 
-        assertEquals(2, results.size());
-        assertEquals("myvalue1", results.get(0));
-        assertEquals("myvalue2", results.get(1));
+        assertThat(results).hasSize(2)
+                .containsExactly("myvalue1", "myvalue2");
     }
 
     @TestTemplate
@@ -65,7 +61,7 @@ public class TestZadd {
         byte[] msg = new byte[]{(byte) 0xbe};
         jedis.zadd("foo".getBytes(), 42, msg);
         byte[] newMsg = jedis.zrange("foo".getBytes(), 0, 0).get(0);
-        assertArrayEquals(msg, newMsg);
+        assertThat(newMsg).containsExactlyInAnyOrder(msg);
     }
 
     @TestTemplate
@@ -73,10 +69,10 @@ public class TestZadd {
         jedis.zadd(ZSET_KEY, 10d, "x");
         jedis.zadd(ZSET_KEY, 20d, "y");
         jedis.zadd(ZSET_KEY, 30d, "z");
-        assertEquals(Arrays.asList("x", "y", "z"), jedis.zrange(ZSET_KEY, 0, -1));
+        assertThat(jedis.zrange(ZSET_KEY, 0, -1)).containsExactly("x", "y", "z");
 
         jedis.zadd(ZSET_KEY, 1d, "y");
-        assertEquals(Arrays.asList("y", "x", "z"), jedis.zrange(ZSET_KEY, 0, -1));
+        assertThat(jedis.zrange(ZSET_KEY, 0, -1)).containsExactly("y", "x", "z");
     }
 
     @TestTemplate
@@ -86,21 +82,20 @@ public class TestZadd {
         members.put("b", 20d);
         members.put("c", 30d);
 
-        long result = jedis.zadd(ZSET_KEY, members);
+        int result = (int)jedis.zadd(ZSET_KEY, members);
         List<Tuple> results = jedis.zrangeWithScores(ZSET_KEY, 0, -1);
-
-        assertEquals(result, results.size());
-        assertEquals(new Tuple("a", 10.0), results.get(0));
-        assertEquals(new Tuple("b", 20.0), results.get(1));
-        assertEquals(new Tuple("c", 30.0), results.get(2));
+        assertThat(results).hasSize(result)
+                .containsExactly(new Tuple("a", 10.0),
+                                 new Tuple("b", 20.0),
+                                 new Tuple("c", 30.0));
     }
 
     @TestTemplate
     public void testZAddXXWithoutKey(Jedis jedis) {
         long result = jedis.zadd(ZSET_KEY, 10, "x", new ZAddParams().xx());
 
-        assertEquals(0, result);
-        assertEquals("none", jedis.type(ZSET_KEY));
+        assertThat(result).isEqualTo(0);
+        assertThat(jedis.type(ZSET_KEY)).isEqualTo("none");
     }
 
     @TestTemplate
@@ -108,8 +103,8 @@ public class TestZadd {
         jedis.zadd(ZSET_KEY, 10, "x");
         long result = jedis.zadd(ZSET_KEY, 20, "y", new ZAddParams().xx());
 
-        assertEquals(0, result);
-        assertEquals(1, jedis.zcard(ZSET_KEY));
+        assertThat(result).isEqualTo(0);
+        assertThat(jedis.zcard(ZSET_KEY)).isEqualTo(1);
     }
 
     @TestTemplate
@@ -121,7 +116,7 @@ public class TestZadd {
         members.put("z", 30d);
         long result = jedis.zadd(ZSET_KEY, members);
 
-        assertEquals(2, result);
+        assertThat(result).isEqualTo(2);
     }
 
     @TestTemplate
@@ -139,9 +134,9 @@ public class TestZadd {
         members2.put("zap", 40d);
         jedis.zadd(ZSET_KEY, members2, new ZAddParams().xx());
 
-        assertEquals(3, jedis.zcard(ZSET_KEY));
-        assertEquals(11, jedis.zscore(ZSET_KEY, "x"));
-        assertEquals(21, jedis.zscore(ZSET_KEY, "y"));
+        assertThat(jedis.zcard(ZSET_KEY)).isEqualTo(3);
+        assertThat(jedis.zscore(ZSET_KEY, "x")).isEqualTo(11);
+        assertThat(jedis.zscore(ZSET_KEY, "y")).isEqualTo(21);
     }
 
     @TestTemplate
@@ -165,7 +160,7 @@ public class TestZadd {
 
         jedis.zadd(ZSET_KEY, members, new ZAddParams().nx());
 
-        assertEquals(3, jedis.zcard(ZSET_KEY));
+        assertThat(jedis.zcard(ZSET_KEY)).isEqualTo(3);
     }
 
     @TestTemplate
@@ -183,11 +178,11 @@ public class TestZadd {
 
         long result = jedis.zadd(ZSET_KEY, members2, new ZAddParams().nx());
 
-        assertEquals(2, result);
-        assertEquals(10, jedis.zscore(ZSET_KEY, "x"));
-        assertEquals(20, jedis.zscore(ZSET_KEY, "y"));
-        assertEquals(100, jedis.zscore(ZSET_KEY, "a"));
-        assertEquals(200, jedis.zscore(ZSET_KEY, "b"));
+        assertThat(result).isEqualTo(2);
+        assertThat(jedis.zscore(ZSET_KEY, "x")).isEqualTo(10);
+        assertThat(jedis.zscore(ZSET_KEY, "y")).isEqualTo(20);
+        assertThat(jedis.zscore(ZSET_KEY, "a")).isEqualTo(100);
+        assertThat(jedis.zscore(ZSET_KEY, "b")).isEqualTo(200);
     }
 
     @TestTemplate
@@ -199,12 +194,12 @@ public class TestZadd {
         jedis.zadd(ZSET_KEY, members);
         jedis.zaddIncr(ZSET_KEY, 15, "x", new ZAddParams());
 
-        assertEquals(25, jedis.zscore(ZSET_KEY, "x"));
+        assertThat(jedis.zscore(ZSET_KEY, "x")).isEqualTo(25);
     }
 
     @TestTemplate
     public void testZAddIncrToNotExistKey(Jedis jedis) {
-        assertEquals(15, jedis.zaddIncr(ZSET_KEY, 15, "x", new ZAddParams()));
+        assertThat(jedis.zaddIncr(ZSET_KEY, 15, "x", new ZAddParams())).isEqualTo(15);
     }
 
     @TestTemplate
@@ -219,13 +214,13 @@ public class TestZadd {
         members2.put("x", 11d);
         members2.put("y", 21d);
         members2.put("z", 30d);
-        assertEquals(0, jedis.zadd(ZSET_KEY, members2));
+        assertThat(jedis.zadd(ZSET_KEY, members2)).isEqualTo(0);
 
         Map<String, Double> members3 = new HashMap<>();
         members3.put("x", 12d);
         members3.put("y", 22d);
         members3.put("z", 30d);
-        assertEquals(2, jedis.zadd(ZSET_KEY, members3, new ZAddParams().ch()));
+        assertThat(jedis.zadd(ZSET_KEY, members3, new ZAddParams().ch())).isEqualTo(2);
     }
 
     @TestTemplate
@@ -241,12 +236,12 @@ public class TestZadd {
         members2.put("x", 11d);
         members2.put("y", 21d);
         members2.put("z", 29d);
-        assertEquals(2, jedis.zadd(ZSET_KEY, members2, new ZAddParams().gt().xx().ch()));
+        assertThat(jedis.zadd(ZSET_KEY, members2, new ZAddParams().gt().xx().ch())).isEqualTo(2);
 
-        assertEquals(3, jedis.zcard(ZSET_KEY));
-        assertEquals(11, jedis.zscore(ZSET_KEY, "x"));
-        assertEquals(21, jedis.zscore(ZSET_KEY, "y"));
-        assertEquals(30, jedis.zscore(ZSET_KEY, "z"));
+        assertThat(jedis.zcard(ZSET_KEY)).isEqualTo(3);
+        assertThat(jedis.zscore(ZSET_KEY, "x")).isEqualTo(11);
+        assertThat(jedis.zscore(ZSET_KEY, "y")).isEqualTo(21);
+        assertThat(jedis.zscore(ZSET_KEY, "z")).isEqualTo(30);
     }
 
     @TestTemplate
@@ -254,7 +249,7 @@ public class TestZadd {
         jedis.zadd(ZSET_KEY, 28, "x");
 
         assertThat(jedis.zaddIncr(ZSET_KEY, 1, "x", new ZAddParams().lt())).isNull();
-        assertEquals(28, jedis.zscore(ZSET_KEY, "x"));
+        assertThat(jedis.zscore(ZSET_KEY, "x")).isEqualTo(28);
     }
 
     @TestTemplate
@@ -262,7 +257,7 @@ public class TestZadd {
         jedis.zadd(ZSET_KEY, 28, "x");
 
         assertThat(jedis.zaddIncr(ZSET_KEY, -1, "x", new ZAddParams().gt())).isNull();
-        assertEquals(28, jedis.zscore(ZSET_KEY, "x"));
+        assertThat(jedis.zscore(ZSET_KEY, "x")).isEqualTo(28);
     }
 
 }

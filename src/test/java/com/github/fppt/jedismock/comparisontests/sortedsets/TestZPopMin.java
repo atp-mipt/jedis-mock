@@ -12,7 +12,6 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ComparisonBase.class)
 public class TestZPopMin {
@@ -31,9 +30,9 @@ public class TestZPopMin {
         jedis.zadd(ZSET_KEY, 1, "b");
         jedis.zadd(ZSET_KEY, 2, "c");
 
-        assertEquals(new Tuple("a", 0.0), jedis.zpopmin(ZSET_KEY));
-        assertEquals(new Tuple("b", 1.0), jedis.zpopmin(ZSET_KEY));
-        assertEquals(new Tuple("c", 2.0), jedis.zpopmin(ZSET_KEY));
+        assertThat(jedis.zpopmin(ZSET_KEY)).isEqualTo(new Tuple("a", 0.0));
+        assertThat(jedis.zpopmin(ZSET_KEY)).isEqualTo(new Tuple("b", 1.0));
+        assertThat(jedis.zpopmin(ZSET_KEY)).isEqualTo(new Tuple("c", 2.0));
     }
 
     @TestTemplate
@@ -46,7 +45,7 @@ public class TestZPopMin {
         expected.add(new Tuple("a", 0.0));
         expected.add(new Tuple("b", 1.0));
 
-        assertEquals(expected, jedis.zpopmin(ZSET_KEY, 2));
+        assertThat(jedis.zpopmin(ZSET_KEY, 2)).isEqualTo(expected);
     }
 
     @TestTemplate

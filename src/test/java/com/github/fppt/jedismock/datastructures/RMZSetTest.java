@@ -10,7 +10,6 @@ import static com.github.fppt.jedismock.datastructures.ZSetEntry.MIN_SCORE;
 import static com.github.fppt.jedismock.datastructures.ZSetEntry.MIN_VALUE;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class RMZSetTest {
     @Test
@@ -27,9 +26,9 @@ class RMZSetTest {
 
     @Test
     void compareEquals() {
-        assertEquals(0, new ZSetEntry(1, Slice.create("a"))
-                .compareTo(new ZSetEntry(1, Slice.create("a"))));
-        assertEquals(new ZSetEntry(1, Slice.create("a")), new ZSetEntry(1, Slice.create("a")));
+        assertThat(new ZSetEntry(1, create("a"))
+                .compareTo(new ZSetEntry(1, create("a")))).isEqualTo(0);
+        assertThat(new ZSetEntry(1, create("a"))).isEqualTo(new ZSetEntry(1, create("a")));
     }
 
     @Test

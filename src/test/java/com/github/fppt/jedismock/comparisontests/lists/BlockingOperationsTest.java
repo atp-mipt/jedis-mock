@@ -24,7 +24,6 @@ import java.util.concurrent.TimeoutException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ComparisonBase.class)
 public class BlockingOperationsTest {
@@ -55,12 +54,12 @@ public class BlockingOperationsTest {
         //Block on performing the BRPOPLPUSH
         Future<?> future = blockingThread.submit(() -> {
             String result = blockedClient.brpoplpush(list1key, list2key, 500);
-            assertEquals("3", result);
+            assertThat(result).isEqualTo("3");
         });
 
         //Check the list is not modified
         List<String> results = jedis.lrange(list2key, 0, -1);
-        assertEquals(3, results.size());
+        assertThat(results).hasSize(3);
 
         //Push some stuff into the blocked list
         jedis.rpush(list1key, "1", "2", "3");
@@ -69,7 +68,7 @@ public class BlockingOperationsTest {
 
         //Check the list is modified
         results = jedis.lrange(list2key, 0, -1);
-        assertEquals(4, results.size());
+        assertThat(results).hasSize(4);
     }
 
     @TestTemplate
@@ -89,7 +88,7 @@ public class BlockingOperationsTest {
 
         blockingThread.submit(() -> {
             String result = blockedClient.brpoplpush(list1key, list2key, 500);
-            assertEquals("3", result);
+            assertThat(result).isEqualTo("3");
         });
 
         //Issue random commands to make sure mock is still responsive
@@ -100,11 +99,11 @@ public class BlockingOperationsTest {
         jedis.set("k5", "v5");
 
         //Check random commands were processed
-        assertEquals("v1", jedis.get("k1"));
-        assertEquals("v2", jedis.get("k2"));
-        assertEquals("v3", jedis.get("k3"));
-        assertEquals("v4", jedis.get("k4"));
-        assertEquals("v5", jedis.get("k5"));
+        assertThat(jedis.get("k1")).isEqualTo("v1");
+        assertThat(jedis.get("k2")).isEqualTo("v2");
+        assertThat(jedis.get("k3")).isEqualTo("v3");
+        assertThat(jedis.get("k4")).isEqualTo("v4");
+        assertThat(jedis.get("k5")).isEqualTo("v5");
     }
 
     @TestTemplate
@@ -114,14 +113,13 @@ public class BlockingOperationsTest {
         //Block on performing the BLPOP
         Future<?> future = blockingThread.submit(() -> {
             List<String> result = blockedClient.blpop(10, key);
-            assertEquals(2, result.size());
-            assertEquals(key, result.get(0));
-            assertEquals("d", result.get(1));
+            assertThat(result).hasSize(2)
+                    .containsExactly(key, "d");
         });
         future.get();
         //Check the list is modified
         List<String> results = jedis.lrange(key, 0, -1);
-        assertEquals(2, results.size());
+        assertThat(results).hasSize(2);
     }
 
     @TestTemplate
@@ -134,8 +132,7 @@ public class BlockingOperationsTest {
         //Block on performing the BLPOP
         Future<?> future = blockingThread.submit(() -> {
             List<String> result = blockedClient.blpop(10, list1key, list2key, list3key);
-            assertEquals(list2key, result.get(0));
-            assertEquals("a", result.get(1));
+            assertThat(result).containsExactly(list2key, "a");
         });
         Thread.sleep(1000);
         jedis.rpush(list2key, "a", "b", "c");
@@ -144,9 +141,9 @@ public class BlockingOperationsTest {
 
         //Check the list is modified
         List<String> results = jedis.lrange(list2key, 0, -1);
-        assertEquals(2, results.size());
+        assertThat(results).hasSize(2);
         results = jedis.lrange(list3key, 0, -1);
-        assertEquals(3, results.size());
+        assertThat(results).hasSize(3);
     }
 
     @TestTemplate
@@ -166,7 +163,7 @@ public class BlockingOperationsTest {
         //Check the list is not modified
         jedis.getClient().setSoTimeout(2000);
         List<String> results = jedis.lrange(list2key, 0, -1);
-        assertEquals(0, results.size());
+        assertThat(results).hasSize(0);
         future.get(4, TimeUnit.SECONDS);
     }
 
@@ -177,9 +174,8 @@ public class BlockingOperationsTest {
         Future<?> future = blockingThread.submit(() -> {
             List<String> result = blockedClient.blpop(0, listKey);
             assertThat(result).isNotNull();
-            assertEquals(2, result.size());
-            assertEquals(listKey, result.get(0));
-            assertEquals("b", result.get(1));
+            assertThat(result).hasSize(2)
+                    .containsExactly(listKey, "b");
         });
 
         Transaction t = jedis.multi();
@@ -208,12 +204,11 @@ public class BlockingOperationsTest {
 
             List<Object> result = t.exec();
 
-            assertEquals(
-                    Arrays.asList(
-                            Arrays.asList(key, "bar"),
-                            Arrays.asList(key, "foo"),
-                            null
-                    ), result);
+            assertThat(result).containsExactlyElementsOf(Arrays.asList(
+                    Arrays.asList(key, "bar"),
+                    Arrays.asList(key, "foo"),
+                    null
+            ));
 
         }, TestErrorMessages.DEADLOCK_ERROR_MESSAGE);
     }
@@ -236,9 +231,8 @@ public class BlockingOperationsTest {
 
         Future<?> future = blockingThread.submit(() -> {
             List<String> result = blockedClient.blpop(0, key);
-            assertEquals(2, result.size());
-            assertEquals(key, result.get(0));
-            assertEquals("foo", result.get(1));
+            assertThat(result).hasSize(2)
+                    .containsExactly(key, "foo");
         });
 
         Thread.sleep(300); // wait for blpop to execute
@@ -264,7 +258,7 @@ public class BlockingOperationsTest {
 
         Future<?> future = blockingThread.submit(() -> {
             String value = blockedClient.brpoplpush(fromKey, toKey, 0);
-            assertEquals("bar", value);
+            assertThat(value).isEqualTo("bar");
         });
 
         // wait to be sure we wait more than 0 seconds

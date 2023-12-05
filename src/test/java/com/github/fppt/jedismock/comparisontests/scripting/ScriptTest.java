@@ -6,10 +6,7 @@ import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import redis.clients.jedis.Jedis;
 
-import java.util.Arrays;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ComparisonBase.class)
 class ScriptTest {
@@ -22,8 +19,8 @@ class ScriptTest {
     @TestTemplate
     public void loadTest(Jedis jedis) {
         String sha = jedis.scriptLoad("return 'Hello'");
-        assertEquals(sha, sha.toLowerCase());
-        assertEquals("Hello", jedis.evalsha(sha));
+        assertThat(sha.toLowerCase()).isEqualTo(sha);
+        assertThat(jedis.evalsha(sha)).isEqualTo("Hello");
         assertThat(jedis.scriptExists(sha)).isTrue();
     }
 
@@ -32,8 +29,7 @@ class ScriptTest {
         String sha = jedis.scriptLoad("return ARGV[1]");
         String supposedReturn = "Hello, scripting!";
         Object response = jedis.evalsha(sha, 0, supposedReturn);
-        assertEquals(String.class, response.getClass());
-        assertEquals(supposedReturn, response);
+        assertThat(response).isInstanceOf(String.class).isEqualTo(supposedReturn);
         assertThat(jedis.scriptExists(sha)).isTrue();
     }
 
@@ -41,8 +37,8 @@ class ScriptTest {
     public void scriptFlushRemovesScripts(Jedis jedis) {
         String s1 = jedis.scriptLoad("return 1");
         String s2 = jedis.scriptLoad("return 2");
-        assertEquals(Arrays.asList(true, true), jedis.scriptExists(s1, s2));
+        assertThat(jedis.scriptExists(s1, s2)).containsExactly(true, true);
         jedis.scriptFlush();
-        assertEquals(Arrays.asList(false, false), jedis.scriptExists(s1, s2));
+        assertThat(jedis.scriptExists(s1, s2)).containsExactly(false, false);
     }
 }

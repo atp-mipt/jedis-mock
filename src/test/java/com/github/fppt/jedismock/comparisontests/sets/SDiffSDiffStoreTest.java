@@ -12,7 +12,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ComparisonBase.class)
 public class SDiffSDiffStoreTest {
@@ -36,8 +35,8 @@ public class SDiffSDiffStoreTest {
 
 
         Set<String> result = jedis.sdiff(key1, key2);
-        assertEquals(2, result.size());
-        assertEquals(expectedDifference, result);
+        assertThat(result).hasSize(2)
+                .containsExactlyElementsOf(expectedDifference);
     }
 
     @TestTemplate
@@ -58,8 +57,7 @@ public class SDiffSDiffStoreTest {
 
 
         Set<String> result = jedis.sdiff(key1, key2, key3);
-        assertEquals(2, result.size());
-        assertEquals(expectedDifference, result);
+        assertThat(result).hasSize(2).containsExactlyElementsOf(expectedDifference);
     }
 
     @TestTemplate
@@ -78,9 +76,9 @@ public class SDiffSDiffStoreTest {
         String destination = "set3";
 
         Long elementsInDifference = jedis.sdiffstore(destination, key1, key2);
-        assertEquals(2, elementsInDifference);
+        assertThat(elementsInDifference).isEqualTo(2);
 
-        assertEquals(expectedDifference, jedis.smembers(destination));
+        assertThat(jedis.smembers(destination)).isEqualTo(expectedDifference);
     }
 
 

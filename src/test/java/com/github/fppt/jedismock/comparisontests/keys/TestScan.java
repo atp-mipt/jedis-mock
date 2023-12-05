@@ -8,11 +8,7 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.params.ScanParams;
 import redis.clients.jedis.resps.ScanResult;
 
-import java.util.Collections;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static redis.clients.jedis.params.ScanParams.SCAN_POINTER_START;
 
 @ExtendWith(ComparisonBase.class)
@@ -33,7 +29,7 @@ public class TestScan {
 
         ScanResult<String> result = jedis.scan(SCAN_POINTER_START);
 
-        assertEquals(SCAN_POINTER_START, result.getCursor());
+        assertThat(result.getCursor()).isEqualTo(SCAN_POINTER_START);
         assertThat(result.getResult()).containsExactlyInAnyOrder(key, key2);
     }
 
@@ -48,7 +44,7 @@ public class TestScan {
         ScanResult<String> result = jedis.scan(SCAN_POINTER_START,
                 new ScanParams().match("scankeymatch:1*"));
 
-        assertEquals(SCAN_POINTER_START, result.getCursor());
+        assertThat(result.getCursor()).isEqualTo(SCAN_POINTER_START);
         assertThat(result.getResult()).containsExactly(key);
     }
 
@@ -62,7 +58,7 @@ public class TestScan {
         ScanResult<String> result = jedis.scan(ScanParams.SCAN_POINTER_START,
                 new ScanParams().match("scankeyi:1*").count(10));
 
-        assertNotEquals(ScanParams.SCAN_POINTER_START, result.getCursor());
+        assertThat(result.getCursor()).isNotEqualTo(SCAN_POINTER_START);
     }
 
     @TestTemplate
@@ -70,8 +66,8 @@ public class TestScan {
         jedis.hset("test", "key", "value");
         jedis.expire("test", 1L);
 
-        assertEquals(Collections.singletonList("test"), jedis.scan(ScanParams.SCAN_POINTER_START).getResult());
+        assertThat(jedis.scan(ScanParams.SCAN_POINTER_START).getResult()).containsExactly("test");
         Thread.sleep(2000);
-        assertEquals(Collections.emptyList(), jedis.scan(ScanParams.SCAN_POINTER_START).getResult());
+        assertThat(jedis.scan(ScanParams.SCAN_POINTER_START).getResult()).isEmpty();
     }
 }
