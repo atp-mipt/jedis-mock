@@ -3,9 +3,13 @@ package com.github.fppt.jedismock.datastructures.streams;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.stream.IntStream;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -188,5 +192,84 @@ public class LinkedMapTests {
 
             assertEquals( 750_001 - el, map.size());
         });
+    }
+
+    @Test
+    void removeHeadTest() {
+        LinkedMap<Integer, Integer> map = new LinkedMap<>();
+
+        assertDoesNotThrow(map::removeHead);
+        assertEquals(0, map.size());
+        assertNull(map.getHead());
+
+        map.append(0, 0);
+        map.append(1, 0);
+        map.append(2, 0);
+
+        assertDoesNotThrow(map::removeHead);
+        assertEquals(2, map.size());
+        assertEquals(1, map.getHead());
+
+        assertDoesNotThrow(map::removeHead);
+        assertEquals(1, map.size());
+        assertEquals(2, map.getHead());
+
+        assertDoesNotThrow(map::removeHead);
+        assertEquals(0, map.size());
+        assertNull(map.getHead());
+    }
+
+    @Test
+    void forEachTest() {
+        LinkedMap<Integer, Integer> map = new LinkedMap<>();
+
+        map.append(0, 9);
+        map.append(1, 8);
+        map.append(2, 7);
+        map.append(3, 6);
+        map.append(4, 5);
+        map.append(5, 4);
+        map.append(6, 3);
+        map.append(7, 2);
+        map.append(8, 1);
+        map.append(9, 0);
+
+        List<Integer> list = new ArrayList<>();
+
+        map.forEach((key, value) -> {
+            list.add(key + value);
+        });
+
+        assertEquals(map.size(), list.size());
+
+        for (int el : list) {
+            assertEquals(9, el);
+        }
+    }
+
+    @Test
+    void forEachWithNullActionTest() {
+        LinkedMap<Integer, Integer> map = new LinkedMap<>();
+
+        assertThrows(
+                NullPointerException.class,
+                () -> map.forEach((BiConsumer<? super Integer, ? super Integer>) null)
+        );
+
+        map.append(0, 9);
+        map.append(1, 8);
+        map.append(2, 7);
+        map.append(3, 6);
+        map.append(4, 5);
+        map.append(5, 4);
+        map.append(6, 3);
+        map.append(7, 2);
+        map.append(8, 1);
+        map.append(9, 0);
+
+        assertThrows(
+                NullPointerException.class,
+                () -> map.forEach((BiConsumer<? super Integer, ? super Integer>) null)
+        );
     }
 }
