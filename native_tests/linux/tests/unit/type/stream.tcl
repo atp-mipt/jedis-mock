@@ -52,12 +52,11 @@ set content {} ;# Will be populated with Tcl side copy of the stream content.
 start_server {
     tags {"stream"}
 } {
-#    TODO other error message
-#    test "XADD wrong number of args" {
-#        assert_error {*wrong number of arguments for 'xadd' command} {r XADD mystream}
-#        assert_error {*wrong number of arguments for 'xadd' command} {r XADD mystream *}
-#        assert_error {*wrong number of arguments for 'xadd' command} {r XADD mystream * field}
-#    }
+    test "XADD wrong number of args" {
+        assert_error {*wrong number of arguments for 'xadd' command} {r XADD mystream}
+        assert_error {*wrong number of arguments for 'xadd' command} {r XADD mystream *}
+        assert_error {*wrong number of arguments for 'xadd' command} {r XADD mystream * field}
+    }
 
     test {XADD can add entries into a stream that XRANGE can fetch} {
         r XADD mystream * item 1 value a
