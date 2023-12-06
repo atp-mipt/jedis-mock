@@ -170,7 +170,10 @@ public class StreamIdTests {
             long first = (long) (Math.random() * Long.MAX_VALUE) * (Math.random() >= 0.5 ? 1 : -1);
             long second = (long) (Math.random() * (Long.MAX_VALUE - 1) + 1) * (Math.random() >= 0.5 ? 1 : -1);
 
-            assertTrue(zero.compareTo(new StreamId(first, second)) < 0);
+            assertTrue(
+                    zero.compareTo(new StreamId(first, second)) < 0,
+                    "0-0 >= " + new StreamId(first, second)
+            );
         }
 
         StreamId ones = new StreamId(1, 1);
@@ -186,10 +189,22 @@ public class StreamIdTests {
 
             StreamId id = new StreamId(first, second);
 
-            assertTrue(id.compareTo(new StreamId(first, second + 1)) < 0);
-            assertTrue(id.compareTo(new StreamId(first + 1, 0)) < 0);
-            assertTrue(id.compareTo(new StreamId(first, second - 1)) > 0);
-            assertTrue(id.compareTo(new StreamId(first - 1, -1)) > 0);
+            assertTrue(
+                    id.compareTo(new StreamId(first, second + 1)) < 0,
+                    "Id " + id + " >= " + new StreamId(first, second + 1)
+            );
+            assertTrue(
+                    id.compareTo(new StreamId(first + 1, 0)) < 0,
+                    "Id " + id + " >= " + new StreamId(first + 1, 0)
+            );
+            assertTrue(
+                    id.compareTo(new StreamId(first, second - 1)) > 0,
+                    "Id " + id + " <= " + new StreamId(first, second - 1)
+            );
+            assertTrue(
+                    id.compareTo(new StreamId(first - 1, -1)) > 0,
+                    "Id " + id + " <= " + new StreamId(first - 1, -1)
+            );
         }
     }
 
