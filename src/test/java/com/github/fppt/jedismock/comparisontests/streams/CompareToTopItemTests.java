@@ -12,6 +12,7 @@ import org.mockito.Mockito;
 import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class CompareToTopItemTests {
@@ -44,8 +45,10 @@ public class CompareToTopItemTests {
                 "ERR The ID specified in XADD is equal or smaller than the target stream top item"
         );
 
-        assertDoesNotThrow(() -> xAdd.compareWithTopKey(new StreamId(3, 4)));
-        assertDoesNotThrow(() -> xAdd.compareWithTopKey(new StreamId(4, 0)));
+        StreamId key = new StreamId(3, 4);
+        assertDoesNotThrow(() -> assertSame(key, xAdd.compareWithTopKey(key)));
+        StreamId newKey = new StreamId(4, 0);
+        assertDoesNotThrow(() -> assertSame(newKey, xAdd.compareWithTopKey(newKey)));
     }
 
     @Test
@@ -65,14 +68,18 @@ public class CompareToTopItemTests {
 
             stream.updateLastId(id);
 
-            assertDoesNotThrow(() -> xAdd.compareWithTopKey(new StreamId(first, second + 1)));
-            assertDoesNotThrow(() -> xAdd.compareWithTopKey(new StreamId(first + 1, 0)));
+            StreamId key = new StreamId(first, second + 1);
+            assertDoesNotThrow(() -> assertSame(key, xAdd.compareWithTopKey(key)));
+
+            StreamId newKey = new StreamId(first + 1, 0);
+            assertDoesNotThrow(() -> assertSame(newKey, xAdd.compareWithTopKey(newKey)));
 
             assertThrows(
                     WrongStreamKeyException.class,
                     () -> xAdd.compareWithTopKey(new StreamId(first, second - 1)),
                     "ERR The ID specified in XADD is equal or smaller than the target stream top item"
             );
+
             assertThrows(
                     WrongStreamKeyException.class,
                     () -> xAdd.compareWithTopKey(new StreamId(first - 1, -1)),
