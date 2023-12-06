@@ -43,7 +43,7 @@ public class XAdd extends AbstractRedisOperation {
 
     @Override
     protected Slice response() {
-        if (params().size() < 3) {
+        if (params().size() < 4) {
             return Response.invalidArgumentsCountError("xadd");
         }
 
