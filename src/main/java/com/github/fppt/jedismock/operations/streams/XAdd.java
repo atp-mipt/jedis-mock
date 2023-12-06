@@ -27,7 +27,7 @@ import static com.github.fppt.jedismock.operations.streams.XTrim.trimLen;
  */
 @RedisCommand("xadd")
 public class XAdd extends AbstractRedisOperation {
-    XAdd(RedisBase base, List<Slice> params) {
+    public XAdd(RedisBase base, List<Slice> params) {
         super(base, params);
     }
 
