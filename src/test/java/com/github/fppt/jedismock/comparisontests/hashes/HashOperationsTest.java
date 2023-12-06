@@ -18,7 +18,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
 
-import static org.assertj.core.api.Assertions.fail;
 import static org.assertj.core.api.Assertions.within;
 
 @ExtendWith(ComparisonBase.class)
@@ -47,26 +46,14 @@ public class HashOperationsTest {
         assertThat(jedis.hincrByFloat(key, "A", 1.5)).isCloseTo(4.5, within(0.00001));
         assertThat(jedis.hincrByFloat(key, "B", -1.5)).isCloseTo(-1.5, within(0.00001));
 
-        try {
-            jedis.hincrBy(key, "F", 1);
-            fail("Exception not thrown");
-        } catch (JedisDataException ignored) {
-            // Non-integer value
-        }
+        assertThatThrownBy(() -> jedis.hincrBy(key, "F", 1))
+                .isInstanceOf(JedisDataException.class);
 
-        try {
-            jedis.hincrBy(key, "E", 1);
-            fail("Exception not thrown");
-        } catch (JedisDataException ignored) {
-            // Non-integer value
-        }
+        assertThatThrownBy(() -> jedis.hincrBy(key, "E", 1))
+                .isInstanceOf(JedisDataException.class);
 
-        try {
-            jedis.hincrByFloat(key, "F", 1);
-            fail("Exception not thrown");
-        } catch (JedisDataException ignored) {
-            // Non-numeric value
-        }
+        assertThatThrownBy(() -> jedis.hincrByFloat(key, "F", 1))
+                .isInstanceOf(JedisDataException.class);
 
         assertThat(jedis.hincrByFloat(key, "E", 0.01)).isCloseTo(31.41, within(0.00001));
     }
@@ -118,7 +105,7 @@ public class HashOperationsTest {
 
         //Check empty case
         result = jedis.hgetAll("rubbish");
-        assertThat(result).hasSize(0);
+        assertThat(result).isEmpty();
     }
 
     @TestTemplate

@@ -113,8 +113,7 @@ public class BlockingOperationsTest {
         //Block on performing the BLPOP
         Future<?> future = blockingThread.submit(() -> {
             List<String> result = blockedClient.blpop(10, key);
-            assertThat(result).hasSize(2)
-                    .containsExactly(key, "d");
+            assertThat(result).containsExactly(key, "d");
         });
         future.get();
         //Check the list is modified
@@ -163,7 +162,7 @@ public class BlockingOperationsTest {
         //Check the list is not modified
         jedis.getClient().setSoTimeout(2000);
         List<String> results = jedis.lrange(list2key, 0, -1);
-        assertThat(results).hasSize(0);
+        assertThat(results).isEmpty();
         future.get(4, TimeUnit.SECONDS);
     }
 
@@ -174,8 +173,7 @@ public class BlockingOperationsTest {
         Future<?> future = blockingThread.submit(() -> {
             List<String> result = blockedClient.blpop(0, listKey);
             assertThat(result).isNotNull();
-            assertThat(result).hasSize(2)
-                    .containsExactly(listKey, "b");
+            assertThat(result).containsExactly(listKey, "b");
         });
 
         Transaction t = jedis.multi();
@@ -231,8 +229,7 @@ public class BlockingOperationsTest {
 
         Future<?> future = blockingThread.submit(() -> {
             List<String> result = blockedClient.blpop(0, key);
-            assertThat(result).hasSize(2)
-                    .containsExactly(key, "foo");
+            assertThat(result).containsExactly(key, "foo");
         });
 
         Thread.sleep(300); // wait for blpop to execute

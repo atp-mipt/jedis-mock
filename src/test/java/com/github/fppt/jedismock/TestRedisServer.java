@@ -7,9 +7,9 @@ import redis.clients.jedis.exceptions.JedisConnectionException;
 import java.io.IOException;
 import java.net.BindException;
 
+import static com.github.fppt.jedismock.RedisServer.newRedisServer;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.Assertions.fail;
 
 /**
  * Created by Xiaolu on 2015/4/18.
@@ -32,27 +32,19 @@ public class TestRedisServer {
     }
 
     @Test
-    public void testBindErrorPort() throws IOException {
+    public void testBindErrorPort() {
         RedisServer server = RedisServer.newRedisServer(100000);
-        try {
-            server.start();
-            fail("");
-        } catch (IllegalArgumentException e) {
-            // OK
-        }
+        assertThatThrownBy(server::start)
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     public void testBindUsedPort() throws IOException {
-        RedisServer server1 = RedisServer.newRedisServer();
+        RedisServer server1 = newRedisServer();
         server1.start();
-        RedisServer server2 = RedisServer.newRedisServer(server1.getBindPort());
-        try {
-            server2.start();
-            fail("");
-        } catch (BindException e) {
-            // OK
-        }
+        RedisServer server2 = newRedisServer(server1.getBindPort());
+        assertThatThrownBy(server2::start)
+                .isInstanceOf(BindException.class);
     }
 
     @Test

@@ -34,7 +34,7 @@ public class TestZRemRangeByScore {
         jedis.zadd(ZSET_KEY, 1, "three");
 
         assertThat(jedis.zremrangeByScore(ZSET_KEY, "-inf", "+inf")).isEqualTo(3);
-        assertThat(jedis.zrange(ZSET_KEY, 0, -1)).hasSize(0);
+        assertThat(jedis.zrange(ZSET_KEY, 0, -1)).isEmpty();
     }
 
 
@@ -51,7 +51,7 @@ public class TestZRemRangeByScore {
 
         // then
         assertThat(zremrangeByScoreResult).isEqualTo(3);
-        assertThat(jedis.zrange(ZSET_KEY, 0, -1)).hasSize(0);
+        assertThat(jedis.zrange(ZSET_KEY, 0, -1)).isEmpty();
     }
 
     @TestTemplate
@@ -85,8 +85,7 @@ public class TestZRemRangeByScore {
         // then
         assertThat(zremrangeByScoreResult).isEqualTo(1);
         final List<String> zrangeResult = jedis.zrange(ZSET_KEY, 0, -1);
-        assertThat(zrangeResult).hasSize(2)
-                        .containsExactly("two", "three");
+        assertThat(zrangeResult).containsExactly("two", "three");
     }
 
     @TestTemplate
@@ -110,8 +109,7 @@ public class TestZRemRangeByScore {
         // then
         assertThat(zremrangeByScoreResult).isEqualTo(4);
         final List<String> zrangeResult = jedis.zrange(ZSET_KEY, 0, -1);
-        assertThat(zrangeResult).hasSize(6)
-                .containsExactly("one", "two", "three", "four", "nine", "ten");
+        assertThat(zrangeResult).containsExactly("one", "two", "three", "four", "nine", "ten");
     }
 
 

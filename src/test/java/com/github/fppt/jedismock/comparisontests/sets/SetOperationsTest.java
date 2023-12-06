@@ -90,7 +90,7 @@ public class SetOperationsTest {
         do {
             poppedValue = jedis.spop(key);
             if (poppedValue != null) {
-                assertThat(mySet).as("Popped value not in set").contains(poppedValue);
+                assertThat(mySet).contains(poppedValue);
             }
         } while (poppedValue != null);
     }
@@ -110,7 +110,7 @@ public class SetOperationsTest {
         assertThat(jedis.exists(key)).isTrue();
         assertThat(jedis.spop(key, 1)).containsExactly("a");
         assertThat(jedis.exists(key)).isFalse();
-        assertThat(jedis.spop(key, 0)).hasSize(0);
+        assertThat(jedis.spop(key, 0)).isEmpty();
     }
 
     @TestTemplate

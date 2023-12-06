@@ -35,8 +35,7 @@ public class SDiffSDiffStoreTest {
 
 
         Set<String> result = jedis.sdiff(key1, key2);
-        assertThat(result).hasSize(2)
-                .containsExactlyElementsOf(expectedDifference);
+        assertThat(result).containsExactlyElementsOf(expectedDifference);
     }
 
     @TestTemplate
@@ -57,7 +56,7 @@ public class SDiffSDiffStoreTest {
 
 
         Set<String> result = jedis.sdiff(key1, key2, key3);
-        assertThat(result).hasSize(2).containsExactlyElementsOf(expectedDifference);
+        assertThat(result).containsExactlyElementsOf(expectedDifference);
     }
 
     @TestTemplate

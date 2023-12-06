@@ -29,22 +29,16 @@ public class TestZRem {
         members.put("myvalue2", 20d);
 
         long result = jedis.zadd(ZSET_KEY, members);
-
         assertThat(result).isEqualTo(2L);
 
         List<String> results = jedis.zrange(ZSET_KEY, 0, -1);
-
-        assertThat(results).hasSize(2)
-                .containsExactly("myvalue1", "myvalue2");
+        assertThat(results).containsExactly("myvalue1", "myvalue2");
 
         result = jedis.zrem(ZSET_KEY, "myvalue1");
-
         assertThat(result).isEqualTo(1L);
 
         results = jedis.zrange(ZSET_KEY, 0, -1);
-
-        assertThat(results).hasSize(1)
-                .containsExactly("myvalue2");
+        assertThat(results).containsExactly("myvalue2");
     }
 
     @TestTemplate

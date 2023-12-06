@@ -54,7 +54,6 @@ public class TestRedissonConnection {
         RList<Integer> list = client.getList("intList");
         assertThat(list.add(11)).isTrue();
         assertThat(list.add(15)).isTrue();
-        assertThat(list).hasSize(2);
         assertThat(list.readAll()).containsExactly(11, 15);
     }
 

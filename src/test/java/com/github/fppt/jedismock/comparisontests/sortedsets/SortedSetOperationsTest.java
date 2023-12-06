@@ -60,8 +60,7 @@ public class SortedSetOperationsTest {
         assertThat(result).isEqualTo(4L);
 
         List<String> results = jedis.zrange(key, 0, -1);
-        assertThat(results).hasSize(4)
-                        .containsExactly("myvalue1", "myvalue2", "myvalue3", "myvalue4");
+        assertThat(results).containsExactly("myvalue1", "myvalue2", "myvalue3", "myvalue4");
     }
 
     @TestTemplate
@@ -79,7 +78,7 @@ public class SortedSetOperationsTest {
 
         List<String> results = jedis.zrange(key, 0, -6);
 
-        assertThat(results).hasSize(0);
+        assertThat(results).isEmpty();
     }
 
     @TestTemplate
@@ -97,11 +96,10 @@ public class SortedSetOperationsTest {
 
         List<Tuple> results = jedis.zrangeWithScores(key, 0, -1);
 
-        assertThat(results).hasSize(4)
-                .containsExactly(new Tuple("myvalue1", 9d),
-                        new Tuple("myvalue2", 10d),
-                        new Tuple("myvalue3", 15d),
-                        new Tuple("myvalue4", 20d));
+        assertThat(results).containsExactly(new Tuple("myvalue1", 9d),
+                new Tuple("myvalue2", 10d),
+                new Tuple("myvalue3", 15d),
+                new Tuple("myvalue4", 20d));
     }
 
     @TestTemplate

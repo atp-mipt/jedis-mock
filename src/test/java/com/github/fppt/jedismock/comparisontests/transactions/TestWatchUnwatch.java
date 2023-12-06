@@ -86,8 +86,7 @@ public class TestWatchUnwatch {
         runAsync(() -> anotherJedis.set(ANOTHER_KEY, ANOTHER_VALUE)).get();
         transaction.set(FIRST_KEY, SECOND_VALUE);
         List<Object> result = transaction.exec();
-        assertThat(result).hasSize(1)
-                .containsExactly("OK");
+        assertThat(result).containsExactly("OK");
         assertThat(jedis.get(FIRST_KEY)).isEqualTo(SECOND_VALUE);
     }
 
@@ -133,8 +132,7 @@ public class TestWatchUnwatch {
         Transaction transaction = jedis.multi();
         transaction.set(FIRST_KEY, SECOND_VALUE);
         List<Object> result = transaction.exec();
-        assertThat(result).hasSize(1)
-                .containsExactly("OK");
+        assertThat(result).containsExactly("OK");
         assertThat(jedis.get(FIRST_KEY)).isEqualTo(SECOND_VALUE);
     }
 
@@ -155,8 +153,7 @@ public class TestWatchUnwatch {
         Transaction transaction = jedis.multi();
         transaction.set(FIRST_KEY, SECOND_VALUE);
         List<Object> result = transaction.exec();
-        assertThat(result).hasSize(1)
-                .containsExactly("OK");
+        assertThat(result).containsExactly("OK");
     }
 
 }

@@ -185,7 +185,7 @@ public class TestZRangeByScore {
     @TestTemplate
     void outOfOrderBounds(Jedis jedis) {
         jedis.zadd("foo", 42, "bar");
-        assertThat(jedis.zrangeByScore("foo", 5, 2)).hasSize(0);
+        assertThat(jedis.zrangeByScore("foo", 5, 2)).isEmpty();
     }
 
     @TestTemplate

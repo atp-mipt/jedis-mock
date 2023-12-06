@@ -46,7 +46,7 @@ public class TestZRevRangeByScore {
     @TestTemplate
     void outOfOrderBounds(Jedis jedis) {
         jedis.zadd("foo", 42, "bar");
-        assertThat(jedis.zrevrangeByScore("foo", 2, 5)).hasSize(0);
+        assertThat(jedis.zrevrangeByScore("foo", 2, 5)).isEmpty();
     }
 
     @TestTemplate

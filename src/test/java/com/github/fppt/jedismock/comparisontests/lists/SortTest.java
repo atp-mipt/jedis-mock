@@ -83,8 +83,7 @@ public class SortTest {
         Future<?> future = e.submit(() -> {
             List<String> result = blockingClient.blpop(0, store_sort_key);
 
-            assertThat(result).hasSize(2)
-                    .containsExactly(store_sort_key, "1");
+            assertThat(result).containsExactly(store_sort_key, "1");
         });
 
         Thread.sleep(100);

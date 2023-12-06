@@ -33,8 +33,7 @@ public class TestZScan {
         ScanResult<Tuple> expected = new ScanResult<>("0",
                 Collections.singletonList(new Tuple("a3", 3.0)));
         assertThat(result.getCursor()).isEqualTo(expected.getCursor());
-        assertThat(result.getResult()).hasSize(expected.getResult().size())
-                .isEqualTo(expected.getResult());
+        assertThat(result.getResult()).isEqualTo(expected.getResult());
     }
 
     @TestTemplate
@@ -52,7 +51,6 @@ public class TestZScan {
                         new Tuple("a8", 8.0),
                         new Tuple("a9", 9.0)));
         assertThat(result.getCursor()).isEqualTo(expected.getCursor());
-        assertThat(result.getResult()).hasSize(expected.getResult().size())
-                .isEqualTo(expected.getResult());
+        assertThat(result.getResult()).isEqualTo(expected.getResult());
     }
 }

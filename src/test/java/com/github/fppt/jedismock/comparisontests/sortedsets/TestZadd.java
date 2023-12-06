@@ -36,8 +36,7 @@ public class TestZadd {
 
         List<String> results = jedis.zrange(ZSET_KEY, 0, -1);
 
-        assertThat(results).hasSize(1)
-                .containsExactly(value);
+        assertThat(results).containsExactly(value);
     }
 
     @TestTemplate
@@ -52,8 +51,7 @@ public class TestZadd {
 
         List<String> results = jedis.zrange(ZSET_KEY, 0, -1);
 
-        assertThat(results).hasSize(2)
-                .containsExactly("myvalue1", "myvalue2");
+        assertThat(results).containsExactly("myvalue1", "myvalue2");
     }
 
     @TestTemplate
@@ -82,12 +80,11 @@ public class TestZadd {
         members.put("b", 20d);
         members.put("c", 30d);
 
-        int result = (int)jedis.zadd(ZSET_KEY, members);
+        jedis.zadd(ZSET_KEY, members);
         List<Tuple> results = jedis.zrangeWithScores(ZSET_KEY, 0, -1);
-        assertThat(results).hasSize(result)
-                .containsExactly(new Tuple("a", 10.0),
-                                 new Tuple("b", 20.0),
-                                 new Tuple("c", 30.0));
+        assertThat(results).containsExactly(new Tuple("a", 10.0),
+                new Tuple("b", 20.0),
+                new Tuple("c", 30.0));
     }
 
     @TestTemplate

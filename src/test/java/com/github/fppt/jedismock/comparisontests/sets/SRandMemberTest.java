@@ -83,7 +83,7 @@ public class SRandMemberTest {
         Collection<String> set = Arrays.asList("a", "b", "c", "d", "e");
         jedis.sadd("foo", set.toArray(new String[0]));
         List<String> members = jedis.srandmember("foo", 0);
-        assertThat(members).hasSize(0);
+        assertThat(members).isEmpty();
     }
 
     @TestTemplate

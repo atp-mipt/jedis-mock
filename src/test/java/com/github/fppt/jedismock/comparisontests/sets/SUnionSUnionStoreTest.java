@@ -38,8 +38,7 @@ public class SUnionSUnionStoreTest {
 
 
         Set<String> result = jedis.sunion(key1, key2, key3);
-        assertThat(result).hasSize(6)
-                .containsExactlyElementsOf(expectedUnion);
+        assertThat(result).containsExactlyElementsOf(expectedUnion);
     }
 
     @TestTemplate
