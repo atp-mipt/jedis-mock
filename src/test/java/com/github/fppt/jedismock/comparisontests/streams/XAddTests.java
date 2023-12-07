@@ -110,15 +110,11 @@ public class XAddTests {
                 Map.of("a", "b")
         ));
 
-        jedis.del("s");
-
         assertNull(jedis.xadd(
                 "s",
                 XAddParams.xAddParams().minId("1").noMkStream().id("*"),
                 Map.of("a", "b")
         ));
-
-        jedis.del("s");
 
         assertNull(jedis.xadd(
                 "s",
@@ -126,24 +122,17 @@ public class XAddTests {
                 Map.of("a", "b")
         ));
 
-
-        jedis.del("s");
-
         assertNull(jedis.xadd(
                 "s",
                 XAddParams.xAddParams().minId("1").exactTrimming().noMkStream().id("*"),
                 Map.of("a", "b")
         ));
 
-        jedis.del("s");
-
         assertNull(jedis.xadd(
                 "s",
                 XAddParams.xAddParams().maxLen(1).exactTrimming().noMkStream().id("*"),
                 Map.of("a", "b")
         ));
-
-        jedis.del("s");
 
         assertNull(jedis.xadd(
                 "s",
@@ -162,8 +151,6 @@ public class XAddTests {
                 XAddParams.xAddParams().minId("1").approximateTrimming().limit(3).noMkStream().id("*"),
                 Map.of("a", "b")
         ));
-
-        jedis.del("s");
 
         assertNull(jedis.xadd(
                 "s",
