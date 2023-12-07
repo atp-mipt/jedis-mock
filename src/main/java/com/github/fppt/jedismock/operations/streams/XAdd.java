@@ -53,12 +53,10 @@ public class XAdd extends AbstractRedisOperation {
 
         int idInd = 1; // 'id' index
 
-        boolean noCreation = false;
-
         /* Parsing NOMSTREAM option */
         if ("nomkstream".equalsIgnoreCase(params().get(1).toString())) {
             if (!base().exists(key)) {
-               noCreation = true;
+               return Response.NULL;
             }
 
             idInd++; // incrementing position
@@ -109,10 +107,6 @@ public class XAdd extends AbstractRedisOperation {
            nodeId = compareWithTopKey(new StreamId(stream.replaceAsterisk(id)).compareToZero());
         } catch (WrongStreamKeyException e) {
             return Response.error(e.getMessage());
-        }
-
-        if (noCreation) {
-            return Response.bulkString(nodeId.toSlice());
         }
 
         for (int i = idInd; i < params().size(); i += 2) {

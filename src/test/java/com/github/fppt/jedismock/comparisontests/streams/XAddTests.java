@@ -12,6 +12,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(ComparisonBase.class)
@@ -99,5 +100,75 @@ public class XAddTests {
         );
 
         assertEquals(0, jedis.xlen("s"));
+    }
+
+    @TestTemplate
+    void whenNomkstream_ensureReturnsNull(Jedis jedis) {
+        assertNull(jedis.xadd(
+                "s",
+                XAddParams.xAddParams().noMkStream().id("*"),
+                Map.of("a", "b")
+        ));
+
+        jedis.del("s");
+
+        assertNull(jedis.xadd(
+                "s",
+                XAddParams.xAddParams().minId("1").noMkStream().id("*"),
+                Map.of("a", "b")
+        ));
+
+        jedis.del("s");
+
+        assertNull(jedis.xadd(
+                "s",
+                XAddParams.xAddParams().maxLen(1).noMkStream().id("*"),
+                Map.of("a", "b")
+        ));
+
+
+        jedis.del("s");
+
+        assertNull(jedis.xadd(
+                "s",
+                XAddParams.xAddParams().minId("1").exactTrimming().noMkStream().id("*"),
+                Map.of("a", "b")
+        ));
+
+        jedis.del("s");
+
+        assertNull(jedis.xadd(
+                "s",
+                XAddParams.xAddParams().maxLen(1).exactTrimming().noMkStream().id("*"),
+                Map.of("a", "b")
+        ));
+
+        jedis.del("s");
+
+        assertNull(jedis.xadd(
+                "s",
+                XAddParams.xAddParams().maxLen(1).approximateTrimming().noMkStream().id("*"),
+                Map.of("a", "b")
+        ));
+
+        assertNull(jedis.xadd(
+                "s",
+                XAddParams.xAddParams().minId("1").approximateTrimming().noMkStream().id("*"),
+                Map.of("a", "b")
+        ));
+
+        assertNull(jedis.xadd(
+                "s",
+                XAddParams.xAddParams().minId("1").approximateTrimming().limit(3).noMkStream().id("*"),
+                Map.of("a", "b")
+        ));
+
+        jedis.del("s");
+
+        assertNull(jedis.xadd(
+                "s",
+                XAddParams.xAddParams().maxLen(1).approximateTrimming().limit(3).noMkStream().id("*"),
+                Map.of("a", "b")
+        ));
     }
 }
