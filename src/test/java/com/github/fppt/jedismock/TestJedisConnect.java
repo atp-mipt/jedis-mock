@@ -29,7 +29,7 @@ public class TestJedisConnect {
     }
 
     @Test
-    public void testPipeline() throws IOException {
+    public void testPipeline() {
         try (Jedis jedis = new Jedis(server.getHost(), server.getBindPort())) {
             Pipeline pl = jedis.pipelined();
             pl.set("a", "abc");
@@ -41,7 +41,7 @@ public class TestJedisConnect {
     }
 
     @Test
-    public void testMultipleClient() throws IOException {
+    public void testMultipleClient() {
         try (Jedis jedis1 = new Jedis(server.getHost(), server.getBindPort());
              Jedis jedis2 = new Jedis(server.getHost(), server.getBindPort())) {
             assertThat(jedis1.set("a", "b")).isEqualTo("OK");
@@ -52,12 +52,12 @@ public class TestJedisConnect {
     }
 
     @Test
-    public void testLpush() throws IOException {
+    public void testLpush() {
         try (Jedis jedis = new Jedis(server.getHost(), server.getBindPort(), 10000000)) {
             assertThat(jedis.lpush("list", "world")).isEqualTo(1);
             assertThat(jedis.lpush("list", "hello")).isEqualTo(2);
             assertThat(jedis.rpush("list", "!")).isEqualTo(3);
-            assertThat(jedis.lrange("list", 0, -1).toArray()).containsExactly("hello", "world", "!");
+            assertThat(jedis.lrange("list", 0, -1)).containsExactly("hello", "world", "!");
             jedis.disconnect();
         }
     }

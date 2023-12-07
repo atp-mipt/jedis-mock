@@ -21,7 +21,7 @@ public class TestInterceptor {
                 .setOptions(ServiceOptions.withInterceptor((state, roName, params) -> {
                     //You can write any verification code here
                     assertThat(roName.toLowerCase()).isEqualTo("set");
-                    //You can can imitate any reply from Redis here
+                    //You can imitate any reply from Redis here
                     return Response.bulkString(Slice.create("MOCK"));
                 }))
                 .start();

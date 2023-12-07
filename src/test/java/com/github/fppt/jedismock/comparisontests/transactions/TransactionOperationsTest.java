@@ -35,7 +35,7 @@ public class TransactionOperationsTest {
     @TestTemplate
     public void whenDiscardIsExecuted_EnsureResultsAreDiscarded(Jedis jedis) {
         String key = "my-list";
-        assertThat(jedis.llen(key)).isEqualTo(new Long(0));
+        assertThat(jedis.llen(key)).isEqualTo(0L);
 
         Transaction transaction = jedis.multi();
         transaction.lpush(key, "1");
