@@ -6,14 +6,12 @@ import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.StreamEntryID;
+import redis.clients.jedis.exceptions.JedisDataException;
 import redis.clients.jedis.params.XAddParams;
 
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(ComparisonBase.class)
 public class XAddTests {
@@ -157,5 +155,14 @@ public class XAddTests {
                 XAddParams.xAddParams().maxLen(1).approximateTrimming().limit(3).noMkStream().id("*"),
                 Map.of("a", "b")
         ));
+    }
+
+    @TestTemplate
+    void whenZeroId_ensureThrowsException(Jedis jedis) {
+        assertThrows(
+                JedisDataException.class,
+                () -> jedis.xadd("s", XAddParams.xAddParams().id("0"), Map.of("a", "b")),
+                "ERR The ID specified in XADD is equal or smaller than the target stream top item"
+        );
     }
 }
