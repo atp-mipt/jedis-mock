@@ -4,12 +4,11 @@ import com.github.fppt.jedismock.comparisontests.ComparisonBase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.testcontainers.shaded.com.google.common.collect.ImmutableMap;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.StreamEntryID;
 import redis.clients.jedis.exceptions.JedisDataException;
 import redis.clients.jedis.params.XAddParams;
-
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -24,35 +23,35 @@ public class XDelTests {
 
     @TestTemplate
     void whenTopEntryIsDeleted_ensureTopIdDoesNotDecrease(Jedis jedis) {
-        jedis.xadd("s", XAddParams.xAddParams().id("0-1"), Map.of("a", "b"));
+        jedis.xadd("s", XAddParams.xAddParams().id("0-1"), ImmutableMap.of("a", "b"));
 
         assertEquals(1, jedis.xdel("s", new StreamEntryID(0, 1)));
 
         assertThrows(
                 JedisDataException.class,
-                () -> jedis.xadd("s", XAddParams.xAddParams().id("0-1"), Map.of("a", "b")),
+                () -> jedis.xadd("s", XAddParams.xAddParams().id("0-1"), ImmutableMap.of("a", "b")),
                 "ERR The ID specified in XADD is equal or smaller than the target stream top item"
         );
     }
 
     @TestTemplate
     void whenTopEntryIsDeleted_ensureNextEntryIdIsIncremental(Jedis jedis) {
-        jedis.xadd("s", XAddParams.xAddParams().id("2-1"), Map.of("a", "b"));
+        jedis.xadd("s", XAddParams.xAddParams().id("2-1"), ImmutableMap.of("a", "b"));
 
         assertEquals(1, jedis.xdel("s", new StreamEntryID(2, 1)));
 
         assertEquals(
                 new StreamEntryID(2, 2),
-                jedis.xadd("s", XAddParams.xAddParams().id("2-*"), Map.of("a", "b"))
+                jedis.xadd("s", XAddParams.xAddParams().id("2-*"), ImmutableMap.of("a", "b"))
         );
     }
 
     @TestTemplate
     void whenAllElementsAreRemoved_ensureStreamIsNotAlsoRemoved(Jedis jedis) {
-        jedis.xadd("s", XAddParams.xAddParams().id("0-1"), Map.of("a", "b"));
-        jedis.xadd("s", XAddParams.xAddParams().id("0-2"), Map.of("a", "b"));
-        jedis.xadd("s", XAddParams.xAddParams().id("1-0"), Map.of("a", "b"));
-        jedis.xadd("s", XAddParams.xAddParams().id("1-1"), Map.of("a", "b"));
+        jedis.xadd("s", XAddParams.xAddParams().id("0-1"), ImmutableMap.of("a", "b"));
+        jedis.xadd("s", XAddParams.xAddParams().id("0-2"), ImmutableMap.of("a", "b"));
+        jedis.xadd("s", XAddParams.xAddParams().id("1-0"), ImmutableMap.of("a", "b"));
+        jedis.xadd("s", XAddParams.xAddParams().id("1-1"), ImmutableMap.of("a", "b"));
 
         assertEquals(
                 4,
@@ -74,7 +73,7 @@ public class XDelTests {
 
         for (int i = 0; i < 1000; ++i) {
             ids[i] = new StreamEntryID(i + 1);
-            jedis.xadd("s", ids[i], Map.of("a",  "b"));
+            jedis.xadd("s", ids[i], ImmutableMap.of("a",  "b"));
         }
 
         assertEquals(1000, jedis.xdel("s", ids));
