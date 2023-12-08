@@ -1,5 +1,6 @@
 package com.github.fppt.jedismock.datastructures.streams;
 
+import java.util.AbstractMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
@@ -46,7 +47,7 @@ public class LinkedMapReverseIterator<K extends Comparable<K>, V> implements Lin
             curr = map.getPreviousKey(curr);
         }
 
-        return Map.entry(curr, map.get(curr));
+        return new AbstractMap.SimpleEntry<>(curr, map.get(curr));
     }
 
     /**

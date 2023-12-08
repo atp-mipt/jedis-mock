@@ -1,5 +1,6 @@
 package com.github.fppt.jedismock.datastructures.streams;
 
+import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
@@ -81,7 +82,7 @@ public class LinkedMap<K extends Comparable<K>, V> implements Iterable<Map.Entry
             tail = null;
             head = null;
 
-            return Map.entry(key, map.remove(key).value);
+            return new AbstractMap.SimpleEntry<>(key, map.remove(key).value);
         }
 
         if (key.equals(tail)) {
@@ -96,7 +97,7 @@ public class LinkedMap<K extends Comparable<K>, V> implements Iterable<Map.Entry
         }
 
         --size;
-        return Map.entry(key, map.remove(key).value);
+        return new AbstractMap.SimpleEntry<>(key, map.remove(key).value);
     }
 
     /**

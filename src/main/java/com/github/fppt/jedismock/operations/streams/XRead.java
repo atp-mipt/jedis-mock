@@ -11,6 +11,7 @@ import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.storage.OperationExecutorState;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -177,13 +178,13 @@ public class XRead extends AbstractRedisOperation {
                     values.add(Response.bulkString(v));
                 });
 
-                data.add(Response.array(List.of(
+                data.add(Response.array(Arrays.asList(
                         Response.bulkString(entry.getKey().toSlice()),
                         Response.array(values)
                 )));
             }
 
-            output.add(Response.array(List.of(
+            output.add(Response.array(Arrays.asList(
                     Response.bulkString(key),
                     Response.array(data)
             )));

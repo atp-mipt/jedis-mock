@@ -12,6 +12,7 @@ import com.github.fppt.jedismock.storage.RedisBase;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -137,7 +138,7 @@ public class Ranges extends AbstractRedisOperation {
                 entrySlice.add(Response.bulkString(value));
             });
 
-            output.add(Response.array(List.of(
+            output.add(Response.array(Arrays.asList(
                     Response.bulkString(entry.getKey().toSlice()),
                     Response.array(entrySlice)
             )));
