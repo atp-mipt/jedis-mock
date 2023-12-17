@@ -12,7 +12,11 @@ import com.github.fppt.jedismock.storage.RedisBase;
 
 import java.util.List;
 
-import static com.github.fppt.jedismock.datastructures.streams.StreamErrors.*;
+import static com.github.fppt.jedismock.datastructures.streams.StreamErrors.LIMIT_OPTION_ERROR;
+import static com.github.fppt.jedismock.datastructures.streams.StreamErrors.TOP_ERROR;
+import static com.github.fppt.jedismock.datastructures.streams.StreamErrors.ZERO_ERROR;
+import static com.github.fppt.jedismock.datastructures.streams.StreamErrors.SYNTAX_ERROR;
+import static com.github.fppt.jedismock.datastructures.streams.StreamErrors.NOT_AN_INTEGER_ERROR;
 import static com.github.fppt.jedismock.operations.streams.XTrim.trimID;
 import static com.github.fppt.jedismock.operations.streams.XTrim.trimLen;
 
