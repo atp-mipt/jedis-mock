@@ -3,13 +3,15 @@ package com.github.fppt.jedismock.datastructures.streams;
 import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.exception.WrongStreamKeyException;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import static com.github.fppt.jedismock.datastructures.streams.StreamErrors.RANGES_END_ID_ERROR;
 import static com.github.fppt.jedismock.datastructures.streams.StreamErrors.RANGES_START_ID_ERROR;
 import static java.lang.Long.compareUnsigned;
 import static java.lang.Long.parseUnsignedLong;
 import static java.lang.Long.toUnsignedString;
 import static com.github.fppt.jedismock.datastructures.streams.StreamErrors.INVALID_ID_ERROR;
-import static com.github.fppt.jedismock.datastructures.streams.StreamErrors.ZERO_ERROR;
 
 public final class StreamId implements Comparable<StreamId> {
     private final long firstPart;
@@ -35,35 +37,16 @@ public final class StreamId implements Comparable<StreamId> {
     }
 
     public StreamId(String key) throws WrongStreamKeyException {
-        String[] parsed = key.split("-");
-
-        switch (parsed.length) {
-            case 2:
-                try {
-                    secondPart = parseUnsignedLong(parsed[1]);
-                } catch (NumberFormatException e) {
-                    throw new WrongStreamKeyException(INVALID_ID_ERROR);
-                }
-
-                try {
-                    firstPart = parseUnsignedLong(parsed[0]);
-                } catch (NumberFormatException e) {
-                    throw new WrongStreamKeyException(INVALID_ID_ERROR);
-                }
-
-                break;
-            case 1:
-                secondPart = 0;
-
-                try {
-                    firstPart = parseUnsignedLong(parsed[0]);
-                } catch (NumberFormatException e) {
-                    throw new WrongStreamKeyException(INVALID_ID_ERROR);
-                }
-
-                break;
-            default:
+        Matcher matcher = Pattern.compile("(\\d+)(?:-(\\d+))?").matcher(key);
+        if (matcher.matches()) {
+            try {
+                firstPart = parseUnsignedLong(matcher.group(1));
+                secondPart = matcher.group(2) == null ? 0 : parseUnsignedLong(matcher.group(2));
+            } catch (NumberFormatException e) {
                 throw new WrongStreamKeyException(INVALID_ID_ERROR);
+            }
+        } else {
+            throw new WrongStreamKeyException(INVALID_ID_ERROR);
         }
     }
 
@@ -71,12 +54,8 @@ public final class StreamId implements Comparable<StreamId> {
         this(slice.toString());
     }
 
-    public StreamId compareToZero() throws WrongStreamKeyException {
-        if (secondPart == 0 && firstPart == 0) {
-            throw new WrongStreamKeyException(ZERO_ERROR);
-        }
-
-        return this;
+    public boolean isZero() {
+        return secondPart == 0 && firstPart == 0;
     }
 
     public StreamId increment() throws WrongStreamKeyException {
@@ -111,8 +90,9 @@ public final class StreamId implements Comparable<StreamId> {
 
     @Override
     public int compareTo(StreamId other) {
-        return compareUnsigned(firstPart, other.firstPart) != 0
-                ? compareUnsigned(firstPart, other.firstPart)
+        int firstPartComparison = compareUnsigned(firstPart, other.firstPart);
+        return firstPartComparison != 0
+                ? firstPartComparison
                 : compareUnsigned(secondPart, other.secondPart);
     }
 

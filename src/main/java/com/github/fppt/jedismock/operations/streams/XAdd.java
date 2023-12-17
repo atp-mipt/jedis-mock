@@ -12,10 +12,7 @@ import com.github.fppt.jedismock.storage.RedisBase;
 
 import java.util.List;
 
-import static com.github.fppt.jedismock.datastructures.streams.StreamErrors.LIMIT_OPTION_ERROR;
-import static com.github.fppt.jedismock.datastructures.streams.StreamErrors.NOT_AN_INTEGER_ERROR;
-import static com.github.fppt.jedismock.datastructures.streams.StreamErrors.SYNTAX_ERROR;
-import static com.github.fppt.jedismock.datastructures.streams.StreamErrors.TOP_ERROR;
+import static com.github.fppt.jedismock.datastructures.streams.StreamErrors.*;
 import static com.github.fppt.jedismock.operations.streams.XTrim.trimID;
 import static com.github.fppt.jedismock.operations.streams.XTrim.trimLen;
 
@@ -31,14 +28,15 @@ public class XAdd extends AbstractRedisOperation {
         super(base, params);
     }
 
-    public StreamId compareWithTopKey(StreamId key) throws WrongStreamKeyException {
-        RMStream stream = getStreamFromBaseOrCreateEmpty(params().get(0));
-
-        if (key.compareTo(stream.getLastId()) <= 0) {
-            throw new WrongStreamKeyException(TOP_ERROR);
+    void validate(StreamId key) throws WrongStreamKeyException {
+        if (key.isZero()) {
+            throw new WrongStreamKeyException(ZERO_ERROR);
         }
 
-        return key;
+        StreamId lastId = getStreamFromBaseOrCreateEmpty(params().get(0)).getLastId();
+        if (key.compareTo(lastId) <= 0) {
+            throw new WrongStreamKeyException(TOP_ERROR);
+        }
     }
 
     @Override
@@ -104,7 +102,8 @@ public class XAdd extends AbstractRedisOperation {
         StreamId nodeId;
 
         try {
-           nodeId = compareWithTopKey(new StreamId(stream.replaceAsterisk(id)).compareToZero());
+           nodeId = new StreamId(stream.replaceAsterisk(id));
+           validate(nodeId);
         } catch (WrongStreamKeyException e) {
             return Response.error(e.getMessage());
         }

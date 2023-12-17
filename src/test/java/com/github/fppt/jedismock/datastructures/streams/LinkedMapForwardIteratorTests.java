@@ -271,7 +271,7 @@ public class LinkedMapForwardIteratorTests {
     }
 
     @Test
-    void findFirstSuitableFuzzingTest() {
+    void findFirstSuitableStressTest() {
         LinkedMap<Integer, Integer> map = new LinkedMap<>();
         LinkedMapForwardIterator<Integer, Integer> it = map.iterator();
 

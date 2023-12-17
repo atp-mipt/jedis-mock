@@ -17,35 +17,31 @@ public class StreamIdTests {
     @Test
     void zeroComparisonWithZeroTest() {
         StreamId zero = new StreamId(0, 0);
-        assertThrows(
-                WrongStreamKeyException.class,
-                zero::compareToZero,
-                "ERR The ID specified in XADD must be greater than 0-0"
-        );
+        assertTrue(zero.isZero());
     }
 
     @Test
     void zeroComparisonWithPositiveKeysTest() {
         StreamId other = new StreamId(0, 1);
-        assertDoesNotThrow(() -> assertSame(other, other.compareToZero()));
+        assertFalse(other.isZero());
 
         StreamId newOther = new StreamId(1, 0);
-        assertDoesNotThrow(() -> assertSame(newOther, newOther.compareToZero()));
+        assertFalse(newOther.isZero());
 
         StreamId newestOther = new StreamId(1, 1);
-        assertDoesNotThrow(() -> assertSame(newestOther, newestOther.compareToZero()));
+        assertFalse(newestOther.isZero());
     }
 
     @Test
     void zeroComparisonWithNegativeKeysTest() {
         StreamId other = new StreamId(0, -1);
-        assertDoesNotThrow(() -> assertSame(other, other.compareToZero()));
+        assertFalse(other.isZero());
 
         StreamId newOther = new StreamId(-1, 0);
-        assertDoesNotThrow(() -> assertSame(newOther, newOther.compareToZero()));
+        assertFalse(newOther.isZero());
 
         StreamId newestOther = new StreamId(-1, -1);
-        assertDoesNotThrow(() -> assertSame(newestOther, newestOther.compareToZero()));
+        assertFalse(newestOther.isZero());
     }
 
     @Test
@@ -105,7 +101,7 @@ public class StreamIdTests {
     }
 
     @Test
-    void incrementDecrementFuzzingTest() {
+    void incrementDecrementStressTest() {
         for (int i = 0; i < 1000; ++i) {
             if (Math.random() >= 0.9) {
                 long first = (long) (Math.random() * Long.MAX_VALUE) * (Math.random() >= 0.5 ? 1 : -1);
@@ -145,7 +141,7 @@ public class StreamIdTests {
     }
 
     @Test
-    void toStringFuzzingTest() {
+    void toStringStressTest() {
         assertEquals(
                 "18446744072474983726-18446744072474983726",
                 new StreamId(-1234567890, -1234567890).toString()
@@ -242,7 +238,7 @@ public class StreamIdTests {
     }
 
     @Test
-    void constructorFuzzingTest() {
+    void constructorStressTest() {
         for (int i = 0; i < 1000; ++i) {
             long first = (long) (Math.random() * (Long.MAX_VALUE - 1) + 1) * (Math.random() >= 0.5 ? 1 : -1);
             long second = (long) (Math.random() * (Long.MAX_VALUE - 1) + 1) * (Math.random() >= 0.5 ? 1 : -1);

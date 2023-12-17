@@ -100,7 +100,7 @@ public class RMStreamTests {
     }
 
     @Test
-    void fuzzingAsteriskTest() {
+    void stressAsteriskTest() {
         for (int i = 0; i < 1000; ++i) {
             if (Math.random() >= 0.9) {
                 long second = (long) (Math.random() * Long.MAX_VALUE) * (Math.random() >= 0.5 ? 1 : -1);
