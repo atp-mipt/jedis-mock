@@ -2,6 +2,7 @@ package com.github.fppt.jedismock.operations.streams;
 
 import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.datastructures.streams.LinkedMap;
+import com.github.fppt.jedismock.datastructures.streams.StreamId;
 import com.github.fppt.jedismock.exception.WrongStreamKeyException;
 import com.github.fppt.jedismock.operations.AbstractRedisOperation;
 import com.github.fppt.jedismock.operations.RedisCommand;
@@ -9,9 +10,6 @@ import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.storage.RedisBase;
 
 import java.util.List;
-
-import static com.github.fppt.jedismock.datastructures.streams.RMStream.compare;
-import static com.github.fppt.jedismock.datastructures.streams.RMStream.checkKey;
 
 /**
  * XTRIM key (MAXLEN | MINID) [= | ~] threshold [LIMIT count]<br>
@@ -34,9 +32,9 @@ public class XTrim extends AbstractRedisOperation {
         return numberOfEvictedNodes;
     }
 
-    int trimID(LinkedMap<Slice, ?> map, Slice threshold, int limit) {
+    int trimID(LinkedMap<StreamId, ?> map, StreamId threshold, int limit) {
         int numberOfEvictedNodes = 0;
-        while (compare(map.getHead(), threshold) < 0 && numberOfEvictedNodes < limit) {
+        while (map.getHead().compareTo(threshold) < 0 && numberOfEvictedNodes < limit) {
             ++numberOfEvictedNodes;
             map.removeHead();
         }
@@ -55,7 +53,7 @@ public class XTrim extends AbstractRedisOperation {
         /* Begin parsing arguments */
 
         Slice key = params().get(0);
-        LinkedMap<Slice, LinkedMap<Slice, Slice>> map = getStreamFromBaseOrCreateEmpty(key).getStoredData();
+        LinkedMap<StreamId, LinkedMap<Slice, Slice>> map = getStreamFromBaseOrCreateEmpty(key).getStoredData();
 
         String criterion = params().get(1).toString(); // (MAXLEN|MINID) option
         int thresholdPosition = 2;
@@ -111,7 +109,8 @@ public class XTrim extends AbstractRedisOperation {
 
             case "MINID":
                 try {
-                    return Response.integer(trimID(map, checkKey(params().get(thresholdPosition)), limit));
+                    StreamId id = new StreamId(params().get(thresholdPosition));
+                    return Response.integer(trimID(map, id, limit));
                 } catch (WrongStreamKeyException e) {
                     return Response.error(e.getMessage());
                 }

@@ -1,9 +1,10 @@
 package com.github.fppt.jedismock.operations.streams;
 
-import com.github.fppt.jedismock.datastructures.streams.RMStream;
 import com.github.fppt.jedismock.datastructures.Slice;
-import com.github.fppt.jedismock.exception.WrongStreamKeyException;
 import com.github.fppt.jedismock.datastructures.streams.LinkedMap;
+import com.github.fppt.jedismock.datastructures.streams.RMStream;
+import com.github.fppt.jedismock.datastructures.streams.StreamId;
+import com.github.fppt.jedismock.exception.WrongStreamKeyException;
 import com.github.fppt.jedismock.operations.AbstractRedisOperation;
 import com.github.fppt.jedismock.operations.RedisCommand;
 import com.github.fppt.jedismock.server.Response;
@@ -11,7 +12,7 @@ import com.github.fppt.jedismock.storage.RedisBase;
 
 import java.util.List;
 
-import static com.github.fppt.jedismock.datastructures.streams.RMStream.checkKey;
+import static com.github.fppt.jedismock.datastructures.streams.StreamErrors.TOP_ERROR;
 
 /**
  * XADD key [NOMKSTREAM] [(MAXLEN | MINID) [= | ~] threshold
@@ -27,6 +28,15 @@ public class XAdd extends AbstractRedisOperation {
         super(base, params);
     }
 
+    public StreamId compareWithTopKey(StreamId key) throws WrongStreamKeyException {
+        RMStream stream = getStreamFromBaseOrCreateEmpty(params().get(0));
+        if (key.compareTo(stream.getLastId()) <= 0) {
+            throw new WrongStreamKeyException(TOP_ERROR);
+        }
+
+        return key;
+    }
+
     @Override
     protected Slice response() {
         if (params().size() < 3) {
@@ -34,9 +44,10 @@ public class XAdd extends AbstractRedisOperation {
         }
 
         Slice key = params().get(0);
-        Slice id = params().get(1);;
-        int valueInd = 2;
+        Slice id = params().get(1);
+        int valueInd = 2; // the first field index
 
+        /* Parsing NOMSTREAM option */
         if (params().get(1).toString().equalsIgnoreCase("nomkstream")) {
             if (!base().exists(key)) {
                 return Response.bulkString(Slice.empty());
@@ -46,21 +57,20 @@ public class XAdd extends AbstractRedisOperation {
                 return Response.error(ARG_NUMBER_ERROR);
             }
 
-            valueInd = 3;
+            valueInd = 3; // incrementing position
             id = params().get(2);
-        } else {
-            if (params().size() % 2 != 0) {
-                return Response.error("wrong number of arguments for 'xadd' command");
-            }
         }
 
-        RMStream setDBObj = getStreamFromBaseOrCreateEmpty(key);
-        LinkedMap<Slice, LinkedMap<Slice, Slice>> map = setDBObj.getStoredData();
+        // TODO compare top
+
+        RMStream stream = getStreamFromBaseOrCreateEmpty(key);
+        LinkedMap<StreamId, LinkedMap<Slice, Slice>> map = stream.getStoredData();
 
         LinkedMap<Slice, Slice> entryValue = new LinkedMap<>();
 
+        StreamId nodeId;
         try {
-            id = setDBObj.compareWithTopKey(checkKey(setDBObj.replaceAsterisk(id)));
+           nodeId = compareWithTopKey(new StreamId(stream.replaceAsterisk(id)));
         } catch (WrongStreamKeyException e) {
             return Response.error(e.getMessage());
         }
@@ -69,11 +79,11 @@ public class XAdd extends AbstractRedisOperation {
             entryValue.append(params().get(i), params().get(i + 1));
         }
 
-        map.append(id, entryValue);
-        setDBObj.updateLastId(id);
+        map.append(nodeId, entryValue);
+        stream.updateLastId(nodeId);
 
-        base().putValue(key, setDBObj);
+        base().putValue(key, stream);
 
-        return Response.bulkString(id);
+        return Response.bulkString(nodeId.toSlice());
     }
 }
