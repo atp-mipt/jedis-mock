@@ -1,7 +1,5 @@
 package com.github.fppt.jedismock.datastructures.streams;
 
-import com.github.fppt.jedismock.datastructures.streams.LinkedMap;
-
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;

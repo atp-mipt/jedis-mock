@@ -3,8 +3,13 @@ package com.github.fppt.jedismock.operations.streams;
 import com.github.fppt.jedismock.datastructures.streams.RMStream;
 import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.exception.WrongStreamKeyException;
+<<<<<<< HEAD
 import com.github.fppt.jedismock.datastructures.streams.LinkedMap;
 import com.github.fppt.jedismock.datastructures.streams.LinkedMapIterator;
+=======
+import com.github.fppt.jedismock.datastructures.linkedmap.LinkedMap;
+import com.github.fppt.jedismock.datastructures.linkedmap.LinkedMapIterator;
+>>>>>>> 2eb65b5 ([streams] move package)
 import com.github.fppt.jedismock.operations.AbstractRedisOperation;
 import com.github.fppt.jedismock.operations.RedisCommand;
 import com.github.fppt.jedismock.server.Response;
