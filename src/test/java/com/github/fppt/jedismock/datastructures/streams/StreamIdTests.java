@@ -1,6 +1,7 @@
 package com.github.fppt.jedismock.datastructures.streams;
 
 import com.github.fppt.jedismock.exception.WrongStreamKeyException;
+import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.jupiter.api.Test;
 
 import static java.lang.Long.toUnsignedString;
@@ -8,6 +9,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 
 public class StreamIdTests {
+    @Test
+    void equalsHashCodeTest(){
+        EqualsVerifier.forClass(StreamId.class).verify();
+    }
+
     @Test
     void zeroComparisonWithZeroTest() {
         StreamId zero = new StreamId(0, 0);

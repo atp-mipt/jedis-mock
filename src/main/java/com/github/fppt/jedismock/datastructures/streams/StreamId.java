@@ -11,7 +11,7 @@ import static java.lang.Long.toUnsignedString;
 import static com.github.fppt.jedismock.datastructures.streams.StreamErrors.INVALID_ID_ERROR;
 import static com.github.fppt.jedismock.datastructures.streams.StreamErrors.ZERO_ERROR;
 
-public class StreamId implements Comparable<StreamId> {
+public final class StreamId implements Comparable<StreamId> {
     private final long firstPart;
     private final long secondPart;
 
