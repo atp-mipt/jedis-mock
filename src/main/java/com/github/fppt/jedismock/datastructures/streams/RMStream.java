@@ -4,7 +4,6 @@ import com.github.fppt.jedismock.datastructures.RMDataStructure;
 import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.exception.WrongStreamKeyException;
 import com.github.fppt.jedismock.exception.WrongValueTypeException;
-import com.github.fppt.jedismock.datastructures.linkedmap.LinkedMap;
 
 import static java.lang.Long.compareUnsigned;
 import static java.lang.Long.parseUnsignedLong;
