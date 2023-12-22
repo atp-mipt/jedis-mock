@@ -12,7 +12,7 @@ import java.util.function.BiConsumer;
  * @param <K> keys type, must implement {@link java.lang.Comparable Comparable}
  * @param <V> values type
  */
-public class LinkedMap<K extends Comparable<K>, V> implements Iterable<Map.Entry<K, V>> {
+public class SequencedMap<K extends Comparable<K>, V> implements Iterable<Map.Entry<K, V>> {
     /**
      * A node that replaces value in {@code HashMap}. Contains additional data of next and previous nodes.
      */
@@ -41,13 +41,13 @@ public class LinkedMap<K extends Comparable<K>, V> implements Iterable<Map.Entry
     private K head;
     private int size;
 
-    public LinkedMap() {
+    public SequencedMap() {
         this.map = new HashMap<>();
         size = 0;
     }
 
     /**
-     * Add a mapping to the end of {@code LinkedMap}
+     * Add a mapping to the end of {@code SequencedMap}
      * @asymptotic O(1)
      * @param key the key with which the specified value is to be associated
      * @param value the value to be associated with the specified key
@@ -139,7 +139,7 @@ public class LinkedMap<K extends Comparable<K>, V> implements Iterable<Map.Entry
 
     /**
      * Get the key of the next node. If there is no mapping for the provided key {@code NullPointerException} is thrown.
-     * <b>Private API:</b> is accessible only to {@code LinkedMapIterator}
+     * <b>Private API:</b> is accessible only to {@code SequencedMapIterator}
      *
      * @param key the key of the node whose following key is being searched for
      * @return the key of the node that follows the given one
@@ -150,7 +150,7 @@ public class LinkedMap<K extends Comparable<K>, V> implements Iterable<Map.Entry
 
     /**
      * Set the key of the next node. If there is no mapping for the provided key {@code NullPointerException} is thrown.
-     * <b>Private API:</b> is accessible only to {@code LinkedMapIterator}
+     * <b>Private API:</b> is accessible only to {@code SequencedMapIterator}
      *
      * @param key the key of the node whose following key is being updated
      * @param next the key of the node which is to follow the given one
@@ -165,7 +165,7 @@ public class LinkedMap<K extends Comparable<K>, V> implements Iterable<Map.Entry
 
     /**
      * Get the key of the previous node. If there is no mapping for the key {@code NullPointerException} is thrown.
-     * <b>Private API:</b> is accessible only to {@code LinkedMapIterator}
+     * <b>Private API:</b> is accessible only to {@code SequencedMapIterator}
      *
      * @param key the key of the node whose previous key is being searched for
      * @return the key of the node that precedes the given one
@@ -176,7 +176,7 @@ public class LinkedMap<K extends Comparable<K>, V> implements Iterable<Map.Entry
 
     /**
      * Set the key of the previous node. If there is no mapping for the provided key {@code NullPointerException} is thrown.
-     * <b>Private API:</b> is accessible only to {@code LinkedMapIterator}
+     * <b>Private API:</b> is accessible only to {@code SequencedMapIterator}
      *
      * @param key the key of the node whose previous key is being updated
      * @param prev the key of the node which is to precede the given one
@@ -217,46 +217,46 @@ public class LinkedMap<K extends Comparable<K>, V> implements Iterable<Map.Entry
     }
 
     /**
-     * Get {@link LinkedMapForwardIterator LinkedMapIterator}
+     * Get {@link SequencedMapForwardIterator SequencedMapIterator}
      * whose iteration starts from the head node
      *
      * @return iterator that allows to iterate map
      */
     @Override
-    public LinkedMapForwardIterator<K, V> iterator() {
-        return new LinkedMapForwardIterator<>(head, this);
+    public SequencedMapForwardIterator<K, V> iterator() {
+        return new SequencedMapForwardIterator<>(head, this);
     }
 
     /**
-     * Get {@link LinkedMapForwardIterator LinkedMapForwardIterator}
+     * Get {@link SequencedMapForwardIterator SequencedMapForwardIterator}
      * whose iteration starts from the provided key
      *
      * @param key the key which is the start of iteration
      * @return iterator that points to the provided key
      */
-    public LinkedMapForwardIterator<K, V> iterator(K key) {
-        return new LinkedMapForwardIterator<>(key, this);
+    public SequencedMapForwardIterator<K, V> iterator(K key) {
+        return new SequencedMapForwardIterator<>(key, this);
     }
 
     /**
-     * Get {@link LinkedMapReverseIterator LinkedMapReverseIterator}
+     * Get {@link SequencedMapReverseIterator SequencedMapReverseIterator}
      * whose iteration starts from the tail
      *
      * @return iterator that allows to iterate map in reversed order
      */
-    public LinkedMapReverseIterator<K, V> reverseIterator() {
-        return new LinkedMapReverseIterator<>(tail, this);
+    public SequencedMapReverseIterator<K, V> reverseIterator() {
+        return new SequencedMapReverseIterator<>(tail, this);
     }
 
     /**
-     * Get {@link LinkedMapReverseIterator LinkedMapReverseIterator}
+     * Get {@link SequencedMapReverseIterator SequencedMapReverseIterator}
      * whose iteration starts from the provided key
      *
      * @param key the key which is the start of iteration
      * @return iterator that points to the provided key
      */
-    public LinkedMapReverseIterator<K, V> reverseIterator(K key) {
-        return new LinkedMapReverseIterator<>(key, this);
+    public SequencedMapReverseIterator<K, V> reverseIterator(K key) {
+        return new SequencedMapReverseIterator<>(key, this);
     }
 
     /**

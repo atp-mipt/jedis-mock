@@ -1,8 +1,8 @@
 package com.github.fppt.jedismock.operations.streams;
 
 import com.github.fppt.jedismock.datastructures.Slice;
-import com.github.fppt.jedismock.datastructures.streams.LinkedMap;
-import com.github.fppt.jedismock.datastructures.streams.LinkedMapIterator;
+import com.github.fppt.jedismock.datastructures.streams.SequencedMap;
+import com.github.fppt.jedismock.datastructures.streams.SequencedMapIterator;
 import com.github.fppt.jedismock.datastructures.streams.StreamId;
 import com.github.fppt.jedismock.exception.WrongStreamKeyException;
 import com.github.fppt.jedismock.operations.AbstractRedisOperation;
@@ -75,7 +75,7 @@ public class XRead extends AbstractRedisOperation {
 
         int streamsCount = (params().size() - streamInd) / 2;
 
-        LinkedMap<Slice, StreamId> mapKeyToBeginEntryId = new LinkedMap<>();
+        SequencedMap<Slice, StreamId> mapKeyToBeginEntryId = new SequencedMap<>();
 
         /* Mapping all stream ids */
         for (int i = 0; i < streamsCount; ++i) {
@@ -146,8 +146,8 @@ public class XRead extends AbstractRedisOperation {
 
         /* Response */
         mapKeyToBeginEntryId.forEach((key, id) -> {
-            LinkedMap<StreamId, LinkedMap<Slice, Slice>> map = getStreamFromBaseOrCreateEmpty(key).getStoredData();
-            LinkedMapIterator<StreamId, LinkedMap<Slice, Slice>> it = map.iterator();
+            SequencedMap<StreamId, SequencedMap<Slice, Slice>> map = getStreamFromBaseOrCreateEmpty(key).getStoredData();
+            SequencedMapIterator<StreamId, SequencedMap<Slice, Slice>> it = map.iterator();
 
             if (!base().exists(key)) {
                 return; // skip
@@ -169,7 +169,7 @@ public class XRead extends AbstractRedisOperation {
             int addedEntries = 1;
 
             while (it.hasNext() && addedEntries++ <= count) {
-                Map.Entry<StreamId, LinkedMap<Slice, Slice>> entry = it.next();
+                Map.Entry<StreamId, SequencedMap<Slice, Slice>> entry = it.next();
 
                 List<Slice> values = new ArrayList<>();
 

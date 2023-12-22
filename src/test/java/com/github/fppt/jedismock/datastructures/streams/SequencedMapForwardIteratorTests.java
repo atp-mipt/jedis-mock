@@ -11,16 +11,16 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class LinkedMapForwardIteratorTests {
+public class SequencedMapForwardIteratorTests {
     @Test
     void createSimpleIterator() {
-        LinkedMap<Integer, Integer> map = new LinkedMap<>();
+        SequencedMap<Integer, Integer> map = new SequencedMap<>();
 
         map.append(1, 2);
         map.append(2, 3);
         map.append(3, 4);
 
-        LinkedMapIterator<Integer, Integer> it = map.iterator();
+        SequencedMapIterator<Integer, Integer> it = map.iterator();
 
         int iterCount = 0;
 
@@ -36,7 +36,7 @@ public class LinkedMapForwardIteratorTests {
 
     @Test
     void createComplexIterator() {
-        LinkedMap<Integer, Integer> map = new LinkedMap<>();
+        SequencedMap<Integer, Integer> map = new SequencedMap<>();
 
         map.append(1, 2);
         map.append(2, 3);
@@ -44,7 +44,7 @@ public class LinkedMapForwardIteratorTests {
         map.append(4, 5);
         map.append(5, 6);
 
-        LinkedMapIterator<Integer, Integer> it = map.iterator(3);
+        SequencedMapIterator<Integer, Integer> it = map.iterator(3);
 
         int iterCount = 0;
 
@@ -86,8 +86,8 @@ public class LinkedMapForwardIteratorTests {
 
     @Test
     void emptyMapTest() {
-        LinkedMap<Integer, Integer> map = new LinkedMap<>();
-        LinkedMapIterator<Integer, Integer> it = map.iterator();
+        SequencedMap<Integer, Integer> map = new SequencedMap<>();
+        SequencedMapIterator<Integer, Integer> it = map.iterator();
 
         assertEquals(false, it.hasNext());
         assertThrows(NoSuchElementException.class, it::next);
@@ -95,7 +95,7 @@ public class LinkedMapForwardIteratorTests {
 
     @Test
     void removeTest() {
-        LinkedMap<Integer, Integer> map = new LinkedMap<>();
+        SequencedMap<Integer, Integer> map = new SequencedMap<>();
 
         map.append(1, 2);
         map.append(2, 3);
@@ -103,7 +103,7 @@ public class LinkedMapForwardIteratorTests {
         map.append(4, 5);
         map.append(5, 6);
 
-        LinkedMapIterator<Integer, Integer> it = map.iterator();
+        SequencedMapIterator<Integer, Integer> it = map.iterator();
 
         int iterCount = 0;
 
@@ -125,7 +125,7 @@ public class LinkedMapForwardIteratorTests {
 
     @Test
     void nextWasNotInvokedTest() {
-        LinkedMap<Integer, Integer> map = new LinkedMap<>();
+        SequencedMap<Integer, Integer> map = new SequencedMap<>();
 
         map.append(1, 2);
         map.append(2, 3);
@@ -133,14 +133,14 @@ public class LinkedMapForwardIteratorTests {
         map.append(4, 5);
         map.append(5, 6);
 
-        LinkedMapIterator<Integer, Integer> it = map.iterator();
+        SequencedMapIterator<Integer, Integer> it = map.iterator();
 
         assertThrows(IllegalStateException.class, it::remove);
     }
 
     @Test
     void removeHeadTest() {
-        LinkedMap<Integer, Integer> map = new LinkedMap<>();
+        SequencedMap<Integer, Integer> map = new SequencedMap<>();
 
         map.append(1, 2);
         map.append(2, 3);
@@ -148,7 +148,7 @@ public class LinkedMapForwardIteratorTests {
         map.append(4, 5);
         map.append(5, 6);
 
-        LinkedMapIterator<Integer, Integer> it = map.iterator();
+        SequencedMapIterator<Integer, Integer> it = map.iterator();
 
         int iterCount = 0;
 
@@ -171,8 +171,8 @@ public class LinkedMapForwardIteratorTests {
 
     @Test
     void findFirstWithEmptyMapTest() {
-        LinkedMap<Integer, Integer> map = new LinkedMap<>();
-        LinkedMapIterator<Integer, Integer> it = map.iterator();
+        SequencedMap<Integer, Integer> map = new SequencedMap<>();
+        SequencedMapIterator<Integer, Integer> it = map.iterator();
 
         it.findFirstSuitable(7);
         assertFalse(it.hasNext());
@@ -183,7 +183,7 @@ public class LinkedMapForwardIteratorTests {
 
     @Test
     void findFirstWhenKeyExistsTest() {
-        LinkedMap<Integer, Integer> map = new LinkedMap<>();
+        SequencedMap<Integer, Integer> map = new SequencedMap<>();
 
         map.append(1, 2);
         map.append(2, 3);
@@ -191,7 +191,7 @@ public class LinkedMapForwardIteratorTests {
         map.append(4, 5);
         map.append(5, 6);
 
-        LinkedMapIterator<Integer, Integer> it = map.iterator();
+        SequencedMapIterator<Integer, Integer> it = map.iterator();
 
         it.findFirstSuitable(3);
         assertTrue(it.hasNext());
@@ -220,7 +220,7 @@ public class LinkedMapForwardIteratorTests {
 
     @Test
     void findFirstWithNullBorderTest() {
-        LinkedMap<Integer, Integer> map = new LinkedMap<>();
+        SequencedMap<Integer, Integer> map = new SequencedMap<>();
 
         map.append(1, 2);
         map.append(2, 3);
@@ -228,14 +228,14 @@ public class LinkedMapForwardIteratorTests {
         map.append(6, 7);
         map.append(100, 101);
 
-        LinkedMapIterator<Integer, Integer> it = map.iterator();
+        SequencedMapIterator<Integer, Integer> it = map.iterator();
 
         assertThrows(NullPointerException.class, () -> it.findFirstSuitable(null));
     }
 
     @Test
     void findFirstWhenKeyDoesNotExistTest() {
-        LinkedMap<Integer, Integer> map = new LinkedMap<>();
+        SequencedMap<Integer, Integer> map = new SequencedMap<>();
 
         map.append(1, 2);
         map.append(2, 3);
@@ -243,7 +243,7 @@ public class LinkedMapForwardIteratorTests {
         map.append(6, 7);
         map.append(100, 101);
 
-        LinkedMapIterator<Integer, Integer> it = map.iterator();
+        SequencedMapIterator<Integer, Integer> it = map.iterator();
 
         it.findFirstSuitable(3);
         assertTrue(it.hasNext());
@@ -272,8 +272,8 @@ public class LinkedMapForwardIteratorTests {
 
     @Test
     void findFirstSuitableStressTest() {
-        LinkedMap<Integer, Integer> map = new LinkedMap<>();
-        LinkedMapForwardIterator<Integer, Integer> it = map.iterator();
+        SequencedMap<Integer, Integer> map = new SequencedMap<>();
+        SequencedMapForwardIterator<Integer, Integer> it = map.iterator();
 
         for (int i = 0; i < 5001; i += 5) {
             map.append(i, i + 3);

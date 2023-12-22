@@ -1,8 +1,8 @@
 package com.github.fppt.jedismock.operations.streams;
 
 import com.github.fppt.jedismock.datastructures.Slice;
-import com.github.fppt.jedismock.datastructures.streams.LinkedMap;
-import com.github.fppt.jedismock.datastructures.streams.LinkedMapIterator;
+import com.github.fppt.jedismock.datastructures.streams.SequencedMap;
+import com.github.fppt.jedismock.datastructures.streams.SequencedMapIterator;
 import com.github.fppt.jedismock.datastructures.streams.RMStream;
 import com.github.fppt.jedismock.datastructures.streams.StreamId;
 import com.github.fppt.jedismock.exception.WrongStreamKeyException;
@@ -25,7 +25,7 @@ public class Ranges extends AbstractRedisOperation {
             value = "UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR",
             justification = "'it' is to be initialized in inheritors"
     )
-    protected LinkedMapIterator<StreamId, LinkedMap<Slice, Slice>> it;
+    protected SequencedMapIterator<StreamId, SequencedMap<Slice, Slice>> it;
     /**
      * Multiplier for comparison:<br>
      * 1 - 'xrange'<br>
@@ -73,7 +73,7 @@ public class Ranges extends AbstractRedisOperation {
 
     protected Slice range() {
         RMStream stream = getStreamFromBaseOrCreateEmpty(params().get(0));
-        LinkedMap<StreamId, LinkedMap<Slice, Slice>> map = stream.getStoredData();
+        SequencedMap<StreamId, SequencedMap<Slice, Slice>> map = stream.getStoredData();
 
         /* Begin parsing arguments */
         StreamId start;
@@ -127,7 +127,7 @@ public class Ranges extends AbstractRedisOperation {
 
         while (it.hasNext() && entriesAdded++ <= count) {
             List<Slice> entrySlice = new ArrayList<>();
-            Map.Entry<StreamId, LinkedMap<Slice, Slice>> entry = it.next();
+            Map.Entry<StreamId, SequencedMap<Slice, Slice>> entry = it.next();
 
             if (multiplier * entry.getKey().compareTo(end) > 0) {
                 break;

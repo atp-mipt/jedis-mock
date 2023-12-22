@@ -1,7 +1,7 @@
 package com.github.fppt.jedismock.operations.streams;
 
 import com.github.fppt.jedismock.datastructures.Slice;
-import com.github.fppt.jedismock.datastructures.streams.LinkedMap;
+import com.github.fppt.jedismock.datastructures.streams.SequencedMap;
 import com.github.fppt.jedismock.datastructures.streams.StreamId;
 import com.github.fppt.jedismock.operations.RedisCommand;
 import com.github.fppt.jedismock.server.Response;
@@ -22,7 +22,7 @@ public class XRevRange extends Ranges {
         }
 
         Slice key = params().get(0);
-        LinkedMap<StreamId, LinkedMap<Slice, Slice>> map = getStreamFromBaseOrCreateEmpty(key).getStoredData();
+        SequencedMap<StreamId, SequencedMap<Slice, Slice>> map = getStreamFromBaseOrCreateEmpty(key).getStoredData();
         it = map.reverseIterator();
         multiplier = -1;
 

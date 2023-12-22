@@ -1,7 +1,7 @@
 package com.github.fppt.jedismock.operations.streams;
 
 import com.github.fppt.jedismock.datastructures.Slice;
-import com.github.fppt.jedismock.datastructures.streams.LinkedMap;
+import com.github.fppt.jedismock.datastructures.streams.SequencedMap;
 import com.github.fppt.jedismock.datastructures.streams.StreamId;
 import com.github.fppt.jedismock.exception.WrongStreamKeyException;
 import com.github.fppt.jedismock.operations.AbstractRedisOperation;
@@ -28,7 +28,7 @@ public class XDel extends AbstractRedisOperation {
         }
 
         Slice key = params().get(0);
-        LinkedMap<StreamId, LinkedMap<Slice, Slice>> map = getStreamFromBaseOrCreateEmpty(key).getStoredData();
+        SequencedMap<StreamId, SequencedMap<Slice, Slice>> map = getStreamFromBaseOrCreateEmpty(key).getStoredData();
 
         int deletedElementsCount = 0;
         List<StreamId> idsToBeDeleted = new ArrayList<>();

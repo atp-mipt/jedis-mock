@@ -5,34 +5,34 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 /**
- * Iterator for {@link LinkedMap LinkedMap}
+ * Reverse iterator for {@link SequencedMap SequencedMap}
  *
  * @param <K> keys type, must implement {@link java.lang.Comparable Comparable}
  * @param <V> values type
  */
-public class LinkedMapForwardIterator<K extends Comparable<K>, V> implements LinkedMapIterator<K, V> {
+public class SequencedMapReverseIterator<K extends Comparable<K>, V> implements SequencedMapIterator<K, V> {
     /**
-     * Iterator takes place before this key. If is {@code null} then iterator takes place before the head of the map.
+     * Iterator takes place after this key. If is {@code null} then iterator takes place after the tail of the map.
      */
     private K curr;
 
     /**
      * Map that iterator refers to
      */
-    private final LinkedMap<K, V> map;
+    private final SequencedMap<K, V> map;
 
-    public LinkedMapForwardIterator(K curr, LinkedMap<K, V> map) {
+    public SequencedMapReverseIterator(K curr, SequencedMap<K, V> map) {
         this.map = map;
-        this.curr = curr == null ? null : map.getPreviousKey(curr); // null is possible when map.size == 0
+        this.curr = curr == null ? null : map.getNextKey(curr); // null is possible when map.size == 0
     }
 
     @Override
     public boolean hasNext() {
         if (curr == null) {
-            return map.getHead() != null;
+            return map.getTail() != null;
         }
 
-        return map.getNextKey(curr) != null;
+        return map.getPreviousKey(curr) != null;
     }
 
     @Override
@@ -42,26 +42,12 @@ public class LinkedMapForwardIterator<K extends Comparable<K>, V> implements Lin
         }
 
         if (curr == null) {
-            curr = map.getHead();
+            curr = map.getTail();
         } else {
-            curr = map.getNextKey(curr);
+            curr = map.getPreviousKey(curr);
         }
 
         return new AbstractMap.SimpleEntry<>(curr, map.get(curr));
-    }
-
-    /**
-     *
-     */
-    @Override
-    public void remove() {
-        if (curr == null) {
-            throw new IllegalStateException("'next' method has not been invoked yet");
-        } else {
-            K tmp = map.getPreviousKey(curr);
-            map.remove(curr);
-            curr = tmp;
-        }
     }
 
     /**
@@ -79,20 +65,20 @@ public class LinkedMapForwardIterator<K extends Comparable<K>, V> implements Lin
             curr = border;
         }
 
-        if (curr != null && border.compareTo(curr) < 0) { // reset curr
+        if (curr != null && border.compareTo(curr) > 0) { // reset curr
             curr = null;
         }
 
-        if (border != (curr == null ? map.getHead() : curr)) { // searching the first node
+        if (border != (curr == null ? map.getTail() : curr)) { // searching the first node
             while (hasNext()) {
                 next();
 
-                if (curr.compareTo(border) >= 0) {
+                if (curr.compareTo(border) <= 0) {
                     break;
                 }
             }
         }
 
-        curr = curr == null ? null : map.getPreviousKey(curr); // map might be empty
+        curr = curr == null ? null : map.getNextKey(curr); // map might be empty
     }
 }

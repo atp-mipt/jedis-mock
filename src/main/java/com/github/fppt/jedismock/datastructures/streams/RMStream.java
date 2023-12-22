@@ -13,12 +13,12 @@ import static com.github.fppt.jedismock.datastructures.streams.StreamErrors.INVA
 import static java.lang.Long.toUnsignedString;
 
 public class RMStream implements RMDataStructure {
-    private final LinkedMap<StreamId, LinkedMap<Slice, Slice>> storedData;
+    private final SequencedMap<StreamId, SequencedMap<Slice, Slice>> storedData;
     private StreamId lastId;
 
 
     public RMStream() {
-        storedData = new LinkedMap<>();
+        storedData = new SequencedMap<>();
         lastId = new StreamId();
     }
 
@@ -26,7 +26,7 @@ public class RMStream implements RMDataStructure {
         return lastId;
     }
 
-    public LinkedMap<StreamId, LinkedMap<Slice, Slice>> getStoredData() {
+    public SequencedMap<StreamId, SequencedMap<Slice, Slice>> getStoredData() {
         return storedData;
     }
 

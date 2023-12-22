@@ -10,16 +10,16 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class LinkedMapReverseIteratorTests {
+public class SequencedMapReverseIteratorTests {
     @Test
     void createSimpleIterator() {
-        LinkedMap<Integer, Integer> map = new LinkedMap<>();
+        SequencedMap<Integer, Integer> map = new SequencedMap<>();
 
         map.append(3, 4);
         map.append(2, 3);
         map.append(1, 2);
 
-        LinkedMapIterator<Integer, Integer> it = map.reverseIterator();
+        SequencedMapIterator<Integer, Integer> it = map.reverseIterator();
 
         int iterCount = 0;
 
@@ -35,7 +35,7 @@ public class LinkedMapReverseIteratorTests {
 
     @Test
     void createComplexIterator() {
-        LinkedMap<Integer, Integer> map = new LinkedMap<>();
+        SequencedMap<Integer, Integer> map = new SequencedMap<>();
 
         map.append(5, 6);
         map.append(4, 5);
@@ -43,7 +43,7 @@ public class LinkedMapReverseIteratorTests {
         map.append(2, 3);
         map.append(1, 2);
 
-        LinkedMapIterator<Integer, Integer> it = map.reverseIterator(3);
+        SequencedMapIterator<Integer, Integer> it = map.reverseIterator(3);
 
         int iterCount = 0;
 
@@ -85,8 +85,8 @@ public class LinkedMapReverseIteratorTests {
 
     @Test
     void emptyMapTest() {
-        LinkedMap<Integer, Integer> map = new LinkedMap<>();
-        LinkedMapIterator<Integer, Integer> it = map.reverseIterator();
+        SequencedMap<Integer, Integer> map = new SequencedMap<>();
+        SequencedMapIterator<Integer, Integer> it = map.reverseIterator();
 
         assertFalse(it.hasNext());
         assertThrows(NoSuchElementException.class, it::next);
@@ -94,8 +94,8 @@ public class LinkedMapReverseIteratorTests {
 
     @Test
     void findFirstWithEmptyMapTest() {
-        LinkedMap<Integer, Integer> map = new LinkedMap<>();
-        LinkedMapIterator<Integer, Integer> it = map.reverseIterator();
+        SequencedMap<Integer, Integer> map = new SequencedMap<>();
+        SequencedMapIterator<Integer, Integer> it = map.reverseIterator();
 
         it.findFirstSuitable(7);
         assertFalse(it.hasNext());
@@ -106,7 +106,7 @@ public class LinkedMapReverseIteratorTests {
 
     @Test
     void findFirstWhenKeyExistsTest() {
-        LinkedMap<Integer, Integer> map = new LinkedMap<>();
+        SequencedMap<Integer, Integer> map = new SequencedMap<>();
 
         map.append(1, 2);
         map.append(2, 3);
@@ -114,7 +114,7 @@ public class LinkedMapReverseIteratorTests {
         map.append(4, 5);
         map.append(5, 6);
 
-        LinkedMapIterator<Integer, Integer> it = map.reverseIterator();
+        SequencedMapIterator<Integer, Integer> it = map.reverseIterator();
 
         it.findFirstSuitable(3);
         assertTrue(it.hasNext());
@@ -143,7 +143,7 @@ public class LinkedMapReverseIteratorTests {
 
     @Test
     void findFirstWithNullBorderTest() {
-        LinkedMap<Integer, Integer> map = new LinkedMap<>();
+        SequencedMap<Integer, Integer> map = new SequencedMap<>();
 
         map.append(100, 101);
         map.append(5, 6);
@@ -151,14 +151,14 @@ public class LinkedMapReverseIteratorTests {
         map.append(2, 3);
         map.append(1, 2);
 
-        LinkedMapIterator<Integer, Integer> it = map.reverseIterator();
+        SequencedMapIterator<Integer, Integer> it = map.reverseIterator();
 
         assertThrows(NullPointerException.class, () -> it.findFirstSuitable(null));
     }
 
     @Test
     void findFirstWhenKeyDoesNotExistTest() {
-        LinkedMap<Integer, Integer> map = new LinkedMap<>();
+        SequencedMap<Integer, Integer> map = new SequencedMap<>();
 
         map.append(1, 2);
         map.append(2, 3);
@@ -166,7 +166,7 @@ public class LinkedMapReverseIteratorTests {
         map.append(6, 7);
         map.append(100, 101);
 
-        LinkedMapIterator<Integer, Integer> it = map.reverseIterator();
+        SequencedMapIterator<Integer, Integer> it = map.reverseIterator();
 
         it.findFirstSuitable(3);
         assertTrue(it.hasNext());

@@ -14,10 +14,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class LinkedMapTests {
+public class SequencedMapTests {
     @Test
     void initializeMapTest() {
-        LinkedMap<Integer, Integer> map = new LinkedMap<>();
+        SequencedMap<Integer, Integer> map = new SequencedMap<>();
 
         assertNull(map.getHead());
         assertNull(map.getTail());
@@ -26,7 +26,7 @@ public class LinkedMapTests {
 
     @Test
     void addPairsToMapTest() {
-        LinkedMap<Integer, Integer> map = new LinkedMap<>();
+        SequencedMap<Integer, Integer> map = new SequencedMap<>();
 
         map.append(1, 2);
         assertEquals(1, map.getHead());
@@ -38,7 +38,7 @@ public class LinkedMapTests {
 
     @Test
     void addSequenceToMapTest() {
-        LinkedMap<Integer, Integer> map = new LinkedMap<>();
+        SequencedMap<Integer, Integer> map = new SequencedMap<>();
 
         map.append(1, 2);
         map.append(2, 2);
@@ -52,7 +52,7 @@ public class LinkedMapTests {
 
     @Test
     void removePairsFromMapTest() {
-        LinkedMap<Integer, Integer> map = new LinkedMap<>();
+        SequencedMap<Integer, Integer> map = new SequencedMap<>();
 
         map.append(1, 2);
 
@@ -76,7 +76,7 @@ public class LinkedMapTests {
 
     @Test
     void getNodeTest() {
-        LinkedMap<Integer, Integer> map = new LinkedMap<>();
+        SequencedMap<Integer, Integer> map = new SequencedMap<>();
 
         map.append(1, 2);
         map.append(2, 3);
@@ -95,7 +95,7 @@ public class LinkedMapTests {
 
     @Test
     void setNextNodeTest() {
-        LinkedMap<Integer, Integer> map = new LinkedMap<>();
+        SequencedMap<Integer, Integer> map = new SequencedMap<>();
 
         map.append(1, 2);
         map.append(2, 3);
@@ -117,7 +117,7 @@ public class LinkedMapTests {
 
     @Test
     void setPreviousNodeTest() {
-        LinkedMap<Integer, Integer> map = new LinkedMap<>();
+        SequencedMap<Integer, Integer> map = new SequencedMap<>();
 
         map.append(1, 2);
         map.append(2, 3);
@@ -139,7 +139,7 @@ public class LinkedMapTests {
 
     @Test
     void addRemoveStressTest() {
-        LinkedMap<Integer, Integer> map = new LinkedMap<>();
+        SequencedMap<Integer, Integer> map = new SequencedMap<>();
 
         map.append(0, 0);
 
@@ -196,7 +196,7 @@ public class LinkedMapTests {
 
     @Test
     void removeHeadTest() {
-        LinkedMap<Integer, Integer> map = new LinkedMap<>();
+        SequencedMap<Integer, Integer> map = new SequencedMap<>();
 
         assertDoesNotThrow(map::removeHead);
         assertEquals(0, map.size());
@@ -221,7 +221,7 @@ public class LinkedMapTests {
 
     @Test
     void forEachTest() {
-        LinkedMap<Integer, Integer> map = new LinkedMap<>();
+        SequencedMap<Integer, Integer> map = new SequencedMap<>();
 
         map.append(0, 9);
         map.append(1, 8);
@@ -249,7 +249,7 @@ public class LinkedMapTests {
 
     @Test
     void forEachWithNullActionTest() {
-        LinkedMap<Integer, Integer> map = new LinkedMap<>();
+        SequencedMap<Integer, Integer> map = new SequencedMap<>();
 
         assertThrows(
                 NullPointerException.class,

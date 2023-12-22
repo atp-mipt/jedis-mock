@@ -1,8 +1,8 @@
 package com.github.fppt.jedismock.operations.streams;
 
 import com.github.fppt.jedismock.datastructures.Slice;
-import com.github.fppt.jedismock.datastructures.streams.LinkedMap;
-import com.github.fppt.jedismock.datastructures.streams.LinkedMapIterator;
+import com.github.fppt.jedismock.datastructures.streams.SequencedMap;
+import com.github.fppt.jedismock.datastructures.streams.SequencedMapIterator;
 import com.github.fppt.jedismock.datastructures.streams.StreamId;
 import com.github.fppt.jedismock.exception.WrongStreamKeyException;
 import com.github.fppt.jedismock.operations.AbstractRedisOperation;
@@ -27,7 +27,7 @@ public class XTrim extends AbstractRedisOperation {
         super(base, params);
     }
 
-    static int trimLen(LinkedMap<?, ?> map, int threshold, int limit) {
+    static int trimLen(SequencedMap<?, ?> map, int threshold, int limit) {
         int numberOfEvictedNodes = 0;
 
         while (map.size() > threshold && numberOfEvictedNodes < limit) {
@@ -38,9 +38,9 @@ public class XTrim extends AbstractRedisOperation {
         return numberOfEvictedNodes;
     }
 
-    static int trimID(LinkedMap<StreamId, ?> map, StreamId threshold, int limit) {
+    static int trimID(SequencedMap<StreamId, ?> map, StreamId threshold, int limit) {
         int numberOfEvictedNodes = 0;
-        LinkedMapIterator<StreamId, ?> it = map.iterator();
+        SequencedMapIterator<StreamId, ?> it = map.iterator();
 
         while (it.hasNext() && numberOfEvictedNodes < limit) {
             if (it.next().getKey().compareTo(threshold) >= 0) {
@@ -62,7 +62,7 @@ public class XTrim extends AbstractRedisOperation {
 
         /* Begin parsing arguments */
         Slice key = params().get(0);
-        LinkedMap<StreamId, LinkedMap<Slice, Slice>> map = getStreamFromBaseOrCreateEmpty(key).getStoredData();
+        SequencedMap<StreamId, SequencedMap<Slice, Slice>> map = getStreamFromBaseOrCreateEmpty(key).getStoredData();
 
         String criterion = params().get(1).toString(); // (MAXLEN|MINID) option
         int thresholdPosition = 2;

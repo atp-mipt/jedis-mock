@@ -1,7 +1,7 @@
 package com.github.fppt.jedismock.operations.streams;
 
 import com.github.fppt.jedismock.datastructures.Slice;
-import com.github.fppt.jedismock.datastructures.streams.LinkedMap;
+import com.github.fppt.jedismock.datastructures.streams.SequencedMap;
 import com.github.fppt.jedismock.datastructures.streams.RMStream;
 import com.github.fppt.jedismock.datastructures.streams.StreamId;
 import com.github.fppt.jedismock.exception.WrongStreamKeyException;
@@ -51,7 +51,7 @@ public class XAdd extends AbstractRedisOperation {
 
         Slice key = params().get(0);
         RMStream stream = getStreamFromBaseOrCreateEmpty(key);
-        LinkedMap<StreamId, LinkedMap<Slice, Slice>> map = stream.getStoredData();
+        SequencedMap<StreamId, SequencedMap<Slice, Slice>> map = stream.getStoredData();
 
         int idInd = 1; // 'id' index
 
@@ -101,7 +101,7 @@ public class XAdd extends AbstractRedisOperation {
         /*  End trim options parsing */
 
         Slice id = params().get(idInd++);
-        LinkedMap<Slice, Slice> entryValues = new LinkedMap<>();
+        SequencedMap<Slice, Slice> entryValues = new SequencedMap<>();
 
         StreamId nodeId;
 
