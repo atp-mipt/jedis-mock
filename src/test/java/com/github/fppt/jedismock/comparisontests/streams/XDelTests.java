@@ -10,9 +10,8 @@ import redis.clients.jedis.StreamEntryID;
 import redis.clients.jedis.exceptions.JedisDataException;
 import redis.clients.jedis.params.XAddParams;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @ExtendWith(ComparisonBase.class)
 public class XDelTests {
@@ -25,25 +24,24 @@ public class XDelTests {
     void whenTopEntryIsDeleted_ensureTopIdDoesNotDecrease(Jedis jedis) {
         jedis.xadd("s", XAddParams.xAddParams().id("0-1"), ImmutableMap.of("a", "b"));
 
-        assertEquals(1, jedis.xdel("s", new StreamEntryID(0, 1)));
+        assertThat(jedis.xdel("s", new StreamEntryID(0, 1))).isEqualTo(1);
 
-        assertThrows(
-                JedisDataException.class,
-                () -> jedis.xadd("s", XAddParams.xAddParams().id("0-1"), ImmutableMap.of("a", "b")),
-                "ERR The ID specified in XADD is equal or smaller than the target stream top item"
-        );
+        assertThatThrownBy(
+                () -> jedis.xadd("s", XAddParams.xAddParams().id("0-1"), ImmutableMap.of("a", "b"))
+        )
+                .isInstanceOf(JedisDataException.class)
+                .hasMessage("ERR The ID specified in XADD is equal or smaller than the target stream top item");
     }
 
     @TestTemplate
     void whenTopEntryIsDeleted_ensureNextEntryIdIsIncremental(Jedis jedis) {
         jedis.xadd("s", XAddParams.xAddParams().id("2-1"), ImmutableMap.of("a", "b"));
 
-        assertEquals(1, jedis.xdel("s", new StreamEntryID(2, 1)));
+        assertThat(jedis.xdel("s", new StreamEntryID(2, 1))).isEqualTo(1);
 
-        assertEquals(
-                new StreamEntryID(2, 2),
+        assertThat(
                 jedis.xadd("s", XAddParams.xAddParams().id("2-*"), ImmutableMap.of("a", "b"))
-        );
+        ).isEqualTo(new StreamEntryID(2, 2));
     }
 
     @TestTemplate
@@ -53,8 +51,7 @@ public class XDelTests {
         jedis.xadd("s", XAddParams.xAddParams().id("1-0"), ImmutableMap.of("a", "b"));
         jedis.xadd("s", XAddParams.xAddParams().id("1-1"), ImmutableMap.of("a", "b"));
 
-        assertEquals(
-                4,
+        assertThat(
                 jedis.xdel(
                         "s",
                         new StreamEntryID(0, 1),
@@ -62,9 +59,9 @@ public class XDelTests {
                         new StreamEntryID(1, 0),
                         new StreamEntryID(1, 1)
                 )
-        );
+        ).isEqualTo(4);
 
-        assertTrue(jedis.exists("s"));
+        assertThat(jedis.exists("s")).isTrue();
     }
 
     @TestTemplate
@@ -76,7 +73,7 @@ public class XDelTests {
             jedis.xadd("s", ids[i], ImmutableMap.of("a",  "b"));
         }
 
-        assertEquals(1000, jedis.xdel("s", ids));
-        assertEquals(0, jedis.xlen("s"));
+        assertThat(jedis.xdel("s", ids)).isEqualTo(1000);
+        assertThat(jedis.xlen("s")).isEqualTo(0);
     }
 }

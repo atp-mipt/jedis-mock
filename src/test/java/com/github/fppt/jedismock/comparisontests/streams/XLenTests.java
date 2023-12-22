@@ -11,8 +11,7 @@ import redis.clients.jedis.StreamEntryID;
 import java.util.Random;
 import java.util.StringJoiner;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(ComparisonBase.class)
 public class XLenTests {
@@ -37,8 +36,8 @@ public class XLenTests {
     void whenStreamDoesNotExist_ensureReturnsZero(Jedis jedis) {
         for (int i = 0; i < 100; ++i) {
             String key = getRandomString(r.nextInt(21));
-            assertFalse(jedis.exists(key));
-            assertEquals(0, jedis.xlen(key));
+            assertThat(jedis.exists(key)).isFalse();
+            assertThat(jedis.xlen(key)).isEqualTo(0);
         }
     }
 
@@ -56,7 +55,7 @@ public class XLenTests {
                 );
             }
 
-            assertEquals(len, jedis.xlen(key));
+            assertThat(jedis.xlen(key)).isEqualTo(len);
 
             jedis.del(key);
         }

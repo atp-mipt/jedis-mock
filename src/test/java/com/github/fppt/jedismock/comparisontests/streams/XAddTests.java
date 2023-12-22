@@ -10,7 +10,8 @@ import redis.clients.jedis.StreamEntryID;
 import redis.clients.jedis.exceptions.JedisDataException;
 import redis.clients.jedis.params.XAddParams;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @ExtendWith(ComparisonBase.class)
 public class XAddTests {
@@ -27,7 +28,7 @@ public class XAddTests {
             ImmutableMap.of("a", "b")
         );
 
-        assertFalse(jedis.exists("s"));
+        assertThat(jedis.exists("s")).isFalse();
 
         jedis.xadd("s", XAddParams.xAddParams().id(1), ImmutableMap.of("a", "b"));
 
@@ -37,8 +38,8 @@ public class XAddTests {
                 ImmutableMap.of("a", "b")
         );
 
-        assertTrue(jedis.exists("s"));
-        assertEquals(2, jedis.xlen("s"));
+        assertThat(jedis.exists("s")).isTrue();
+        assertThat(jedis.xlen("s")).isEqualTo(2);
     }
 
     @TestTemplate
@@ -49,7 +50,7 @@ public class XAddTests {
                 ImmutableMap.of("a", "b")
         );
 
-        assertFalse(jedis.exists("s"));
+        assertThat(jedis.exists("s")).isFalse();
 
         jedis.xadd("s", XAddParams.xAddParams().id(1), ImmutableMap.of("a", "b"));
 
@@ -59,8 +60,8 @@ public class XAddTests {
                 ImmutableMap.of("a", "b")
         );
 
-        assertTrue(jedis.exists("s"));
-        assertEquals(2, jedis.xlen("s"));
+        assertThat(jedis.exists("s")).isTrue();
+        assertThat(jedis.xlen("s")).isEqualTo(2);
     }
 
     @TestTemplate
@@ -77,10 +78,7 @@ public class XAddTests {
         );
 
         long len = jedis.xlen("s");
-        assertTrue(
-                len >= 3,
-                "Expected " + len + " >= 3"
-        );
+        assertThat(len >= 3).isTrue();
     }
 
     @TestTemplate
@@ -96,72 +94,72 @@ public class XAddTests {
                 ImmutableMap.of("a", "b")
         );
 
-        assertEquals(0, jedis.xlen("s"));
+        assertThat(jedis.xlen("s")).isEqualTo(0);
     }
 
     @TestTemplate
     void whenNomkstream_ensureReturnsNull(Jedis jedis) {
-        assertNull(jedis.xadd(
+        assertThat(jedis.xadd(
                 "s",
                 XAddParams.xAddParams().noMkStream().id("*"),
                 ImmutableMap.of("a", "b")
-        ));
+        )).isNull();
 
-        assertNull(jedis.xadd(
+        assertThat(jedis.xadd(
                 "s",
                 XAddParams.xAddParams().minId("1").noMkStream().id("*"),
                 ImmutableMap.of("a", "b")
-        ));
+        )).isNull();
 
-        assertNull(jedis.xadd(
+        assertThat(jedis.xadd(
                 "s",
                 XAddParams.xAddParams().maxLen(1).noMkStream().id("*"),
                 ImmutableMap.of("a", "b")
-        ));
+        )).isNull();
 
-        assertNull(jedis.xadd(
+        assertThat(jedis.xadd(
                 "s",
                 XAddParams.xAddParams().minId("1").exactTrimming().noMkStream().id("*"),
                 ImmutableMap.of("a", "b")
-        ));
+        )).isNull();
 
-        assertNull(jedis.xadd(
+        assertThat(jedis.xadd(
                 "s",
                 XAddParams.xAddParams().maxLen(1).exactTrimming().noMkStream().id("*"),
                 ImmutableMap.of("a", "b")
-        ));
+        )).isNull();
 
-        assertNull(jedis.xadd(
+        assertThat(jedis.xadd(
                 "s",
                 XAddParams.xAddParams().maxLen(1).approximateTrimming().noMkStream().id("*"),
                 ImmutableMap.of("a", "b")
-        ));
+        )).isNull();
 
-        assertNull(jedis.xadd(
+        assertThat(jedis.xadd(
                 "s",
                 XAddParams.xAddParams().minId("1").approximateTrimming().noMkStream().id("*"),
                 ImmutableMap.of("a", "b")
-        ));
+        )).isNull();
 
-        assertNull(jedis.xadd(
+        assertThat(jedis.xadd(
                 "s",
                 XAddParams.xAddParams().minId("1").approximateTrimming().limit(3).noMkStream().id("*"),
                 ImmutableMap.of("a", "b")
-        ));
+        )).isNull();
 
-        assertNull(jedis.xadd(
+        assertThat(jedis.xadd(
                 "s",
                 XAddParams.xAddParams().maxLen(1).approximateTrimming().limit(3).noMkStream().id("*"),
                 ImmutableMap.of("a", "b")
-        ));
+        )).isNull();
     }
 
     @TestTemplate
     void whenZeroId_ensureThrowsException(Jedis jedis) {
-        assertThrows(
-                JedisDataException.class,
-                () -> jedis.xadd("s", XAddParams.xAddParams().id("0"), ImmutableMap.of("a", "b")),
-                "ERR The ID specified in XADD is equal or smaller than the target stream top item"
-        );
+        assertThatThrownBy(
+                () -> jedis.xadd("s", XAddParams.xAddParams().id("0"), ImmutableMap.of("a", "b"))
+        )
+                .isInstanceOf(JedisDataException.class)
+                .hasMessage("ERR The ID specified in XADD must be greater than 0-0");
     }
 }
