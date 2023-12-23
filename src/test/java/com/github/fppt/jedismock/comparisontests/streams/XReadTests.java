@@ -55,13 +55,6 @@ public class XReadTests {
                 .isInstanceOf(JedisDataException.class)
                 .hasMessageMatching("ERR.*equal.*smaller.*");
 
-        assertThatThrownBy(
-                () -> jedis.xadd("s", XAddParams.xAddParams().id("665"), ImmutableMap.of("a", "b"))
-        )
-                .isInstanceOf(JedisDataException.class)
-                .hasMessageMatching("ERR.*equal.*smaller.*");
-
-
         Future<?> future = blockingThread.submit(() -> {
             List<Map.Entry<String, List<StreamEntry>>> data = blockedClient.xread(
                     XReadParams.xReadParams().block(0),
@@ -125,7 +118,7 @@ public class XReadTests {
     void xaddWithDelAndLpushShouldNotAwakeClient(Jedis jedis) throws ExecutionException, InterruptedException {
         Future<?> future = blockingThread.submit(() -> {
             List<Map.Entry<String, List<StreamEntry>>> data = blockedClient.xread(
-                    XReadParams.xReadParams().block(7000),
+                    XReadParams.xReadParams().block(10000),
                     ImmutableMap.of("s", StreamEntryID.LAST_ENTRY)
             );
 

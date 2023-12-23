@@ -436,7 +436,7 @@ start_server {
         set rd [redis_deferring_client]
         $rd XREAD BLOCK 20000 STREAMS s2 s2 s2 $ $ $
         # wait_for_blocked_clients_count 1 -> wait_for_blocked_client
-        wait_for_blocked_clients_count 1
+        wait_for_blocked_client
         r XADD s2 * new abcd1234
         set res [$rd read]
         assert {[lindex $res 0 0] eq {s2}}
@@ -449,7 +449,7 @@ start_server {
         set rd [redis_deferring_client]
         $rd XREAD BLOCK 20000 STREAMS s2 s2 s2 $ $ $
         # wait_for_blocked_clients_count 1 -> wait_for_blocked_client
-        wait_for_blocked_clients_count 1
+        wait_for_blocked_client
         r MULTI
         r XADD s2 * field one
         r XADD s2 * field two
@@ -575,7 +575,7 @@ start_server {
         set rd [redis_deferring_client]
         $rd XREAD BLOCK 0 STREAMS x 1-18446744073709551615
         # wait_for_blocked_clients_count 1 -> wait_for_blocked_client
-        wait_for_blocked_clients_count 1
+        wait_for_blocked_client
         r XADD x 1-1 f v
         r XADD x 1-18446744073709551615 f v
         r XADD x 2-1 f v
