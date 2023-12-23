@@ -21,11 +21,7 @@ public class XRevRange extends Ranges {
             return Response.invalidArgumentsCountError("xrevrange");
         }
 
-        Slice key = params().get(0);
-        SequencedMap<StreamId, SequencedMap<Slice, Slice>> map = getStreamFromBaseOrCreateEmpty(key).getStoredData();
-        it = map.reverseIterator();
         multiplier = -1;
-
         return range();
     }
 }

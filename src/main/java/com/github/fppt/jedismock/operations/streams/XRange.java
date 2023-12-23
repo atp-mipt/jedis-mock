@@ -25,10 +25,7 @@ public class XRange extends Ranges {
             return Response.invalidArgumentsCountError("xrange");
         }
 
-        Slice key = params().get(0);
-        SequencedMap<StreamId, SequencedMap<Slice, Slice>> map = getStreamFromBaseOrCreateEmpty(key).getStoredData();
-        it = map.iterator();
-
+        multiplier = 1;
         return range();
     }
 }

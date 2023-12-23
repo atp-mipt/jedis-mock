@@ -21,11 +21,6 @@ import static com.github.fppt.jedismock.datastructures.streams.StreamErrors.NOT_
 import static com.github.fppt.jedismock.datastructures.streams.StreamErrors.SYNTAX_ERROR;
 
 public class Ranges extends AbstractRedisOperation {
-    @SuppressFBWarnings(
-            value = "UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR",
-            justification = "'it' is to be initialized in inheritors"
-    )
-    protected SequencedMapIterator<StreamId, SequencedMap<Slice, Slice>> it;
     /**
      * Multiplier for comparison:<br>
      * 1 - 'xrange'<br>
@@ -119,7 +114,9 @@ public class Ranges extends AbstractRedisOperation {
             }
         }
 
-        it.findFirstSuitable(start);
+        SequencedMapIterator<StreamId, SequencedMap<Slice, Slice>> it = multiplier == 1
+                ? map.iterator(start)
+                : map.reverseIterator(start);
 
         List<Slice> output = new ArrayList<>();
 

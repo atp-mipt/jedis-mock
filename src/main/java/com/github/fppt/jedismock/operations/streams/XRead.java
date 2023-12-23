@@ -147,7 +147,7 @@ public class XRead extends AbstractRedisOperation {
         /* Response */
         mapKeyToBeginEntryId.forEach((key, id) -> {
             SequencedMap<StreamId, SequencedMap<Slice, Slice>> map = getStreamFromBaseOrCreateEmpty(key).getStoredData();
-            SequencedMapIterator<StreamId, SequencedMap<Slice, Slice>> it = map.iterator();
+            SequencedMapIterator<StreamId, SequencedMap<Slice, Slice>> it;
 
             if (!base().exists(key)) {
                 return; // skip
@@ -163,7 +163,7 @@ public class XRead extends AbstractRedisOperation {
                 return; // impossible as 0xFFFFFFFFFFFFFFFF is greater or equal to all keys
             }
 
-            it.findFirstSuitable(id);
+            it = map.iterator(id);
 
             List<Slice> data = new ArrayList<>();
             int addedEntries = 1;

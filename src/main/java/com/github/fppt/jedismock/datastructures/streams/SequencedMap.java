@@ -229,13 +229,41 @@ public class SequencedMap<K extends Comparable<K>, V> implements Iterable<Map.En
 
     /**
      * Get {@link SequencedMapForwardIterator SequencedMapForwardIterator}
-     * whose iteration starts from the provided key
+     * whose iteration starts from the provided key if there is a mapping for it otherwise
+     * iteration starts from the closest higher element.
+     * If {@code key} is {@code null} than {@code NullPointerException} is thrown.
      *
      * @param key the key which is the start of iteration
-     * @return iterator that points to the provided key
+     * @return iterator that points to the provided key or the closest higher key
      */
     public SequencedMapForwardIterator<K, V> iterator(K key) {
-        return new SequencedMapForwardIterator<>(key, this);
+        if (key == null) {
+            throw new NullPointerException("Key is null");
+        }
+
+        if (map.containsKey(key)) {
+            return new SequencedMapForwardIterator<>(key, this);
+        }
+
+        // failed to get -> searching the first suitable element (potentially can be replaced with binary search)
+        K startKey = null;
+        SequencedMapForwardIterator<K, V> it = new SequencedMapForwardIterator<>(startKey, this);
+
+        if (key != head) { // searching the first node
+            while (it.hasNext()) {
+                startKey = it.next().getKey();
+
+                if (startKey.compareTo(key) >= 0) {
+                    break;
+                }
+            }
+        }
+
+        if (startKey != null) { // map might be empty
+            it.stepBack();
+        }
+
+        return it;
     }
 
     /**
@@ -250,13 +278,41 @@ public class SequencedMap<K extends Comparable<K>, V> implements Iterable<Map.En
 
     /**
      * Get {@link SequencedMapReverseIterator SequencedMapReverseIterator}
-     * whose iteration starts from the provided key
+     * whose iteration starts from the provided key if there is a mapping for it otherwise
+     * iteration starts from the closest lower element.
+     * If {@code key} is {@code null} than {@code NullPointerException} is thrown.
      *
      * @param key the key which is the start of iteration
-     * @return iterator that points to the provided key
+     * @return iterator that points to the provided key or the closest lower key
      */
     public SequencedMapReverseIterator<K, V> reverseIterator(K key) {
-        return new SequencedMapReverseIterator<>(key, this);
+        if (key == null) {
+            throw new NullPointerException("Key is null");
+        }
+
+        if (map.containsKey(key)) {
+            return new SequencedMapReverseIterator<>(key, this);
+        }
+
+        // failed to get -> searching the first suitable element (potentially can be replaced with binary search)
+        K startKey = null;
+        SequencedMapReverseIterator<K, V> it = new SequencedMapReverseIterator<>(startKey, this);
+
+        if (key != tail) { // searching the first node
+            while (it.hasNext()) {
+                startKey = it.next().getKey();
+
+                if (startKey.compareTo(key) <= 0) {
+                    break;
+                }
+            }
+        }
+
+        if (startKey != null) { // map might be empty
+            it.stepBack();
+        }
+
+        return it;
     }
 
     /**

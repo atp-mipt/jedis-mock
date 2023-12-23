@@ -9,10 +9,9 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.stream.IntStream;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SequencedMapTests {
     @Test
@@ -271,5 +270,222 @@ public class SequencedMapTests {
                 NullPointerException.class,
                 () -> map.forEach((BiConsumer<? super Integer, ? super Integer>) null)
         );
+    }
+
+    @Test
+    void getForwardIteratorWithParamWhenMapIsEmptyTest() {
+        SequencedMap<Integer, Integer> map = new SequencedMap<>();
+        SequencedMapIterator<Integer, Integer> it;
+
+        it = map.iterator(7);
+        assertFalse(it.hasNext());
+
+        it = map.iterator(0);
+        assertFalse(it.hasNext());
+    }
+
+    @Test
+    void getForwardIteratorWithParamWhenKeyExistsTest() {
+        SequencedMap<Integer, Integer> map = new SequencedMap<>();
+
+        map.append(1, 2);
+        map.append(2, 3);
+        map.append(3, 4);
+        map.append(4, 5);
+        map.append(5, 6);
+
+        SequencedMapIterator<Integer, Integer> it = map.iterator();
+
+        it = map.iterator(3);
+        assertTrue(it.hasNext());
+
+        Map.Entry<Integer, Integer> entry = it.next();
+
+        assertEquals(3, entry.getKey());
+        assertEquals(4, entry.getValue());
+
+        it = map.iterator(5);
+        assertTrue(it.hasNext());
+
+        entry = it.next();
+
+        assertEquals(5, entry.getKey());
+        assertEquals(6, entry.getValue());
+
+        it = map.iterator(1);
+        assertTrue(it.hasNext());
+
+        entry = it.next();
+
+        assertEquals(1, entry.getKey());
+        assertEquals(2, entry.getValue());
+    }
+
+    @Test
+    void getForwardIteratorWithParamWithNullBorderTest() {
+        SequencedMap<Integer, Integer> map = new SequencedMap<>();
+
+        map.append(1, 2);
+        map.append(2, 3);
+        map.append(5, 6);
+        map.append(6, 7);
+        map.append(100, 101);
+
+        assertThrows(NullPointerException.class, () -> map.iterator(null));
+    }
+
+    @Test
+    void getForwardIteratorWithParamWhenKeyDoesNotExistTest() {
+        SequencedMap<Integer, Integer> map = new SequencedMap<>();
+
+        map.append(1, 2);
+        map.append(2, 3);
+        map.append(5, 6);
+        map.append(6, 7);
+        map.append(100, 101);
+
+        SequencedMapIterator<Integer, Integer> it = map.iterator();
+
+        it = map.iterator(3);
+        assertTrue(it.hasNext());
+
+        Map.Entry<Integer, Integer> entry = it.next();
+
+        assertEquals(5, entry.getKey());
+        assertEquals(6, entry.getValue());
+
+        it = map.iterator(7);
+        assertTrue(it.hasNext());
+
+        entry = it.next();
+
+        assertEquals(100, entry.getKey());
+        assertEquals(101, entry.getValue());
+
+        it = map.iterator(Integer.MIN_VALUE);
+        assertTrue(it.hasNext());
+
+        entry = it.next();
+
+        assertEquals(1, entry.getKey());
+        assertEquals(2, entry.getValue());
+    }
+
+    @Test
+    void getForwardIteratorWithParamStressTest() {
+        SequencedMap<Integer, Integer> map = new SequencedMap<>();
+        SequencedMapForwardIterator<Integer, Integer> it = map.iterator();
+
+        for (int i = 0; i < 5001; i += 5) {
+            map.append(i, i + 3);
+        }
+
+        for (int i = 0; i < 1000; ++i) {
+            int key = (int) (Math.random() * 5000);
+            int correctKey = key + (key % 5 == 0 ? 0 : 5 - key % 5);
+            it = map.iterator(key);
+            Map.Entry<Integer, Integer> entry = it.next();
+            assertEquals(correctKey, entry.getKey());
+            assertEquals(correctKey + 3, entry.getValue());
+        }
+    }
+
+    @Test
+    void getReverseIteratorWithParamWithEmptyMapTest() {
+        SequencedMap<Integer, Integer> map = new SequencedMap<>();
+        SequencedMapIterator<Integer, Integer> it;
+
+        it = map.reverseIterator(7);
+        assertFalse(it.hasNext());
+
+        it = map.reverseIterator(0);
+        assertFalse(it.hasNext());
+    }
+
+    @Test
+    void getReverseIteratorWithParamWhenKeyExistsTest() {
+        SequencedMap<Integer, Integer> map = new SequencedMap<>();
+
+        map.append(1, 2);
+        map.append(2, 3);
+        map.append(3, 4);
+        map.append(4, 5);
+        map.append(5, 6);
+
+        SequencedMapIterator<Integer, Integer> it;
+
+        it = map.reverseIterator(3);
+        assertTrue(it.hasNext());
+
+        Map.Entry<Integer, Integer> entry = it.next();
+
+        assertEquals(3, entry.getKey());
+        assertEquals(4, entry.getValue());
+
+        it = map.reverseIterator(5);
+        assertTrue(it.hasNext());
+
+        entry = it.next();
+
+        assertEquals(5, entry.getKey());
+        assertEquals(6, entry.getValue());
+
+        it = map.reverseIterator(1);
+        assertTrue(it.hasNext());
+
+        entry = it.next();
+
+        assertEquals(1, entry.getKey());
+        assertEquals(2, entry.getValue());
+    }
+
+    @Test
+    void getReverseIteratorWithParamWithNullBorderTest() {
+        SequencedMap<Integer, Integer> map = new SequencedMap<>();
+
+        map.append(100, 101);
+        map.append(5, 6);
+        map.append(6, 7);
+        map.append(2, 3);
+        map.append(1, 2);
+
+        assertThrows(NullPointerException.class, () -> map.reverseIterator(null));
+    }
+
+    @Test
+    void getReverseIteratorWithParamWhenKeyDoesNotExistTest() {
+        SequencedMap<Integer, Integer> map = new SequencedMap<>();
+
+        map.append(1, 2);
+        map.append(2, 3);
+        map.append(5, 6);
+        map.append(6, 7);
+        map.append(100, 101);
+
+        SequencedMapIterator<Integer, Integer> it;
+
+        it = map.reverseIterator(3);
+        assertTrue(it.hasNext());
+
+        Map.Entry<Integer, Integer> entry = it.next();
+
+        assertEquals(2, entry.getKey());
+        assertEquals(3, entry.getValue());
+
+        it = map.reverseIterator(99);
+        assertTrue(it.hasNext());
+
+        entry = it.next();
+
+        assertEquals(6, entry.getKey());
+        assertEquals(7, entry.getValue());
+
+        it = map.reverseIterator(Integer.MAX_VALUE);
+        assertTrue(it.hasNext());
+
+        entry = it.next();
+
+        assertEquals(100, entry.getKey());
+        assertEquals(101, entry.getValue());
     }
 }

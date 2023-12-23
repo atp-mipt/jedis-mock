@@ -50,35 +50,7 @@ public class SequencedMapReverseIterator<K extends Comparable<K>, V> implements 
         return new AbstractMap.SimpleEntry<>(curr, map.get(curr));
     }
 
-    /**
-     * Sets {@code curr} equal to the first element not less than {@code border}.
-     * If {@code border} is {@code null} than {@code NullPointerException} is thrown.
-     * @param border must be not null
-     */
-    @Override
-    public void findFirstSuitable(K border) {
-        if (border == null) {
-            throw new NullPointerException("Border is null");
-        }
-
-        if (map.contains(border)) {
-            curr = border;
-        }
-
-        if (curr != null && border.compareTo(curr) > 0) { // reset curr
-            curr = null;
-        }
-
-        if (border != (curr == null ? map.getTail() : curr)) { // searching the first node
-            while (hasNext()) {
-                next();
-
-                if (curr.compareTo(border) <= 0) {
-                    break;
-                }
-            }
-        }
-
-        curr = curr == null ? null : map.getNextKey(curr); // map might be empty
+    void stepBack() {
+        curr = map.getNextKey(curr);
     }
 }

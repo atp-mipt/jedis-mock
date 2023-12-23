@@ -6,6 +6,4 @@ import java.util.Map;
 public interface SequencedMapIterator<K extends Comparable<K>, V> extends Iterator<Map.Entry<K, V>> {
     @Override
     Map.Entry<K, V> next();
-
-    void findFirstSuitable(K border);
 }
