@@ -9,18 +9,18 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.stream.IntStream;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class SequencedMapTests {
     @Test
     void initializeMapTest() {
         SequencedMap<Integer, Integer> map = new SequencedMap<>();
 
-        assertNull(map.getHead());
-        assertNull(map.getTail());
-        assertEquals(0, map.size());
+        assertThat(map.getHead()).isNull();;
+        assertThat(map.getTail()).isNull();;
+        assertThat(map.size()).isEqualTo(0);;
     }
 
     @Test
@@ -28,11 +28,11 @@ public class SequencedMapTests {
         SequencedMap<Integer, Integer> map = new SequencedMap<>();
 
         map.append(1, 2);
-        assertEquals(1, map.getHead());
-        assertEquals(1, map.getTail());
-        assertEquals(1, map.size());
-        assertEquals(2, map.get(1));
-        assertNull(map.get(0));
+        assertThat(map.getHead()).isEqualTo(1);;
+        assertThat(map.getTail()).isEqualTo(1);;
+        assertThat(map.size()).isEqualTo(1);;
+        assertThat(map.get(1)).isEqualTo(2);;
+        assertThat(map.get(0)).isNull();;
     }
 
     @Test
@@ -57,20 +57,20 @@ public class SequencedMapTests {
 
         Map.Entry<Integer, Integer> entry = map.remove(0);
 
-        assertNull(entry);
-        assertEquals(1, map.getHead());
-        assertEquals(1, map.getTail());
-        assertEquals(1, map.size());
-        assertEquals(2, map.get(1));
+        assertThat(entry).isNull();;
+        assertThat(map.getHead()).isEqualTo(1);;
+        assertThat(map.getTail()).isEqualTo(1);;
+        assertThat(map.size()).isEqualTo(1);;
+        assertThat(map.get(1)).isEqualTo(2);;
 
         entry = map.remove(1);
 
-        assertEquals(1, entry.getKey());
-        assertEquals(2, entry.getValue());
+        assertThat(entry.getKey()).isEqualTo(1);;
+        assertThat(entry.getValue()).isEqualTo(2);;
 
-        assertNull(map.getHead());
-        assertNull(map.getTail());
-        assertEquals(0, map.size());
+        assertThat(map.getHead()).isNull();;
+        assertThat(map.getTail()).isNull();;
+        assertThat(map.size()).isEqualTo(0);;
     }
 
     @Test
@@ -81,15 +81,15 @@ public class SequencedMapTests {
         map.append(2, 3);
         map.append(3, 4);
 
-        assertThrows(NullPointerException.class, () -> map.getNextKey(0));
-        assertEquals(2, map.getNextKey(1));
-        assertEquals(3, map.getNextKey(2));
-        assertNull(map.getNextKey(3));
+        assertThatThrownBy(() -> map.getNextKey(0)).isInstanceOf(NullPointerException.class);;
+        assertThat(map.getNextKey(1)).isEqualTo(2);;
+        assertThat(map.getNextKey(2)).isEqualTo(3);;
+        assertThat(map.getNextKey(3)).isNull();;
 
-        assertThrows(NullPointerException.class, () -> map.getPreviousKey(0));
-        assertNull(map.getPreviousKey(1));
-        assertEquals(1, map.getPreviousKey(2));
-        assertEquals(2, map.getPreviousKey(3));
+        assertThatThrownBy(() -> map.getPreviousKey(0)).isInstanceOf(NullPointerException.class);;
+        assertThat(map.getPreviousKey(1)).isNull();;
+        assertThat(map.getPreviousKey(2)).isEqualTo(1);;
+        assertThat(map.getPreviousKey(3)).isEqualTo(2);;
     }
 
     @Test
@@ -100,18 +100,18 @@ public class SequencedMapTests {
         map.append(2, 3);
         map.append(3, 4);
 
-        assertThrows(NullPointerException.class, () -> map.setNextKey(0, 1));
-        assertThrows(NullPointerException.class, () -> map.setNextKey(1, 0));
+        assertThatThrownBy(() -> map.setNextKey(0, 1)).isInstanceOf(NullPointerException.class);;
+        assertThatThrownBy(() -> map.setNextKey(1, 0)).isInstanceOf(NullPointerException.class);;
 
         map.setNextKey(1, 3);
 
-        assertEquals(3, map.getNextKey(1));
-        assertEquals(3, map.getNextKey(2));
-        assertNull(map.getNextKey(3));
+        assertThat(map.getNextKey(1)).isEqualTo(3);;
+        assertThat(map.getNextKey(2)).isEqualTo(3);;
+        assertThat(map.getNextKey(3)).isNull();;
 
-        assertNull(map.getPreviousKey(1));
-        assertEquals(1, map.getPreviousKey(2));
-        assertEquals(2, map.getPreviousKey(3));
+        assertThat(map.getPreviousKey(1)).isNull();;
+        assertThat(map.getPreviousKey(2)).isEqualTo(1);;
+        assertThat(map.getPreviousKey(3)).isEqualTo(2);;
     }
 
     @Test
@@ -122,18 +122,18 @@ public class SequencedMapTests {
         map.append(2, 3);
         map.append(3, 4);
 
-        assertThrows(NullPointerException.class, () -> map.setPreviousKey(0, 1));
-        assertThrows(NullPointerException.class, () -> map.setPreviousKey(1, 0));
+        assertThatThrownBy(() -> map.setPreviousKey(0, 1)).isInstanceOf(NullPointerException.class);;
+        assertThatThrownBy(() -> map.setPreviousKey(1, 0)).isInstanceOf(NullPointerException.class);;
 
         map.setPreviousKey(3, 1);
 
-        assertEquals(2, map.getNextKey(1));
-        assertEquals(3, map.getNextKey(2));
-        assertNull(map.getNextKey(3));
+        assertThat(map.getNextKey(1)).isEqualTo(2);;
+        assertThat(map.getNextKey(2)).isEqualTo(3);;
+        assertThat(map.getNextKey(3)).isNull();;
 
-        assertNull(map.getPreviousKey(1));
-        assertEquals(1, map.getPreviousKey(2));
-        assertEquals(1, map.getPreviousKey(3));
+        assertThat(map.getPreviousKey(1)).isNull();;
+        assertThat(map.getPreviousKey(2)).isEqualTo(1);;
+        assertThat(map.getPreviousKey(3)).isEqualTo(1);;
     }
 
     @Test
@@ -143,53 +143,53 @@ public class SequencedMapTests {
         map.append(0, 0);
 
         IntStream.range(1, 1_000_001).forEach(el -> {
-            assertEquals(el - 1, map.getTail());
-            assertEquals(0, map.getHead());
+            assertThat(map.getTail()).isEqualTo(el - 1);;
+            assertThat(map.getHead()).isEqualTo(0);;
             map.append(el, el * 2);
-            assertEquals(el, map.getTail());
-            assertEquals(0, map.getHead());
+            assertThat(map.getTail()).isEqualTo(el);;
+            assertThat(map.getHead()).isEqualTo(0);;
 
-            assertEquals(el + 1, map.size());
+            assertThat(map.size()).isEqualTo(el + 1);;
         });
 
         IntStream.range(1, 500_000).forEach(el -> {
-            assertEquals(1_000_000, map.getTail());
-            assertEquals(0, map.getHead());
+            assertThat(map.getTail()).isEqualTo(1_000_000);;
+            assertThat(map.getHead()).isEqualTo(0);;
             map.remove(el);
-            assertEquals(1_000_000, map.getTail());
-            assertEquals(0, map.getHead());
+            assertThat(map.getTail()).isEqualTo(1_000_000);;
+            assertThat(map.getHead()).isEqualTo(0);;
 
-            assertEquals(1_000_001 - el, map.size());
+            assertThat(map.size()).isEqualTo(1_000_001 - el);;
         });
 
         IntStream.range(0, 249_999).map(el -> 1_000_000 - el).forEach(el -> {
-            assertEquals(el, map.getTail());
-            assertEquals(0, map.getHead());
+            assertThat(map.getTail()).isEqualTo(el);;
+            assertThat(map.getHead()).isEqualTo(0);;
             map.remove(el);
-            assertEquals(el - 1, map.getTail());
-            assertEquals(0, map.getHead());
+            assertThat(map.getTail()).isEqualTo(el - 1);;
+            assertThat(map.getHead()).isEqualTo(0);;
 
-            assertEquals(el - 499_999, map.size());
+            assertThat(map.size()).isEqualTo(el - 499_999);;
         });
 
         Map.Entry<Integer, Integer> entry = map.remove(0);
 
-        assertEquals(0, entry.getKey());
-        assertEquals(0, entry.getValue());
-        assertEquals(250_002, map.size());
+        assertThat(entry.getKey()).isEqualTo(0);;
+        assertThat(entry.getValue()).isEqualTo(0);;
+        assertThat(map.size()).isEqualTo(250_002);;
 
         IntStream.range(500_000, 749_999).forEach(el -> {
-            assertEquals(750_001, map.getTail());
-            assertEquals(el, map.getHead());
+            assertThat(map.getTail()).isEqualTo(750_001);;
+            assertThat(map.getHead()).isEqualTo(el);;
 
             Map.Entry<Integer, Integer> localEntry = map.remove(el);
-            assertEquals(el, localEntry.getKey());
-            assertEquals(el * 2, localEntry.getValue());
+            assertThat(localEntry.getKey()).isEqualTo(el);;
+            assertThat(localEntry.getValue()).isEqualTo(el * 2);;
 
-            assertEquals(750_001, map.getTail());
-            assertEquals(el + 1, map.getHead());
+            assertThat(map.getTail()).isEqualTo(750_001);;
+            assertThat(map.getHead()).isEqualTo(el + 1);;
 
-            assertEquals( 750_001 - el, map.size());
+            assertThat(map.size()).isEqualTo( 750_001 - el);;
         });
     }
 
@@ -197,25 +197,25 @@ public class SequencedMapTests {
     void removeHeadTest() {
         SequencedMap<Integer, Integer> map = new SequencedMap<>();
 
-        assertDoesNotThrow(map::removeHead);
-        assertEquals(0, map.size());
-        assertNull(map.getHead());
+        assertThatCode(map::removeHead).doesNotThrowAnyException();;
+        assertThat(map.size()).isEqualTo(0);;
+        assertThat(map.getHead()).isNull();;
 
         map.append(0, 0);
         map.append(1, 0);
         map.append(2, 0);
 
-        assertDoesNotThrow(map::removeHead);
-        assertEquals(2, map.size());
-        assertEquals(1, map.getHead());
+        assertThatCode(map::removeHead).doesNotThrowAnyException();;
+        assertThat(map.size()).isEqualTo(2);;
+        assertThat(map.getHead()).isEqualTo(1);;
 
-        assertDoesNotThrow(map::removeHead);
-        assertEquals(1, map.size());
-        assertEquals(2, map.getHead());
+        assertThatCode(map::removeHead).doesNotThrowAnyException();;
+        assertThat(map.size()).isEqualTo(1);;
+        assertThat(map.getHead()).isEqualTo(2);;
 
-        assertDoesNotThrow(map::removeHead);
-        assertEquals(0, map.size());
-        assertNull(map.getHead());
+        assertThatCode(map::removeHead).doesNotThrowAnyException();;
+        assertThat(map.size()).isEqualTo(0);;
+        assertThat(map.getHead()).isNull();;
     }
 
     @Test
@@ -239,10 +239,10 @@ public class SequencedMapTests {
             list.add(key + value);
         });
 
-        assertEquals(map.size(), list.size());
+        assertThat(list.size()).isEqualTo(map.size());;
 
         for (int el : list) {
-            assertEquals(9, el);
+            assertThat(el).isEqualTo(9);;
         }
     }
 
@@ -250,10 +250,9 @@ public class SequencedMapTests {
     void forEachWithNullActionTest() {
         SequencedMap<Integer, Integer> map = new SequencedMap<>();
 
-        assertThrows(
-                NullPointerException.class,
+        assertThatThrownBy(
                 () -> map.forEach((BiConsumer<? super Integer, ? super Integer>) null)
-        );
+        ).isInstanceOf(NullPointerException.class);
 
         map.append(0, 9);
         map.append(1, 8);
@@ -266,10 +265,9 @@ public class SequencedMapTests {
         map.append(8, 1);
         map.append(9, 0);
 
-        assertThrows(
-                NullPointerException.class,
+        assertThatThrownBy(
                 () -> map.forEach((BiConsumer<? super Integer, ? super Integer>) null)
-        );
+        ).isInstanceOf(NullPointerException.class);
     }
 
     @Test
@@ -278,10 +276,10 @@ public class SequencedMapTests {
         SequencedMapIterator<Integer, Integer> it;
 
         it = map.iterator(7);
-        assertFalse(it.hasNext());
+        assertThat(it.hasNext()).isFalse();;
 
         it = map.iterator(0);
-        assertFalse(it.hasNext());
+        assertThat(it.hasNext()).isFalse();;
     }
 
     @Test
@@ -297,28 +295,28 @@ public class SequencedMapTests {
         SequencedMapIterator<Integer, Integer> it = map.iterator();
 
         it = map.iterator(3);
-        assertTrue(it.hasNext());
+        assertThat(it.hasNext()).isTrue();;
 
         Map.Entry<Integer, Integer> entry = it.next();
 
-        assertEquals(3, entry.getKey());
-        assertEquals(4, entry.getValue());
+        assertThat(entry.getKey()).isEqualTo(3);;
+        assertThat(entry.getValue()).isEqualTo(4);;
 
         it = map.iterator(5);
-        assertTrue(it.hasNext());
+        assertThat(it.hasNext()).isTrue();;
 
         entry = it.next();
 
-        assertEquals(5, entry.getKey());
-        assertEquals(6, entry.getValue());
+        assertThat(entry.getKey()).isEqualTo(5);;
+        assertThat(entry.getValue()).isEqualTo(6);;
 
         it = map.iterator(1);
-        assertTrue(it.hasNext());
+        assertThat(it.hasNext()).isTrue();;
 
         entry = it.next();
 
-        assertEquals(1, entry.getKey());
-        assertEquals(2, entry.getValue());
+        assertThat(entry.getKey()).isEqualTo(1);;
+        assertThat(entry.getValue()).isEqualTo(2);;
     }
 
     @Test
@@ -331,7 +329,7 @@ public class SequencedMapTests {
         map.append(6, 7);
         map.append(100, 101);
 
-        assertThrows(NullPointerException.class, () -> map.iterator(null));
+        assertThatThrownBy(() -> map.iterator(null)).isInstanceOf(NullPointerException.class);;
     }
 
     @Test
@@ -347,28 +345,28 @@ public class SequencedMapTests {
         SequencedMapIterator<Integer, Integer> it = map.iterator();
 
         it = map.iterator(3);
-        assertTrue(it.hasNext());
+        assertThat(it.hasNext()).isTrue();;
 
         Map.Entry<Integer, Integer> entry = it.next();
 
-        assertEquals(5, entry.getKey());
-        assertEquals(6, entry.getValue());
+        assertThat(entry.getKey()).isEqualTo(5);;
+        assertThat(entry.getValue()).isEqualTo(6);;
 
         it = map.iterator(7);
-        assertTrue(it.hasNext());
+        assertThat(it.hasNext()).isTrue();;
 
         entry = it.next();
 
-        assertEquals(100, entry.getKey());
-        assertEquals(101, entry.getValue());
+        assertThat(entry.getKey()).isEqualTo(100);;
+        assertThat(entry.getValue()).isEqualTo(101);;
 
         it = map.iterator(Integer.MIN_VALUE);
-        assertTrue(it.hasNext());
+        assertThat(it.hasNext()).isTrue();;
 
         entry = it.next();
 
-        assertEquals(1, entry.getKey());
-        assertEquals(2, entry.getValue());
+        assertThat(entry.getKey()).isEqualTo(1);;
+        assertThat(entry.getValue()).isEqualTo(2);;
     }
 
     @Test
@@ -385,8 +383,8 @@ public class SequencedMapTests {
             int correctKey = key + (key % 5 == 0 ? 0 : 5 - key % 5);
             it = map.iterator(key);
             Map.Entry<Integer, Integer> entry = it.next();
-            assertEquals(correctKey, entry.getKey());
-            assertEquals(correctKey + 3, entry.getValue());
+            assertThat(entry.getKey()).isEqualTo(correctKey);;
+            assertThat(entry.getValue()).isEqualTo(correctKey + 3);;
         }
     }
 
@@ -396,10 +394,10 @@ public class SequencedMapTests {
         SequencedMapIterator<Integer, Integer> it;
 
         it = map.reverseIterator(7);
-        assertFalse(it.hasNext());
+        assertThat(it.hasNext()).isFalse();;
 
         it = map.reverseIterator(0);
-        assertFalse(it.hasNext());
+        assertThat(it.hasNext()).isFalse();;
     }
 
     @Test
@@ -415,28 +413,28 @@ public class SequencedMapTests {
         SequencedMapIterator<Integer, Integer> it;
 
         it = map.reverseIterator(3);
-        assertTrue(it.hasNext());
+        assertThat(it.hasNext()).isTrue();;
 
         Map.Entry<Integer, Integer> entry = it.next();
 
-        assertEquals(3, entry.getKey());
-        assertEquals(4, entry.getValue());
+        assertThat(entry.getKey()).isEqualTo(3);;
+        assertThat(entry.getValue()).isEqualTo(4);;
 
         it = map.reverseIterator(5);
-        assertTrue(it.hasNext());
+        assertThat(it.hasNext()).isTrue();;
 
         entry = it.next();
 
-        assertEquals(5, entry.getKey());
-        assertEquals(6, entry.getValue());
+        assertThat(entry.getKey()).isEqualTo(5);;
+        assertThat(entry.getValue()).isEqualTo(6);;
 
         it = map.reverseIterator(1);
-        assertTrue(it.hasNext());
+        assertThat(it.hasNext()).isTrue();;
 
         entry = it.next();
 
-        assertEquals(1, entry.getKey());
-        assertEquals(2, entry.getValue());
+        assertThat(entry.getKey()).isEqualTo(1);;
+        assertThat(entry.getValue()).isEqualTo(2);;
     }
 
     @Test
@@ -449,7 +447,7 @@ public class SequencedMapTests {
         map.append(2, 3);
         map.append(1, 2);
 
-        assertThrows(NullPointerException.class, () -> map.reverseIterator(null));
+        assertThatThrownBy(() -> map.reverseIterator(null)).isInstanceOf(NullPointerException.class);;
     }
 
     @Test
@@ -465,27 +463,27 @@ public class SequencedMapTests {
         SequencedMapIterator<Integer, Integer> it;
 
         it = map.reverseIterator(3);
-        assertTrue(it.hasNext());
+        assertThat(it.hasNext()).isTrue();;
 
         Map.Entry<Integer, Integer> entry = it.next();
 
-        assertEquals(2, entry.getKey());
-        assertEquals(3, entry.getValue());
+        assertThat(entry.getKey()).isEqualTo(2);;
+        assertThat(entry.getValue()).isEqualTo(3);;
 
         it = map.reverseIterator(99);
-        assertTrue(it.hasNext());
+        assertThat(it.hasNext()).isTrue();;
 
         entry = it.next();
 
-        assertEquals(6, entry.getKey());
-        assertEquals(7, entry.getValue());
+        assertThat(entry.getKey()).isEqualTo(6);;
+        assertThat(entry.getValue()).isEqualTo(7);;
 
         it = map.reverseIterator(Integer.MAX_VALUE);
-        assertTrue(it.hasNext());
+        assertThat(it.hasNext()).isTrue();;
 
         entry = it.next();
 
-        assertEquals(100, entry.getKey());
-        assertEquals(101, entry.getValue());
+        assertThat(entry.getKey()).isEqualTo(100);;
+        assertThat(entry.getValue()).isEqualTo(101);;
     }
 }

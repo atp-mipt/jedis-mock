@@ -5,8 +5,9 @@ import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.jupiter.api.Test;
 
 import static java.lang.Long.toUnsignedString;
-import static org.junit.jupiter.api.Assertions.*;
-
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class StreamIdTests {
     @Test
@@ -17,87 +18,93 @@ public class StreamIdTests {
     @Test
     void zeroComparisonWithZeroTest() {
         StreamId zero = new StreamId(0, 0);
-        assertTrue(zero.isZero());
+        assertThat(zero.isZero()).isTrue();
     }
 
     @Test
     void zeroComparisonWithPositiveKeysTest() {
         StreamId other = new StreamId(0, 1);
-        assertFalse(other.isZero());
+        assertThat(other.isZero()).isFalse();
 
         StreamId newOther = new StreamId(1, 0);
-        assertFalse(newOther.isZero());
+        assertThat(newOther.isZero()).isFalse();
 
         StreamId newestOther = new StreamId(1, 1);
-        assertFalse(newestOther.isZero());
+        assertThat(newestOther.isZero()).isFalse();
     }
 
     @Test
     void zeroComparisonWithNegativeKeysTest() {
         StreamId other = new StreamId(0, -1);
-        assertFalse(other.isZero());
+        assertThat(other.isZero()).isFalse();
 
         StreamId newOther = new StreamId(-1, 0);
-        assertFalse(newOther.isZero());
+        assertThat(newOther.isZero()).isFalse();
 
         StreamId newestOther = new StreamId(-1, -1);
-        assertFalse(newestOther.isZero());
+        assertThat(newestOther.isZero()).isFalse();
     }
 
     @Test
     void incrementMaxKeyTest() {
         StreamId maxKey = new StreamId(-1, -1);
-        assertThrows(
-                WrongStreamKeyException.class,
-                maxKey::increment,
-                "ERR invalid start ID for the interval"
-        );
+        assertThatThrownBy(
+                maxKey::increment
+        )
+                .isInstanceOf(WrongStreamKeyException.class)
+                .hasMessage("ERR invalid start ID for the interval");
     }
 
     @Test
     void incrementTest() {
-        assertDoesNotThrow(() -> assertEquals(
-                new StreamId(1234567890, 1234567891),
+        assertThatCode(() -> assertThat(
                 new StreamId(1234567890, 1234567890).increment()
-        ));
+        ).isEqualTo(
+                new StreamId(1234567890, 1234567891)
+        )).doesNotThrowAnyException();
 
-        assertDoesNotThrow(() -> assertEquals(
-                new StreamId(1, 0),
+        assertThatCode(() -> assertThat(
                 new StreamId(0, -1).increment()
-        ));
+        ).isEqualTo(
+                new StreamId(1, 0)
+        )).doesNotThrowAnyException();
 
-        assertDoesNotThrow(() -> assertEquals(
-                new StreamId(-1234567891, -1234567890),
+        assertThatCode(() -> assertThat(
                 new StreamId(-1234567891, -1234567891).increment()
-        ));
+        ).isEqualTo(
+                new StreamId(-1234567891, -1234567890)
+        )).doesNotThrowAnyException();
     }
 
     @Test
     void decrementMinKeyTest() {
         StreamId minKey = new StreamId(0, 0);
-        assertThrows(
-                WrongStreamKeyException.class,
-                minKey::decrement,
-                "ERR invalid end ID for the interval"
-        );
+        assertThatThrownBy(
+                minKey::decrement
+        )
+                .isInstanceOf(WrongStreamKeyException.class)
+                .hasMessage("ERR invalid end ID for the interval");
     }
 
     @Test
     void decrementTest() {
-        assertDoesNotThrow(() -> assertEquals(
-                new StreamId(1234567890, 1234567890),
+        assertThatCode(() -> assertThat(
                 new StreamId(1234567890, 1234567891).decrement()
-        ));
+        ).isEqualTo(
+                new StreamId(1234567890, 1234567890)
+        )).doesNotThrowAnyException();
 
-        assertDoesNotThrow(() -> assertEquals(
-                new StreamId(0, -1),
+        assertThatCode(() -> assertThat(
                 new StreamId(1, 0).decrement()
-        ));
+        ).isEqualTo(
+                new StreamId(0, -1)
+        )).doesNotThrowAnyException();
 
-        assertDoesNotThrow(() -> assertEquals(
-                new StreamId(-1234567891, -1234567891),
+        assertThatCode(() -> assertThat(
                 new StreamId(-1234567891, -1234567890).decrement()
-        ));
+        ).isEqualTo(
+                new StreamId(-1234567891, -1234567891)
+        )).doesNotThrowAnyException();
     }
 
     @Test
@@ -107,83 +114,82 @@ public class StreamIdTests {
                 long first = (long) (Math.random() * Long.MAX_VALUE) * (Math.random() >= 0.5 ? 1 : -1);
                 long second = (long) (Math.random() * (Long.MAX_VALUE - 1) + 1) * (Math.random() >= 0.5 ? 1 : -1);
 
-                assertDoesNotThrow(
-                        () -> assertEquals(
-                                new StreamId(first, second + 1),
+                assertThatCode(
+                        () -> assertThat(
                                 new StreamId(first, second).increment()
+                        ).isEqualTo(
+                                new StreamId(first, second + 1)
                         )
-                );
+                ).doesNotThrowAnyException();
 
-                assertDoesNotThrow(
-                        () -> assertEquals(
-                                new StreamId(first, second - 1),
+                assertThatCode(
+                        () -> assertThat(
                                 new StreamId(first, second).decrement()
+                        ).isEqualTo(
+                                new StreamId(first, second - 1)
                         )
-                );
+                ).doesNotThrowAnyException();
             } else {
                 long first = (long) (Math.random() * (Long.MAX_VALUE - 1) + 1) * (Math.random() >= 0.5 ? 1 : -1);
 
-                assertDoesNotThrow(
-                        () -> assertEquals(
-                                new StreamId(first + 1, 0),
+                assertThatCode(
+                        () -> assertThat(
                                 new StreamId(first, -1).increment()
+                        ).isEqualTo(
+                                new StreamId(first + 1, 0)
                         )
-                );
+                ).doesNotThrowAnyException();
 
-                assertDoesNotThrow(
-                        () -> assertEquals(
-                                new StreamId(first - 1, -1),
+                assertThatCode(
+                        () -> assertThat(
                                 new StreamId(first, 0).decrement()
+                        ).isEqualTo(
+                                new StreamId(first - 1, -1)
                         )
-                );
+                ).doesNotThrowAnyException();
             }
         }
     }
 
     @Test
     void toStringStressTest() {
-        assertEquals(
-                "18446744072474983726-18446744072474983726",
+        assertThat(
                 new StreamId(-1234567890, -1234567890).toString()
-        );
+        ).isEqualTo("18446744072474983726-18446744072474983726");
 
-        assertEquals(
-                "0-0",
+        assertThat(
                 new StreamId().toString()
-        );
+        ).isEqualTo("0-0");
 
-        assertEquals(
-                "18446744073709551615-1234567890",
+        assertThat(
                 new StreamId(-1, 1234567890).toString()
-        );
+        ).isEqualTo("18446744073709551615-1234567890");
 
-        assertEquals(
-                "1234567890-18446744073709551615",
+        assertThat(
                 new StreamId(1234567890, -1).toString()
-        );
+        ).isEqualTo("1234567890-18446744073709551615");
     }
 
     @Test
     void comparisonTest() {
         StreamId zero = new StreamId();
-        assertEquals(0, zero.compareTo(new StreamId()));
+        assertThat(zero.compareTo(new StreamId())).isEqualTo(0);
 
         for (int i = 0; i < 1000; ++i) {
             long first = (long) (Math.random() * Long.MAX_VALUE) * (Math.random() >= 0.5 ? 1 : -1);
             long second = (long) (Math.random() * (Long.MAX_VALUE - 1) + 1) * (Math.random() >= 0.5 ? 1 : -1);
 
-            assertTrue(
-                    zero.compareTo(new StreamId(first, second)) < 0,
-                    "0-0 >= " + new StreamId(first, second)
-            );
+            assertThat(
+                    zero.compareTo(new StreamId(first, second)) < 0
+            ).isTrue();
         }
 
         StreamId ones = new StreamId(1, 1);
-        assertTrue(ones.compareTo(new StreamId(0, -1)) > 0);
-        assertTrue(ones.compareTo(new StreamId(1, 0)) > 0);
-        assertEquals(0, ones.compareTo(new StreamId(1, 1)));
-        assertTrue(ones.compareTo(new StreamId(1, 2)) < 0);
-        assertTrue(ones.compareTo(new StreamId(2, 0)) < 0);
+        assertThat(ones.compareTo(new StreamId(0, -1)) > 0).isTrue();
+        assertThat(ones.compareTo(new StreamId(1, 0)) > 0).isTrue();
+        assertThat(ones.compareTo(new StreamId(1, 1))).isEqualTo(0);
+        assertThat(ones.compareTo(new StreamId(1, 2)) < 0).isTrue();
+        assertThat(ones.compareTo(new StreamId(2, 0)) < 0).isTrue();
 
         for (int i = 0; i < 1000; ++i) {
             long first = (long) (Math.random() * (Long.MAX_VALUE - 1) + 1) * (Math.random() >= 0.5 ? 1 : -1);
@@ -191,50 +197,46 @@ public class StreamIdTests {
 
             StreamId id = new StreamId(first, second);
 
-            assertTrue(
-                    id.compareTo(new StreamId(first, second + 1)) < 0,
-                    "Id " + id + " >= " + new StreamId(first, second + 1)
-            );
-            assertTrue(
-                    id.compareTo(new StreamId(first + 1, 0)) < 0,
-                    "Id " + id + " >= " + new StreamId(first + 1, 0)
-            );
-            assertTrue(
-                    id.compareTo(new StreamId(first, second - 1)) > 0,
-                    "Id " + id + " <= " + new StreamId(first, second - 1)
-            );
-            assertTrue(
-                    id.compareTo(new StreamId(first - 1, -1)) > 0,
-                    "Id " + id + " <= " + new StreamId(first - 1, -1)
-            );
+            assertThat(
+                    id.compareTo(new StreamId(first, second + 1)) < 0
+            ).isTrue();
+            assertThat(
+                    id.compareTo(new StreamId(first + 1, 0)) < 0
+            ).isTrue();
+            assertThat(
+                    id.compareTo(new StreamId(first, second - 1)) > 0
+            ).isTrue();
+            assertThat(
+                    id.compareTo(new StreamId(first - 1, -1)) > 0
+            ).isTrue();
         }
     }
 
     @Test
     void constructorInvalidIdsTest() {
-        assertThrows(
-                WrongStreamKeyException.class,
-                () -> new StreamId("a"),
-                "ERR Invalid stream ID specified as stream command argument"
-        );
+        assertThatThrownBy(
+                () -> new StreamId("a")
+        )
+                .isInstanceOf(WrongStreamKeyException.class)
+                .hasMessage("ERR Invalid stream ID specified as stream command argument");
 
-        assertThrows(
-                WrongStreamKeyException.class,
-                () -> new StreamId("0-0-0"),
-                "ERR Invalid stream ID specified as stream command argument"
-        );
+        assertThatThrownBy(
+                () -> new StreamId("0-0-0")
+        )
+                .isInstanceOf(WrongStreamKeyException.class)
+                .hasMessage("ERR Invalid stream ID specified as stream command argument");
 
-        assertThrows(
-                WrongStreamKeyException.class,
-                () -> new StreamId("a-0"),
-                "ERR Invalid stream ID specified as stream command argument"
-        );
+        assertThatThrownBy(
+                () -> new StreamId("a-0")
+        )
+                .isInstanceOf(WrongStreamKeyException.class)
+                .hasMessage("ERR Invalid stream ID specified as stream command argument");
 
-        assertThrows(
-                WrongStreamKeyException.class,
-                () -> new StreamId("0-a"),
-                "ERR Invalid stream ID specified as stream command argument"
-        );
+        assertThatThrownBy(
+                () -> new StreamId("0-a")
+        )
+                .isInstanceOf(WrongStreamKeyException.class)
+                .hasMessage("ERR Invalid stream ID specified as stream command argument");
     }
 
     @Test
@@ -243,19 +245,21 @@ public class StreamIdTests {
             long first = (long) (Math.random() * (Long.MAX_VALUE - 1) + 1) * (Math.random() >= 0.5 ? 1 : -1);
             long second = (long) (Math.random() * (Long.MAX_VALUE - 1) + 1) * (Math.random() >= 0.5 ? 1 : -1);
 
-            assertDoesNotThrow(() -> assertEquals(
-                    new StreamId(first, second),
+            assertThatCode(() -> assertThat(
                     new StreamId(toUnsignedString(first) + "-" + toUnsignedString(second))
-            ));
+            ).isEqualTo(
+                    new StreamId(first, second)
+            )).doesNotThrowAnyException();
         }
 
         for (int i = 0; i < 1000; ++i) {
             long first = (long) (Math.random() * (Long.MAX_VALUE - 1) + 1) * (Math.random() >= 0.5 ? 1 : -1);
 
-            assertDoesNotThrow(() -> assertEquals(
-                    new StreamId(first, 0),
+            assertThatCode(() -> assertThat(
                     new StreamId(toUnsignedString(first))
-            ));
+            ).isEqualTo(
+                    new StreamId(first, 0)
+            )).doesNotThrowAnyException();
         }
     }
 }

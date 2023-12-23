@@ -5,10 +5,8 @@ import org.junit.jupiter.api.Test;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class SequencedMapReverseIteratorTests {
     @Test
@@ -26,11 +24,11 @@ public class SequencedMapReverseIteratorTests {
         while (it.hasNext()) {
             ++iterCount;
             Map.Entry<Integer, Integer> entry = it.next();
-            assertEquals(iterCount, entry.getKey());
-            assertEquals(iterCount + 1, entry.getValue());
+            assertThat(entry.getKey()).isEqualTo(iterCount);
+            assertThat(entry.getValue()).isEqualTo(iterCount + 1);
         }
 
-        assertEquals(3, iterCount);
+        assertThat(iterCount).isEqualTo(3);
     }
 
     @Test
@@ -50,11 +48,11 @@ public class SequencedMapReverseIteratorTests {
         while (it.hasNext()) {
             ++iterCount;
             Map.Entry<Integer, Integer> entry = it.next();
-            assertEquals(iterCount + 2, entry.getKey());
-            assertEquals(iterCount + 3, entry.getValue());
+            assertThat(entry.getKey()).isEqualTo(iterCount + 2);
+            assertThat(entry.getValue()).isEqualTo(iterCount + 3);
         }
 
-        assertEquals(3, iterCount);
+        assertThat(iterCount).isEqualTo(3);
 
         it = map.reverseIterator(5);
 
@@ -63,11 +61,11 @@ public class SequencedMapReverseIteratorTests {
         while (it.hasNext()) {
             ++iterCount;
             Map.Entry<Integer, Integer> entry = it.next();
-            assertEquals(iterCount + 4, entry.getKey());
-            assertEquals(iterCount + 5, entry.getValue());
+            assertThat(entry.getKey()).isEqualTo(iterCount + 4);
+            assertThat(entry.getValue()).isEqualTo(iterCount + 5);
         }
 
-        assertEquals(1, iterCount);
+        assertThat(iterCount).isEqualTo(1);
 
         it = map.reverseIterator(1);
 
@@ -76,11 +74,11 @@ public class SequencedMapReverseIteratorTests {
         while (it.hasNext()) {
             ++iterCount;
             Map.Entry<Integer, Integer> entry = it.next();
-            assertEquals(iterCount, entry.getKey());
-            assertEquals(iterCount + 1, entry.getValue());
+            assertThat(entry.getKey()).isEqualTo(iterCount);
+            assertThat(entry.getValue()).isEqualTo(iterCount + 1);
         }
 
-        assertEquals(5, iterCount);
+        assertThat(iterCount).isEqualTo(5);
     }
 
     @Test
@@ -88,7 +86,7 @@ public class SequencedMapReverseIteratorTests {
         SequencedMap<Integer, Integer> map = new SequencedMap<>();
         SequencedMapIterator<Integer, Integer> it = map.reverseIterator();
 
-        assertFalse(it.hasNext());
-        assertThrows(NoSuchElementException.class, it::next);
+        assertThat(it.hasNext()).isFalse();
+        assertThatThrownBy(it::next).isInstanceOf(NoSuchElementException.class);
     }
 }
