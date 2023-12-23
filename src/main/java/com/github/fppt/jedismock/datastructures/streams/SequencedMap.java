@@ -247,7 +247,7 @@ public class SequencedMap<K extends Comparable<K>, V> implements Iterable<Map.En
 
         // failed to get -> searching the first suitable element (potentially can be replaced with binary search)
         K startKey = null;
-        SequencedMapForwardIterator<K, V> it = new SequencedMapForwardIterator<>(startKey, this);
+        SequencedMapForwardIterator<K, V> it = new SequencedMapForwardIterator<>(null, this);
 
         if (key != head) { // searching the first node
             while (it.hasNext()) {
@@ -296,7 +296,7 @@ public class SequencedMap<K extends Comparable<K>, V> implements Iterable<Map.En
 
         // failed to get -> searching the first suitable element (potentially can be replaced with binary search)
         K startKey = null;
-        SequencedMapReverseIterator<K, V> it = new SequencedMapReverseIterator<>(startKey, this);
+        SequencedMapReverseIterator<K, V> it = new SequencedMapReverseIterator<>(null, this);
 
         if (key != tail) { // searching the first node
             while (it.hasNext()) {
