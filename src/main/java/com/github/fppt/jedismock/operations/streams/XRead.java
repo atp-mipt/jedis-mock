@@ -153,7 +153,8 @@ public class XRead extends AbstractRedisOperation {
                 return; // skip
             }
 
-            if (id.compareTo(map.getTail()) >= 0) {
+
+            if (map.getTail() == null || id.compareTo(map.getTail()) >= 0) {
                 return; // skip
             }
 

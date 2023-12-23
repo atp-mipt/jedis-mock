@@ -372,7 +372,6 @@ start_server {
         $rd close
     }
 
-# TODO move to java
 #    test "Blocking XREAD for stream that ran dry (issue 5299)" {
 #        set rd [redis_deferring_client]
 #
@@ -432,34 +431,36 @@ start_server {
 #        $rd close
 #    }
 #
-#    test {XREAD with same stream name multiple times should work} {
-#        r XADD s2 * old abcd1234
-#        set rd [redis_deferring_client]
-#        $rd XREAD BLOCK 20000 STREAMS s2 s2 s2 $ $ $
-#        wait_for_blocked_clients_count 1
-#        r XADD s2 * new abcd1234
-#        set res [$rd read]
-#        assert {[lindex $res 0 0] eq {s2}}
-#        assert {[lindex $res 0 1 0 1] eq {new abcd1234}}
-#        $rd close
-#    }
-#
-#    test {XREAD + multiple XADD inside transaction} {
-#        r XADD s2 * old abcd1234
-#        set rd [redis_deferring_client]
-#        $rd XREAD BLOCK 20000 STREAMS s2 s2 s2 $ $ $
-#        wait_for_blocked_clients_count 1
-#        r MULTI
-#        r XADD s2 * field one
-#        r XADD s2 * field two
-#        r XADD s2 * field three
-#        r EXEC
-#        set res [$rd read]
-#        assert {[lindex $res 0 0] eq {s2}}
-#        assert {[lindex $res 0 1 0 1] eq {field one}}
-#        assert {[lindex $res 0 1 1 1] eq {field two}}
-#        $rd close
-#    }
+    test {XREAD with same stream name multiple times should work} {
+        r XADD s2 * old abcd1234
+        set rd [redis_deferring_client]
+        $rd XREAD BLOCK 20000 STREAMS s2 s2 s2 $ $ $
+        # wait_for_blocked_clients_count 1 -> wait_for_blocked_client
+        wait_for_blocked_clients_count 1
+        r XADD s2 * new abcd1234
+        set res [$rd read]
+        assert {[lindex $res 0 0] eq {s2}}
+        assert {[lindex $res 0 1 0 1] eq {new abcd1234}}
+        $rd close
+    }
+
+    test {XREAD + multiple XADD inside transaction} {
+        r XADD s2 * old abcd1234
+        set rd [redis_deferring_client]
+        $rd XREAD BLOCK 20000 STREAMS s2 s2 s2 $ $ $
+        # wait_for_blocked_clients_count 1 -> wait_for_blocked_client
+        wait_for_blocked_clients_count 1
+        r MULTI
+        r XADD s2 * field one
+        r XADD s2 * field two
+        r XADD s2 * field three
+        r EXEC
+        set res [$rd read]
+        assert {[lindex $res 0 0] eq {s2}}
+        assert {[lindex $res 0 1 0 1] eq {field one}}
+        assert {[lindex $res 0 1 1 1] eq {field two}}
+       $rd close
+    }
 
     test {XDEL basic test} {
         r del somestream
@@ -569,19 +570,19 @@ start_server {
         assert {[lindex $res 0 1 0] == {2-1 {f v}}}
     }
 
-# TODO move to JAVA
-#    test {XREAD streamID edge (blocking)} {
-#        r del x
-#        set rd [redis_deferring_client]
-#        $rd XREAD BLOCK 0 STREAMS x 1-18446744073709551615
-#        wait_for_blocked_clients_count 1
-#        r XADD x 1-1 f v
-#        r XADD x 1-18446744073709551615 f v
-#        r XADD x 2-1 f v
-#        set res [$rd read]
-#        assert {[lindex $res 0 1 0] == {2-1 {f v}}}
-#        $rd close
-#    }
+    test {XREAD streamID edge (blocking)} {
+        r del x
+        set rd [redis_deferring_client]
+        $rd XREAD BLOCK 0 STREAMS x 1-18446744073709551615
+        # wait_for_blocked_clients_count 1 -> wait_for_blocked_client
+        wait_for_blocked_clients_count 1
+        r XADD x 1-1 f v
+        r XADD x 1-18446744073709551615 f v
+        r XADD x 2-1 f v
+        set res [$rd read]
+        assert {[lindex $res 0 1 0] == {2-1 {f v}}}
+        $rd close
+    }
 
     test {XADD streamID edge} {
         r del x
