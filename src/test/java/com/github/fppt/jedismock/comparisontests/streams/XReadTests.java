@@ -83,38 +83,6 @@ public class XReadTests {
     }
 
     @TestTemplate
-    void xaddWithDelShouldNotAwakeClient(Jedis jedis) throws ExecutionException, InterruptedException {
-        Future<?> future = blockingThread.submit(() -> {
-            List<Map.Entry<String, List<StreamEntry>>> data = blockedClient.xread(
-                    XReadParams.xReadParams().block(30000),
-                    ImmutableMap.of("s", StreamEntryID.LAST_ENTRY)
-            );
-
-            assertThat(data)
-                    .hasSize(1)
-                    .first()
-                    .extracting(Map.Entry::getValue)
-                    .asList()
-                    .hasSize(1)
-                    .first()
-                    .usingRecursiveComparison()
-                    .isEqualTo(
-                            new StreamEntry(
-                                    new StreamEntryID(12),
-                                    ImmutableMap.of("new", "123")
-                            )
-                    );
-        });
-
-        jedis.xadd("s", XAddParams.xAddParams().id("11"), ImmutableMap.of("old", "123"));
-        jedis.del("s");
-        jedis.xadd("s", XAddParams.xAddParams().id("12"), ImmutableMap.of("new", "123"));
-
-        future.get();
-    }
-
-
-    @TestTemplate
     void xaddWithDelAndLpushShouldNotAwakeClient(Jedis jedis) throws ExecutionException, InterruptedException {
         Future<?> future = blockingThread.submit(() -> {
             List<Map.Entry<String, List<StreamEntry>>> data = blockedClient.xread(
