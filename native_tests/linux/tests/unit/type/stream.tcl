@@ -661,7 +661,7 @@ start_server {
             r XADD mystream * xitem v
         }
 
-# TODO add to java tests
+#
 #        assert {[r XTRIM mystream MAXLEN ~ 0 LIMIT 1] == 0}
         assert {[r XTRIM mystream MAXLEN ~ 0 LIMIT 2] == 2}
     }
@@ -861,7 +861,7 @@ start_server {tags {"stream"}} {
 #        assert_equal [dict get $reply entries-added] 2
 #        assert_equal [dict get $reply recorded-first-entry-id] "1-0"
 #    }
-# TODO java test
+#
 #    test {XDEL/TRIM are reflected by recorded first entry} {
 #        r DEL x
 #        r XADD x 1-0 data a
