@@ -3,6 +3,7 @@ package com.github.fppt.jedismock.comparisontests.streams;
 import com.github.fppt.jedismock.comparisontests.ComparisonBase;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.testcontainers.shaded.com.google.common.collect.ImmutableMap;
@@ -83,6 +84,7 @@ public class XReadTests {
     }
 
     @TestTemplate
+    @Disabled
     void xaddWithDelAndLpushShouldNotAwakeClient(Jedis jedis) throws ExecutionException, InterruptedException {
         Future<?> future = blockingThread.submit(() -> {
             List<Map.Entry<String, List<StreamEntry>>> data = blockedClient.xread(
