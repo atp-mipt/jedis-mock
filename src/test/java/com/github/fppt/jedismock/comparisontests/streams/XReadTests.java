@@ -84,7 +84,7 @@ public class XReadTests {
     }
 
     @TestTemplate
-    @Disabled
+//    @Disabled
     void xaddWithDelAndLpushShouldNotAwakeClient(Jedis jedis) throws ExecutionException, InterruptedException {
         Future<?> future = blockingThread.submit(() -> {
             List<Map.Entry<String, List<StreamEntry>>> data = blockedClient.xread(
