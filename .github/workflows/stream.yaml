@@ -72,12 +72,12 @@ jobs:
                 with:
                     java-version: '8'
 
-            -   name: Cache Maven
-                uses: actions/cache@v1
-                with:
-                    path: ~/.m2/repository
-                    key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-                    restore-keys: ${{ runner.os }}-maven-
+#            -   name: Cache Maven
+#                uses: actions/cache@v1
+#                with:
+#                    path: ~/.m2/repository
+#                    key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+#                    restore-keys: ${{ runner.os }}-maven-
 
             -   name: tests
                 run: mvn verify -Dtest=*.streams.*Tests
