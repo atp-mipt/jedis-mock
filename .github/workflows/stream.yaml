@@ -80,4 +80,4 @@ jobs:
 #                    restore-keys: ${{ runner.os }}-maven-
 
             -   name: tests
-                run: mvn verify -Dtest=*.streams.*Tests
+                run: mvn test -Dtest=*.streams.*Tests
