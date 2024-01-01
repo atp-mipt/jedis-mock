@@ -79,6 +79,5 @@ jobs:
 #                    key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
 #                    restore-keys: ${{ runner.os }}-maven-
 
-
             -   name: tests
                 run: mvn test -Dtest=*.streams.*Tests
