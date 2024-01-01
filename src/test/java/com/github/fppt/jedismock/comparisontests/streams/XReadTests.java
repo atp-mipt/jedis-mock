@@ -89,7 +89,7 @@ public class XReadTests {
     void xaddWithDelAndLpushShouldNotAwakeClient(Jedis jedis) throws ExecutionException, InterruptedException {
         Future<?> future = blockingThread.submit(() -> {
             List<Map.Entry<String, List<StreamEntry>>> data = blockedClient.xread(
-                    XReadParams.xReadParams().block(25000),
+                    XReadParams.xReadParams().block(20000),
                     ImmutableMap.of("s", StreamEntryID.LAST_ENTRY)
             );
 

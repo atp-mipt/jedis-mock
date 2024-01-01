@@ -62,7 +62,7 @@ jobs:
               working-directory: native_tests
 
     unit-tests:
-        runs-on: self-hosted
+        runs-on: jedis-mock-win
         steps:
             -   name: checkout
                 uses: actions/checkout@v2
