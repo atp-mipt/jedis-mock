@@ -83,7 +83,6 @@ public class XReadTests {
         future.get();
     }
 
-
     @TestTemplate
 //    @Disabled
     void xaddWithDelAndLpushShouldNotAwakeClient(Jedis jedis) throws ExecutionException, InterruptedException {
