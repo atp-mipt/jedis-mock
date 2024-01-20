@@ -3,6 +3,7 @@ package com.github.fppt.jedismock.datastructures.streams;
 import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.exception.WrongStreamKeyException;
 
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -109,17 +110,13 @@ public final class StreamId implements Comparable<StreamId> {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof StreamId)) return false;
-
         StreamId streamId = (StreamId) o;
-
-        if (getFirstPart() != streamId.getFirstPart()) return false;
-        return getSecondPart() == streamId.getSecondPart();
+        if (firstPart != streamId.firstPart) return false;
+        return secondPart == streamId.secondPart;
     }
 
     @Override
     public int hashCode() {
-        int result = (int) (getFirstPart() ^ (getFirstPart() >>> 32));
-        result = 31 * result + (int) (getSecondPart() ^ (getSecondPart() >>> 32));
-        return result;
+        return Objects.hash(firstPart, secondPart);
     }
 }
