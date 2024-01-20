@@ -1,6 +1,5 @@
 package com.github.fppt.jedismock.operations.hashes;
 
-import com.github.fppt.jedismock.exception.WrongValueTypeException;
 import com.github.fppt.jedismock.operations.AbstractRedisOperation;
 import com.github.fppt.jedismock.operations.RedisCommand;
 import com.github.fppt.jedismock.server.Response;
