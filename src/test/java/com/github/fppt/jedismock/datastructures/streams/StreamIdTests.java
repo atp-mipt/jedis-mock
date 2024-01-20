@@ -3,6 +3,9 @@ package com.github.fppt.jedismock.datastructures.streams;
 import com.github.fppt.jedismock.exception.WrongStreamKeyException;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import static java.lang.Long.toUnsignedString;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -19,30 +22,21 @@ public class StreamIdTests {
     void zeroComparisonWithZeroTest() {
         StreamId zero = new StreamId(0, 0);
         assertThat(zero.isZero()).isTrue();
+        assertThat(zero).isEqualTo(new StreamId());
     }
 
-    @Test
-    void zeroComparisonWithPositiveKeysTest() {
-        StreamId other = new StreamId(0, 1);
+    @ParameterizedTest
+    @CsvSource({
+            "0, 1",
+            "1, 0",
+            "1, 1",
+            "0, -1",
+            "-1, 0",
+            "-1, -1"
+    })
+    void zeroComparisonTest(int first, int second) {
+        StreamId other = new StreamId(first, second);
         assertThat(other.isZero()).isFalse();
-
-        StreamId newOther = new StreamId(1, 0);
-        assertThat(newOther.isZero()).isFalse();
-
-        StreamId newestOther = new StreamId(1, 1);
-        assertThat(newestOther.isZero()).isFalse();
-    }
-
-    @Test
-    void zeroComparisonWithNegativeKeysTest() {
-        StreamId other = new StreamId(0, -1);
-        assertThat(other.isZero()).isFalse();
-
-        StreamId newOther = new StreamId(-1, 0);
-        assertThat(newOther.isZero()).isFalse();
-
-        StreamId newestOther = new StreamId(-1, -1);
-        assertThat(newestOther.isZero()).isFalse();
     }
 
     @Test
@@ -55,24 +49,17 @@ public class StreamIdTests {
                 .hasMessage("ERR invalid start ID for the interval");
     }
 
-    @Test
-    void incrementTest() {
+    @ParameterizedTest
+    @CsvSource({
+            "1234567890, 1234567890, 1234567890, 1234567891",
+            "0, -1, 1, 0",
+            "-1234567891, -1234567891, -1234567891, -1234567890"
+    })
+    void incrementTest(int initialFirst, int initialSecond, int expectedFirst, int expectedSecond) {
         assertThatCode(() -> assertThat(
-                new StreamId(1234567890, 1234567890).increment()
+                new StreamId(initialFirst, initialSecond).increment()
         ).isEqualTo(
-                new StreamId(1234567890, 1234567891)
-        )).doesNotThrowAnyException();
-
-        assertThatCode(() -> assertThat(
-                new StreamId(0, -1).increment()
-        ).isEqualTo(
-                new StreamId(1, 0)
-        )).doesNotThrowAnyException();
-
-        assertThatCode(() -> assertThat(
-                new StreamId(-1234567891, -1234567891).increment()
-        ).isEqualTo(
-                new StreamId(-1234567891, -1234567890)
+                new StreamId(expectedFirst, expectedSecond)
         )).doesNotThrowAnyException();
     }
 
@@ -86,24 +73,17 @@ public class StreamIdTests {
                 .hasMessage("ERR invalid end ID for the interval");
     }
 
-    @Test
-    void decrementTest() {
+    @ParameterizedTest
+    @CsvSource({
+            "1234567890, 1234567891, 1234567890, 1234567890",
+            "1, 0, 0, -1",
+            "-1234567891, -1234567890, -1234567891, -1234567891"
+    })
+    void decrementTest(int initialFirst, int initialSecond, int expectedFirst, int expectedSecond) {
         assertThatCode(() -> assertThat(
-                new StreamId(1234567890, 1234567891).decrement()
+                new StreamId(initialFirst, initialSecond).decrement()
         ).isEqualTo(
-                new StreamId(1234567890, 1234567890)
-        )).doesNotThrowAnyException();
-
-        assertThatCode(() -> assertThat(
-                new StreamId(1, 0).decrement()
-        ).isEqualTo(
-                new StreamId(0, -1)
-        )).doesNotThrowAnyException();
-
-        assertThatCode(() -> assertThat(
-                new StreamId(-1234567891, -1234567890).decrement()
-        ).isEqualTo(
-                new StreamId(-1234567891, -1234567891)
+                new StreamId(expectedFirst, expectedSecond)
         )).doesNotThrowAnyException();
     }
 
@@ -151,25 +131,16 @@ public class StreamIdTests {
         }
     }
 
-    @Test
-    void toStringStressTest() {
-        assertThat(
-                new StreamId(-1234567890, -1234567890).toString()
-        ).isEqualTo("18446744072474983726-18446744072474983726");
-
-        assertThat(
-                new StreamId().toString()
-        ).isEqualTo("0-0");
-
-        assertThat(
-                new StreamId(-1, 1234567890).toString()
-        ).isEqualTo("18446744073709551615-1234567890");
-
-        assertThat(
-                new StreamId(1234567890, -1).toString()
-        ).isEqualTo("1234567890-18446744073709551615");
+    @ParameterizedTest
+    @CsvSource({
+            "-1234567890, -1234567890, '18446744072474983726-18446744072474983726'",
+            "0, 0, '0-0'",
+            "-1, 1234567890, '18446744073709551615-1234567890'",
+            "1234567890, -1, '1234567890-18446744073709551615'"
+    })
+    void toStringStressTest(int first, int second, String expectedToString) {
+        assertThat(new StreamId(first, second).toString()).isEqualTo(expectedToString);
     }
-
     @Test
     void comparisonTest() {
         StreamId zero = new StreamId();
@@ -212,29 +183,10 @@ public class StreamIdTests {
         }
     }
 
-    @Test
-    void constructorInvalidIdsTest() {
-        assertThatThrownBy(
-                () -> new StreamId("a")
-        )
-                .isInstanceOf(WrongStreamKeyException.class)
-                .hasMessage("ERR Invalid stream ID specified as stream command argument");
-
-        assertThatThrownBy(
-                () -> new StreamId("0-0-0")
-        )
-                .isInstanceOf(WrongStreamKeyException.class)
-                .hasMessage("ERR Invalid stream ID specified as stream command argument");
-
-        assertThatThrownBy(
-                () -> new StreamId("a-0")
-        )
-                .isInstanceOf(WrongStreamKeyException.class)
-                .hasMessage("ERR Invalid stream ID specified as stream command argument");
-
-        assertThatThrownBy(
-                () -> new StreamId("0-a")
-        )
+    @ParameterizedTest
+    @ValueSource(strings = {"a", "0-0-0", "a-0", "0-a"})
+    void constructorInvalidIdsTest(String invalidId) {
+        assertThatThrownBy(() -> new StreamId(invalidId))
                 .isInstanceOf(WrongStreamKeyException.class)
                 .hasMessage("ERR Invalid stream ID specified as stream command argument");
     }

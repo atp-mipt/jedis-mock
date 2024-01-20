@@ -47,6 +47,8 @@ public class SequencedMapTests {
         map.append(4, 2);
         map.append(0, 2);
         map.append(2, 2);
+
+        assertThat(map).hasSize(2);
     }
 
     @Test
