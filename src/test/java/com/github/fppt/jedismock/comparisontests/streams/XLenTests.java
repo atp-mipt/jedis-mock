@@ -4,10 +4,10 @@ import com.github.fppt.jedismock.comparisontests.ComparisonBase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.testcontainers.shaded.com.google.common.collect.ImmutableMap;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.StreamEntryID;
 
+import java.util.Collections;
 import java.util.Random;
 import java.util.StringJoiner;
 
@@ -51,7 +51,7 @@ public class XLenTests {
                 jedis.xadd(
                         key,
                         StreamEntryID.NEW_ENTRY,
-                        ImmutableMap.of(getRandomString(3), getRandomString(3))
+                        Collections.singletonMap(getRandomString(3), getRandomString(3))
                 );
             }
 
