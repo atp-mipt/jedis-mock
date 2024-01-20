@@ -19,10 +19,12 @@ class ZMScore extends AbstractRedisOperation {
     }
 
     @Override
+    protected int minArgs() {
+        return 2;
+    }
+
+    @Override
     protected Slice response() {
-        if (params().size() < 2) {
-            throw new ArgumentException("*ERR*wrong*number*arg*");
-        }
         Slice key = params().get(0);
 
         final RMZSet mapDBObj = getZSetFromBaseOrCreateEmpty(key);

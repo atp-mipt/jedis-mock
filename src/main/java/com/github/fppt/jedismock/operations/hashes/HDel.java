@@ -15,13 +15,14 @@ class HDel extends AbstractRedisOperation {
         super(base, params);
     }
 
+    @Override
+    protected int minArgs() {
+        return 2;
+    }
+
     protected Slice response(){
         Slice key = params().get(0);
         int count = 0;
-
-        if (params().size() < 2) {
-            throw new WrongValueTypeException("ERR wrong number of arguments for 'hdel' command");
-        }
 
         for (int i = 1; i < params().size(); ++i) {
             Slice currKey = params().get(i);

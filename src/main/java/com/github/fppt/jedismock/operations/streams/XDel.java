@@ -22,31 +22,30 @@ public class XDel extends AbstractRedisOperation {
     }
 
     @Override
-    protected Slice response() {
-        if (params().size() < 2) {
-            return Response.invalidArgumentsCountError("xdel");
-        }
+    protected int minArgs() {
+        return 2;
+    }
 
+    @Override
+    protected Slice response() {
         Slice key = params().get(0);
         SequencedMap<StreamId, SequencedMap<Slice, Slice>> map = getStreamFromBaseOrCreateEmpty(key).getStoredData();
 
-        int deletedElementsCount = 0;
         List<StreamId> idsToBeDeleted = new ArrayList<>();
-
-        for (int i = 1; i < params().size(); ++i) {
-            try {
+        try {
+            for (int i = 1; i < params().size(); i++) {
                 idsToBeDeleted.add(new StreamId(params().get(i)));
-            } catch (WrongStreamKeyException e) {
-                return Response.error(e.getMessage());
             }
+        } catch (WrongStreamKeyException e) {
+            return Response.error(e.getMessage());
         }
 
+        int removedCount = 0;
         for (StreamId id : idsToBeDeleted) {
             if (map.remove(id) != null) {
-                ++deletedElementsCount;
+                removedCount++;
             }
         }
-
-        return Response.integer(deletedElementsCount);
+        return Response.integer(removedCount);
     }
 }

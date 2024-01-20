@@ -44,11 +44,12 @@ public class XAdd extends AbstractRedisOperation {
     }
 
     @Override
-    protected Slice response() {
-        if (params().size() < 4) {
-            return Response.invalidArgumentsCountError("xadd");
-        }
+    protected int minArgs() {
+        return 4;
+    }
 
+    @Override
+    protected Slice response() {
         Slice key = params().get(0);
         RMStream stream = getStreamFromBaseOrCreateEmpty(key);
         SequencedMap<StreamId, SequencedMap<Slice, Slice>> map = stream.getStoredData();
@@ -73,11 +74,9 @@ public class XAdd extends AbstractRedisOperation {
         if ("maxlen".equalsIgnoreCase(param) || "minid".equalsIgnoreCase(param)) {
             criterion = params().get(idInd++).toString();
 
-            boolean aproxTrim = false;
-
             param = params().get(idInd++).toString();
 
-            aproxTrim = "~".equals(param);
+            boolean approxTrim = "~".equals(param);
 
             if ("~".equals(param) || "=".equals(param)) {
                 ++thresholdPosition;
@@ -91,7 +90,7 @@ public class XAdd extends AbstractRedisOperation {
                     return Response.error(NOT_AN_INTEGER_ERROR);
                 }
 
-                if (!aproxTrim) {
+                if (!approxTrim) {
                     return Response.error(LIMIT_OPTION_ERROR);
                 }
 
@@ -101,10 +100,9 @@ public class XAdd extends AbstractRedisOperation {
         /*  End trim options parsing */
 
         Slice id = params().get(idInd++);
-        SequencedMap<Slice, Slice> entryValues = new SequencedMap<>();
+
 
         StreamId nodeId;
-
         try {
            nodeId = new StreamId(stream.replaceAsterisk(id));
            validate(nodeId);
@@ -112,6 +110,7 @@ public class XAdd extends AbstractRedisOperation {
             return Response.error(e.getMessage());
         }
 
+        SequencedMap<Slice, Slice> entryValues = new SequencedMap<>();
         for (int i = idInd; i < params().size(); i += 2) {
             entryValues.append(params().get(i), params().get(i + 1));
         }

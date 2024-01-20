@@ -14,10 +14,17 @@ class Echo extends AbstractRedisOperation {
         super(base, params);
     }
 
+    @Override
+    protected int minArgs() {
+        return 1;
+    }
+
+    @Override
+    protected int maxArgs() {
+        return 1;
+    }
+
     protected Slice response() {
-        if (params().size() != 1) {
-            return Response.error("ERR wrong number of arguments for 'echo' command");
-        }
         return Response.bulkString(params().get(0));
     }
 }

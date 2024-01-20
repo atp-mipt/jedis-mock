@@ -18,11 +18,12 @@ public class XRange extends Ranges {
     }
 
     @Override
-    protected Slice response() {
-        if (params().size() < 3) {
-            return Response.invalidArgumentsCountError("xrange");
-        }
+    protected int minArgs() {
+        return 3;
+    }
 
+    @Override
+    protected Slice response() {
         multiplier = 1;
         return range();
     }

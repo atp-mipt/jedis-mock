@@ -14,11 +14,12 @@ public class XRevRange extends Ranges {
     }
 
     @Override
-    protected Slice response() {
-        if (params().size() < 3) {
-            return Response.invalidArgumentsCountError("xrevrange");
-        }
+    protected int minArgs() {
+        return 3;
+    }
 
+    @Override
+    protected Slice response() {
         multiplier = -1;
         return range();
     }

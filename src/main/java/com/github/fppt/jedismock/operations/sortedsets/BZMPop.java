@@ -16,14 +16,15 @@ public class BZMPop extends BZPop {
 
     BZMPop(OperationExecutorState state, List<Slice> params) {
         super(state, params);
+    }
 
+    @Override
+    protected int minArgs() {
+        return 4;
     }
 
     @Override
     protected void doOptionalWork(){
-        if (params().size() < 4) {
-            throw new ArgumentException("ERR wrong number of arguments for 'bzmpop' command");
-        }
         timeoutNanos = toNanoTimeout(params().get(0).toString());
         params().remove(0);
         ZMPop zmPop = new ZMPop(base(), new ArrayList<>(params()));

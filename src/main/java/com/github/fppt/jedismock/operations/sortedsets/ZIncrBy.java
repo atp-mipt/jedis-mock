@@ -16,11 +16,17 @@ public class ZIncrBy extends AbstractByScoreOperation {
     }
 
     @Override
-    protected Slice response() {
-        if (params().size() != 3) {
-            throw new ArgumentException("ERR wrong number of arguments for 'zincrby' command");
-        }
+    protected int minArgs() {
+        return 3;
+    }
 
+    @Override
+    protected int maxArgs() {
+        return 3;
+    }
+
+    @Override
+    protected Slice response() {
         return Response.bulkString(Slice.create(String.valueOf(getNewScore())));
     }
 

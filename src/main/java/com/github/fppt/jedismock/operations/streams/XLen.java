@@ -18,11 +18,17 @@ public class XLen extends AbstractRedisOperation {
     }
 
     @Override
-    protected Slice response() {
-        if (params().size() != 1) {
-            return Response.invalidArgumentsCountError("xlen");
-        }
+    protected int minArgs() {
+        return 1;
+    }
 
+    @Override
+    protected int maxArgs() {
+        return 1;
+    }
+
+    @Override
+    protected Slice response() {
         return Response.integer(getStreamFromBaseOrCreateEmpty(params().get(0)).getStoredData().size());
     }
 }

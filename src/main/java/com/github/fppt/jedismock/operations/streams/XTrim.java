@@ -55,11 +55,12 @@ public class XTrim extends AbstractRedisOperation {
     }
 
     @Override
-    protected Slice response() {
-        if (params().size() < 3) {
-            return Response.invalidArgumentsCountError("xtrim");
-        }
+    protected int minArgs() {
+        return 3;
+    }
 
+    @Override
+    protected Slice response() {
         /* Begin parsing arguments */
         Slice key = params().get(0);
         SequencedMap<StreamId, SequencedMap<Slice, Slice>> map = getStreamFromBaseOrCreateEmpty(key).getStoredData();
