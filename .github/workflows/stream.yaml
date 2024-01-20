@@ -60,24 +60,3 @@ jobs:
               if: always()
               run: ./testnative unit/type/stream
               working-directory: native_tests
-
-    unit-tests:
-        runs-on: jedis-mock-win
-        steps:
-            -   name: checkout
-                uses: actions/checkout@v2
-
-#            -   name: Set up JDK 8
-#                uses: actions/setup-java@v1
-#                with:
-#                    java-version: '8'
-
-#            -   name: Cache Maven
-#                uses: actions/cache@v1
-#                with:
-#                    path: ~/.m2/repository
-#                    key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-#                    restore-keys: ${{ runner.os }}-maven-
-
-            -   name: tests
-                run: mvn test -Dtest=*.streams.*Tests
