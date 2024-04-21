@@ -5,7 +5,6 @@ import com.github.fppt.jedismock.operations.RedisCommand;
 import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.storage.OperationExecutorState;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static com.github.fppt.jedismock.Utils.toNanoTimeout;
