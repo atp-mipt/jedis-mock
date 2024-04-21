@@ -11,7 +11,7 @@
 
     <groupId>com.github.fppt</groupId>
     <artifactId>jedis-mock</artifactId>
-    <version>1.0.14-SNAPSHOT</version>
+    <version>1.1.1-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>jedis-mock</name>
     <description>In memory Redis mock for testing</description>
@@ -42,12 +42,12 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <junit.version>5.10.1</junit.version>
-        <assertj.version>3.25.1</assertj.version>
-        <jedis.version>5.1.0</jedis.version>
-        <testcontainers.version>1.19.3</testcontainers.version>
-        <spotbugs.version>4.8.3.0</spotbugs.version>
-        <slf4j.version>2.0.11</slf4j.version>
+        <junit.version>5.10.2</junit.version>
+        <assertj.version>3.25.3</assertj.version>
+        <jedis.version>5.1.2</jedis.version>
+        <testcontainers.version>1.19.7</testcontainers.version>
+        <spotbugs.version>4.8.4.0</spotbugs.version>
+        <slf4j.version>2.0.13</slf4j.version>
         <java.version>1.8</java.version>
     </properties>
 
@@ -101,19 +101,19 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
-            <version>4.1.104.Final</version>
+            <version>4.1.109.Final</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.lettuce</groupId>
             <artifactId>lettuce-core</artifactId>
-            <version>6.3.1.RELEASE</version>
+            <version>6.3.2.RELEASE</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
-            <version>2.0.11</version>
+            <version>2.0.13</version>
             <scope>test</scope>
         </dependency>
         <!-- Used for creating an testcontainer of Redis for testing and comparing behaviour-->
@@ -138,13 +138,13 @@
         <dependency>
             <groupId>nl.jqno.equalsverifier</groupId>
             <artifactId>equalsverifier</artifactId>
-            <version>3.15.6</version>
+            <version>3.16.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.redisson</groupId>
             <artifactId>redisson</artifactId>
-            <version>3.26.0</version>
+            <version>3.28.0</version>
             <scope>test</scope>
         </dependency>
 
@@ -152,7 +152,7 @@
         <dependency>
             <groupId>com.github.spotbugs</groupId>
             <artifactId>spotbugs-annotations</artifactId>
-            <version>4.7.2</version>
+            <version>4.8.4</version>
         </dependency>
     </dependencies>
 
@@ -162,7 +162,7 @@
                 <inherited>true</inherited>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>3.3.0</version>
+                <version>3.3.1</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -175,7 +175,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.12.1</version>
+                <version>3.13.0</version>
                 <configuration>
                     <target>${java.version}</target>
                     <source>${java.version}</source>
@@ -309,7 +309,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>3.1.0</version>
+                        <version>3.2.4</version>
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>
