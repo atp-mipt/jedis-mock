@@ -30,8 +30,8 @@ public class HGetAll extends AbstractRedisOperation {
         List<Slice> output = new ArrayList<>();
 
         fieldAndValueMap.forEach((key, value) -> {
-            output.add(Response.bulkString(value));
             output.add(Response.bulkString(key));
+            output.add(Response.bulkString(value));
         });
 
         return Response.array(output);
