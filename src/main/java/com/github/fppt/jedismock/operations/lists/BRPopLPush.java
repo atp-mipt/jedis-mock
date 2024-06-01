@@ -9,7 +9,7 @@ import com.github.fppt.jedismock.storage.OperationExecutorState;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.github.fppt.jedismock.Utils.toNanoTimeout;
+import static com.github.fppt.jedismock.Utils.toMillisTimeout;
 
 @RedisCommand("brpoplpush")
 class BRPopLPush extends RPopLPush {
@@ -25,20 +25,21 @@ class BRPopLPush extends RPopLPush {
 
     protected void doOptionalWork() {
         Slice source = params().get(0);
-        long timeoutNanos = toNanoTimeout(params().get(2).toString());
+        long timeoutMillis = toMillisTimeout(params().get(2).toString());
 
-        if (timeoutNanos < 0) {
+        if (timeoutMillis < 0) {
             throw new IllegalArgumentException("ERR timeout is negative");
         }
 
-        long waitEnd = System.nanoTime() + timeoutNanos;
-        long waitTimeNanos;
+        long waitEnd = base().currentTime() + timeoutMillis;
+        long waitTimeMillis;
         count = getCount(source);
+
         try {
             while (count == 0L &&
-                    !isInTransaction &&
-                    (waitTimeNanos = timeoutNanos == 0 ? 0 : waitEnd - System.nanoTime()) >= 0) {
-                lock.wait(waitTimeNanos / 1_000_000, (int) waitTimeNanos % 1_000_000);
+                  !isInTransaction &&
+                  (waitTimeMillis = timeoutMillis == 0 ? 0 : waitEnd - base().currentTime()) >= 0) {
+                lock.wait(waitTimeMillis, 1); // prevent 0 & 0 not to get stuck
                 count = getCount(source);
             }
         } catch (InterruptedException e) {

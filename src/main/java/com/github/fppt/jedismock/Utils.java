@@ -91,7 +91,11 @@ public class Utils {
         return out.toString();
     }
 
-    public static long toNanoTimeout(String value) {
-        return (long) (convertToDouble(value) * 1_000_000_000L);
+    /**
+     * Parses data and converts seconds to milliseconds
+     * @param value string contains a double value specifying the maximum number of seconds to block
+     */
+    public static long toMillisTimeout(String value) {
+        return (long) (convertToDouble(value) * 1000);
     }
 }

@@ -7,14 +7,13 @@ import com.github.fppt.jedismock.storage.OperationExecutorState;
 
 import java.util.List;
 
-import static com.github.fppt.jedismock.Utils.toNanoTimeout;
+import static com.github.fppt.jedismock.Utils.toMillisTimeout;
 
 @RedisCommand("bzpopmin")
 public class BZPopMin extends BZPop {
-
     BZPopMin(OperationExecutorState state, List<Slice> params) {
         super(state, params);
-        timeoutNanos = toNanoTimeout(params().get(params().size() - 1).toString());
+        timeoutMillis = toMillisTimeout(params().get(params().size() - 1).toString());
     }
 
     @Override
