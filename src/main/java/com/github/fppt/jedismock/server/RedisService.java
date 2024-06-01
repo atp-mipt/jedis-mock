@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.time.Clock;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -18,27 +19,32 @@ import java.util.concurrent.Executors;
  * Created by Xiaolu on 2015/4/21.
  */
 public final class RedisService implements Callable<Void> {
-
     private final ServerSocket server;
     private final Map<Integer, RedisBase> redisBases;
     private final ServiceOptions options;
     private final ExecutorService threadPool = Executors.newCachedThreadPool();
     private final List<RedisClient> clients = new CopyOnWriteArrayList<>();
+    private final Clock timer;
 
-    public RedisService(int bindPort, InetAddress address,
-                        Map<Integer, RedisBase> redisBases, ServiceOptions options) throws IOException {
+    public RedisService(int bindPort,
+                        InetAddress address,
+                        Map<Integer, RedisBase> redisBases,
+                        ServiceOptions options,
+                        Clock timer) throws IOException {
         Objects.requireNonNull(redisBases);
         Objects.requireNonNull(options);
+        Objects.requireNonNull(timer);
 
         this.server = new ServerSocket(bindPort, 0, address);
         this.redisBases = redisBases;
         this.options = options;
+        this.timer = timer;
     }
 
     public Void call() throws IOException {
         while (!server.isClosed()) {
             Socket socket = server.accept();
-            RedisClient rc = new RedisClient(redisBases, socket, options, clients::remove);
+            RedisClient rc = new RedisClient(redisBases, socket, options, clients::remove, timer);
             clients.add(rc);
             threadPool.submit(rc);
         }

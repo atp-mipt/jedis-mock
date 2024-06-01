@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.time.Clock;
 import java.util.Collections;
 
 class RedisClientTest {
@@ -20,7 +21,9 @@ class RedisClientTest {
         Mockito.when(s.getInputStream()).thenReturn(Mockito.mock(InputStream.class));
         Mockito.when(s.getOutputStream()).thenReturn(Mockito.mock(OutputStream.class));
         redisClient = new RedisClient(Collections.emptyMap(), s, ServiceOptions.defaultOptions(), c -> {
-        });
+        },
+                Clock.systemDefaultZone() // TODO temporary stub
+        );
     }
 
     @Test

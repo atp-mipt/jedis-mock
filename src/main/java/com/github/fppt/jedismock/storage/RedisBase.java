@@ -13,6 +13,7 @@ import com.github.fppt.jedismock.datastructures.RMZSet;
 import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.server.RedisClient;
 
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -34,6 +35,19 @@ public class RedisBase {
                     .getOrDefault(key, Collections.emptySet())
                     .forEach(OperationExecutorState::watchedKeyIsAffected));
     private final Map<String, String> cachedLuaScripts = new HashMap<>();
+    private final Clock timer;
+
+    public RedisBase() {
+        this.timer = Clock.systemDefaultZone();
+    }
+
+    public RedisBase(Clock timer) {
+        this.timer = timer;
+    }
+
+    public long currentTime() {
+        return timer.millis();
+    }
 
     public Set<Slice> keys() {
         Iterator<Slice> slices = keyValueStorage.values().keySet().iterator();

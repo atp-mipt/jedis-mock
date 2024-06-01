@@ -10,6 +10,7 @@ import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.time.Clock;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -88,8 +89,12 @@ public class TestRedisOperationExecutor {
         redisBases.put(0, new RedisBase());
         RedisClient redisClient = new RedisClient(redisBases,
                 mockSocket, ServiceOptions.defaultOptions(), c -> {
-        });
-        OperationExecutorState state = new OperationExecutorState(redisClient, redisBases);
+        },
+                Clock.systemDefaultZone() // TODO temporary stub
+                );
+        OperationExecutorState state = new OperationExecutorState(redisClient, redisBases,
+                Clock.systemDefaultZone() // TODO temporary stub
+                );
         executor = new RedisOperationExecutor(state);
     }
 

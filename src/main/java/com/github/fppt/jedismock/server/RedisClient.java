@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.time.Clock;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -32,16 +33,21 @@ public final class RedisClient implements Runnable {
     private final InputStream in;
     private final OutputStream out;
     private final Consumer<RedisClient> onClose;
+    private final Clock timer;
 
-    RedisClient(Map<Integer, RedisBase> redisBases,
+    RedisClient(Map<Integer,
+                RedisBase> redisBases,
                 Socket socket,
                 ServiceOptions options,
-                Consumer<RedisClient> onClose) throws IOException {
+                Consumer<RedisClient> onClose,
+                Clock timer) throws IOException {
         Objects.requireNonNull(redisBases);
         Objects.requireNonNull(socket);
         Objects.requireNonNull(options);
         Objects.requireNonNull(onClose);
-        OperationExecutorState state = new OperationExecutorState(this, redisBases);
+        Objects.requireNonNull(timer);
+
+        OperationExecutorState state = new OperationExecutorState(this, redisBases, timer);
         this.executor = new RedisOperationExecutor(state);
         this.socket = socket;
         this.options = options;
@@ -49,6 +55,7 @@ public final class RedisClient implements Runnable {
         this.out = socket.getOutputStream();
         this.running = new AtomicBoolean(true);
         this.onClose = onClose;
+        this.timer = timer;
     }
 
     public void run() {

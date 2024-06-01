@@ -7,6 +7,7 @@ import com.github.fppt.jedismock.storage.RedisBase;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.time.Clock;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -19,9 +20,9 @@ import java.util.concurrent.Future;
  * Created by Xiaolu on 2015/4/18.
  */
 public class RedisServer {
-
-    private final int bindPort;
-    private final InetAddress bindAddress;
+    private Clock timer;
+    private int bindPort;
+    private InetAddress bindAddress;
     private final Map<Integer, RedisBase> redisBases;
     private final ExecutorService threadPool;
     private RedisService service;
@@ -32,29 +33,39 @@ public class RedisServer {
         this(0);
     }
 
-
     public RedisServer(int port) {
         this(port, null);
     }
 
     public RedisServer(int port, InetAddress address) {
+        this(port, address, Clock.systemDefaultZone());
+    }
+
+    public RedisServer(int port, InetAddress address, Clock timer) {
         this.bindPort = port;
         this.bindAddress = address;
         this.redisBases = new HashMap<>();
         this.threadPool = Executors.newSingleThreadExecutor();
         CommandFactory.initialize();
+        this.timer = timer;
     }
 
-    static public RedisServer newRedisServer() {
+    public static RedisServer newRedisServer() {
         return new RedisServer();
     }
 
-    static public RedisServer newRedisServer(int port) {
+    public static RedisServer newRedisServer(int port) {
         return new RedisServer(port);
     }
 
-    static public RedisServer newRedisServer(int port, InetAddress address) {
+    public static RedisServer newRedisServer(int port, InetAddress address) {
         return new RedisServer(port, address);
+    }
+
+    public RedisServer setAddress(InetAddress address) {
+        Objects.requireNonNull(address);
+        this.bindAddress = address;
+        return this;
     }
 
     public RedisServer setOptions(ServiceOptions options) {
@@ -63,27 +74,15 @@ public class RedisServer {
         return this;
     }
 
-    public RedisServer start() throws IOException {
-        if (!(service == null)) {
-            throw new IllegalStateException();
-        }
-        this.service = new RedisService(bindPort, bindAddress, redisBases, options);
-        serviceFinalization = threadPool.submit(service);
+    public RedisServer setPort(int port) {
+        this.bindPort = port;
         return this;
     }
 
-    public void stop() throws IOException {
-        Objects.requireNonNull(service);
-        service.stop();
-        service = null;
-        try {
-            serviceFinalization.get();
-        } catch (ExecutionException e) {
-            //Do nothing: it's a normal behaviour when the service was stopped
-        } catch (InterruptedException e) {
-            System.err.println("Jedis-mock interrupted while stopping");
-            Thread.currentThread().interrupt();
-        }
+    public RedisServer setTimer(Clock timer) {
+        Objects.requireNonNull(timer);
+        this.timer = timer;
+        return this;
     }
 
     public String getHost() {
@@ -95,4 +94,33 @@ public class RedisServer {
         Objects.requireNonNull(service);
         return service.getServer().getLocalPort();
     }
+
+    public Clock getTimer() {
+        return timer;
+    }
+
+    public RedisServer start() throws IOException {
+        if (service != null) {
+            throw new IllegalStateException();
+        }
+
+        this.service = new RedisService(bindPort, bindAddress, redisBases, options, timer);
+        serviceFinalization = threadPool.submit(service);
+        return this;
+    }
+
+    public void stop() throws IOException {
+        Objects.requireNonNull(service);
+        service.stop();
+        service = null;
+        try {
+            serviceFinalization.get();
+        } catch (ExecutionException ignored) {
+            //Do nothing: it's a normal behaviour when the service was stopped
+        } catch (InterruptedException e) {
+            System.err.println("Jedis-mock interrupted while stopping");
+            Thread.currentThread().interrupt();
+        }
+    }
+
 }
