@@ -33,7 +33,6 @@ public final class RedisClient implements Runnable {
     private final InputStream in;
     private final OutputStream out;
     private final Consumer<RedisClient> onClose;
-    private final Clock timer;
 
     RedisClient(Map<Integer,
                 RedisBase> redisBases,
@@ -55,7 +54,6 @@ public final class RedisClient implements Runnable {
         this.out = socket.getOutputStream();
         this.running = new AtomicBoolean(true);
         this.onClose = onClose;
-        this.timer = timer;
     }
 
     public void run() {
