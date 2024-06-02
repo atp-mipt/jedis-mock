@@ -4,6 +4,7 @@ import com.github.fppt.jedismock.datastructures.RMDataStructure;
 import com.github.fppt.jedismock.datastructures.RMHash;
 import com.github.fppt.jedismock.datastructures.Slice;
 
+import java.time.Clock;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -14,8 +15,18 @@ public class ExpiringKeyValueStorage {
     private final Map<Slice, Long> ttls = new HashMap<>();
     private final Consumer<Slice> keyChangeNotifier;
 
+    private Clock timer;
+
     public ExpiringKeyValueStorage(Consumer<Slice> keyChangeNotifier) {
         this.keyChangeNotifier = keyChangeNotifier;
+    }
+
+    public void setTimer(Clock timer) {
+        this.timer = timer;
+    }
+
+    private long currentTimeMillis() {
+        return timer.millis();
     }
 
     public Map<Slice, RMDataStructure> values() {
@@ -89,7 +100,7 @@ public class ExpiringKeyValueStorage {
 
     boolean isKeyOutdated(Slice key) {
         Long deadline = ttls().get(key);
-        return deadline != null && deadline != -1 && deadline <= System.currentTimeMillis();
+        return deadline != null && deadline != -1 && deadline <= currentTimeMillis();
     }
 
     public Long getTTL(Slice key) {
@@ -101,7 +112,7 @@ public class ExpiringKeyValueStorage {
         if (deadline == -1) {
             return deadline;
         }
-        long now = System.currentTimeMillis();
+        long now = currentTimeMillis();
         if (now < deadline) {
             return deadline - now;
         }
@@ -111,7 +122,7 @@ public class ExpiringKeyValueStorage {
 
     public long setTTL(Slice key, long ttl) {
         keyChangeNotifier.accept(key);
-        return setDeadline(key, ttl + System.currentTimeMillis());
+        return setDeadline(key, ttl + currentTimeMillis());
     }
 
     public void put(Slice key, RMDataStructure value, Long ttl) {

@@ -6,6 +6,9 @@ import redis.clients.jedis.exceptions.JedisConnectionException;
 
 import java.io.IOException;
 import java.net.BindException;
+import java.time.Clock;
+import java.time.ZoneId;
+import java.util.List;
 
 import static com.github.fppt.jedismock.RedisServer.newRedisServer;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -15,10 +18,17 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * Created by Xiaolu on 2015/4/18.
  */
 public class TestRedisServer {
-
     @Test
     public void testBindPort() throws IOException {
         RedisServer server = RedisServer.newRedisServer(8080);
+        server.start();
+        assertThat(server.getBindPort()).isEqualTo(8080);
+        server.stop();
+    }
+
+    @Test
+    public void testBindPortNewAPI() throws IOException {
+        RedisServer server = RedisServer.newRedisServer().setPort(8080);
         server.start();
         assertThat(server.getBindPort()).isEqualTo(8080);
         server.stop();
@@ -39,10 +49,26 @@ public class TestRedisServer {
     }
 
     @Test
+    public void testBindErrorPortNewAPI() {
+        RedisServer server = RedisServer.newRedisServer().setPort(100000);
+        assertThatThrownBy(server::start)
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
     public void testBindUsedPort() throws IOException {
         RedisServer server1 = newRedisServer();
         server1.start();
         RedisServer server2 = newRedisServer(server1.getBindPort());
+        assertThatThrownBy(server2::start)
+                .isInstanceOf(BindException.class);
+    }
+
+    @Test
+    public void testBindUsedPortNewAPI() throws IOException {
+        RedisServer server1 = newRedisServer();
+        server1.start();
+        RedisServer server2 = newRedisServer().setPort(server1.getBindPort());
         assertThatThrownBy(server2::start)
                 .isInstanceOf(BindException.class);
     }
@@ -93,6 +119,33 @@ public class TestRedisServer {
                 assertThatThrownBy(jedis::ping)
                         .isInstanceOf(JedisConnectionException.class);
             }
+        }
+    }
+
+    @Test
+    public void whenSetCustomTimer_ensureMockTimerIsSetCorrectly() throws IOException {
+        Clock timer = Clock.system(ZoneId.of("Europe/Vienna"));
+
+        RedisServer server = RedisServer
+                .newRedisServer()
+                .setTimer(timer);
+
+        server.start();
+
+        try (Jedis jedis = new Jedis(server.getHost(), server.getBindPort())) {
+            List<String> time = jedis.time();
+            long currentTimeMillis = timer.millis();
+
+            long seconds = Long.parseLong(time.get(0));
+            long microseconds = Long.parseLong(time.get(1));
+
+            long currentSeconds = currentTimeMillis / 1000;
+            long currentMicroseconds = (currentTimeMillis % 1000) * 1000;
+
+            assertThat(seconds).isEqualTo(currentSeconds); // WARNING potential fail (on heavy load)
+            assertThat(currentMicroseconds - microseconds).isBetween(0L, 20_000L); // the same
+
+            server.stop();
         }
     }
 }

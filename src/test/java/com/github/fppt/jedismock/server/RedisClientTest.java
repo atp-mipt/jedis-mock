@@ -12,24 +12,25 @@ import java.time.Clock;
 import java.util.Collections;
 
 class RedisClientTest {
-    Socket s;
+    Socket socket;
     RedisClient redisClient;
 
     @BeforeEach
     void init() throws IOException {
-        s = Mockito.mock(Socket.class);
-        Mockito.when(s.getInputStream()).thenReturn(Mockito.mock(InputStream.class));
-        Mockito.when(s.getOutputStream()).thenReturn(Mockito.mock(OutputStream.class));
-        redisClient = new RedisClient(Collections.emptyMap(), s, ServiceOptions.defaultOptions(), c -> {
-        },
-                Clock.systemDefaultZone() // TODO temporary stub
+        socket = Mockito.mock(Socket.class);
+        Mockito.when(socket.getInputStream()).thenReturn(Mockito.mock(InputStream.class));
+        Mockito.when(socket.getOutputStream()).thenReturn(Mockito.mock(OutputStream.class));
+        redisClient = new RedisClient(
+                Collections.emptyMap(),
+                socket,
+                ServiceOptions.defaultOptions(), c -> {},
+                Clock.systemDefaultZone()
         );
     }
 
     @Test
     void testClosedSocket() {
-        Mockito.when(s.isClosed()).thenReturn(true);
+        Mockito.when(socket.isClosed()).thenReturn(true);
         redisClient.run();
     }
-
 }

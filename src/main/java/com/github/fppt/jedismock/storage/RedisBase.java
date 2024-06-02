@@ -38,11 +38,12 @@ public class RedisBase {
     private final Clock timer;
 
     public RedisBase() {
-        this.timer = Clock.systemDefaultZone();
+        this(Clock.systemDefaultZone());
     }
 
     public RedisBase(Clock timer) {
         this.timer = timer;
+        keyValueStorage.setTimer(timer);
     }
 
     public long currentTime() {

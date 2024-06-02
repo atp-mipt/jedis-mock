@@ -25,7 +25,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Created by Xiaolu on 2015/4/20.
  */
 public class TestRedisOperationExecutor {
-
     private static final String CRLF = "\r\n";
     private static final Socket mockSocket = Mockito.mock(Socket.class);
 
@@ -80,21 +79,28 @@ public class TestRedisOperationExecutor {
         assertThat(executor.execCommand(parse(command)).data()[0]).isEqualTo((byte) '-');
     }
 
-    private String del(String key){ return executor.execCommand(RedisCommandParser.parse(array("DEL", key))).toString(); }
-    private String set(String key, String value){ return executor.execCommand(RedisCommandParser.parse(array("SET", key, value))).toString(); }
+    private String del(String key) {
+        return executor.execCommand(RedisCommandParser.parse(array("DEL", key))).toString();
+    }
+    private String set(String key, String value) {
+        return executor.execCommand(RedisCommandParser.parse(array("SET", key, value))).toString();
+    }
 
     @BeforeEach
     public void initCommandExecutor() throws IOException {
         Map<Integer, RedisBase> redisBases = new HashMap<>();
         redisBases.put(0, new RedisBase());
-        RedisClient redisClient = new RedisClient(redisBases,
-                mockSocket, ServiceOptions.defaultOptions(), c -> {
-        },
-                Clock.systemDefaultZone() // TODO temporary stub
-                );
-        OperationExecutorState state = new OperationExecutorState(redisClient, redisBases,
-                Clock.systemDefaultZone() // TODO temporary stub
-                );
+        RedisClient redisClient = new RedisClient(
+                redisBases,
+                mockSocket,
+                ServiceOptions.defaultOptions(), c -> {},
+                Clock.systemDefaultZone()
+        );
+        OperationExecutorState state = new OperationExecutorState(
+                redisClient,
+                redisBases,
+                Clock.systemDefaultZone()
+        );
         executor = new RedisOperationExecutor(state);
     }
 
