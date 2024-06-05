@@ -34,7 +34,7 @@ jobs:
           restore-keys: ${{ runner.os }}-maven-
 
       - name: Fast build and install JedisMock
-        run: mvn -B install -Dmaven.javadoc.skip -DskipTests -Dspotbugs.skip -Dcheckstyle.skip -Dpmd.skip -Dcpd.skip
+        run: mvn install -Dmaven.javadoc.skip -DskipTests -Dspotbugs.skip -Dcheckstyle.skip -Dpmd.skip -Dcpd.skip
 
       - name: Evaluate current JedisMock version
         run: |
@@ -42,7 +42,7 @@ jobs:
           cat $GITHUB_ENV
 
       - name: Build jm-test-server
-        run: mvn -B verify -Djedismock.version=${{ env.jm_version }}
+        run: mvn verify -Djedismock.version=${{ env.jm_version }}
         working-directory: native_tests/jm-test-server
 
       - name: Prepare TCL test run
@@ -82,4 +82,9 @@ jobs:
       - name: stream
         if: always()
         run: ./testnative unit/type/stream
+        working-directory: native_tests
+
+      - name: keyspace
+        if: always()
+        run: ./testnative unit/keyspace
         working-directory: native_tests
