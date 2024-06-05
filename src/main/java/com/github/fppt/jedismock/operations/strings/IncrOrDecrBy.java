@@ -19,15 +19,15 @@ abstract class IncrOrDecrBy extends AbstractRedisOperation {
 
     protected Slice response() {
         Slice key = params().get(0);
-        long d = incrementOrDecrementValue(params());
-        RMString v = base().getRMString(key);
+        long delta = incrementOrDecrementValue(params());
+        RMString value = base().getRMString(key);
 
-        if (v == null) {
-            base().putValue(key, RMString.create(String.valueOf(d)));
-            return Response.integer(d);
+        if (value == null) {
+            base().putValue(key, RMString.create(String.valueOf(delta)));
+            return Response.integer(delta);
         }
 
-        long r = convertToLong(v.getStoredDataAsString()) + d;
+        long r = convertToLong(value.getStoredDataAsString()) + delta;
         base().putValueWithoutClearingTtl(key, RMString.create(String.valueOf(r)));
         return Response.integer(r);
     }

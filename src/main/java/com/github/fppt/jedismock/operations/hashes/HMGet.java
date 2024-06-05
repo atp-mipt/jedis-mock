@@ -22,7 +22,7 @@ public class HMGet extends AbstractRedisOperation {
 
         for (int i = 1; i < params().size(); i++) {
             Slice field = params().get(i);
-            Slice value = base().getSlice(hash, field);
+            Slice value = base().getRMHashValue(hash, field);
 
             if (value == null) {
                 result.add(Response.NULL);

@@ -15,7 +15,7 @@ public class HExists extends AbstractRedisOperation {
     }
 
     protected Slice response() {
-        if (base().getSlice(params().get(0), params().get(1)) == null){
+        if (base().getRMHashValue(params().get(0), params().get(1)) == null){
             return Response.integer(0);
         }
         return Response.integer(1);

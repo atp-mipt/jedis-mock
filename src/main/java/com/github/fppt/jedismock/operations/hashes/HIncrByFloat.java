@@ -19,7 +19,6 @@ class HIncrByFloat extends HIncrBy {
     }
 
     private static void validateHIncrByFloatArgument(Slice input) {
-
         final String errorMessage = "ERR value is not a valid float";
 
         // validate input is not started/ended with spaces
@@ -37,9 +36,9 @@ class HIncrByFloat extends HIncrBy {
         }
     }
 
-    Slice hsetValue(Slice key1, Slice key2, Slice value) {
+    Slice hsetValue(Slice key, Slice field, Slice value) {
         double numericValue = convertToDouble(String.valueOf(value));
-        Slice foundValue = base().getSlice(key1, key2);
+        Slice foundValue = base().getRMHashValue(key, field);
         if (foundValue != null) {
             validateHIncrByFloatArgument(foundValue);
             numericValue = convertToDouble(new String(foundValue.data())) + numericValue;
@@ -49,16 +48,16 @@ class HIncrByFloat extends HIncrBy {
         separator.setDecimalSeparator('.');
         DecimalFormat formatter = new DecimalFormat("#.#################", separator);
         Slice res = Slice.create(formatter.format(numericValue));
-        base().putSlice(key1, key2, res, -1L);
+        base().putSlice(key, field, res, -1L);
         return Response.bulkString(res);
     }
 
     @Override
     protected Slice response() {
-        Slice key1 = params().get(0);
-        Slice key2 = params().get(1);
+        Slice key = params().get(0);
+        Slice field = params().get(1);
         Slice value = params().get(2);
 
-        return hsetValue(key1, key2, value);
+        return hsetValue(key, field, value);
     }
 }

@@ -15,6 +15,6 @@ class HGet extends AbstractRedisOperation {
     }
 
     protected Slice response() {
-        return Response.bulkString(base().getSlice(params().get(0), params().get(1)));
+        return Response.bulkString(base().getRMHashValue(params().get(0), params().get(1)));
     }
 }

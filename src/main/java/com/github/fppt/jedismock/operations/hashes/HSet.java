@@ -14,9 +14,10 @@ class HSet extends AbstractRedisOperation {
         super(base, params);
     }
 
-    Slice hsetValue(Slice key1, Slice key2, Slice value) {
-        Slice foundValue = base().getSlice(key1, key2);
-        base().putSlice(key1, key2, value, null);
+    Slice hsetValue(Slice key, Slice field, Slice value) {
+        Slice foundValue = base().getRMHashValue(key, field);
+        Long ttl = base().getTTL(key);
+        base().putSlice(key, field, value, ttl); // As we're overriding field in hash, we want to save ttl
         return foundValue;
     }
 
@@ -26,7 +27,7 @@ class HSet extends AbstractRedisOperation {
         int count = 0;
 
         if (params().size() % 2 == 0){
-            // throw exception before doing anything if wrong number of args has been recieved
+            // throw exception before doing anything if wrong number of args has been received
             throw new IllegalArgumentException("Recieved wrong number of arguments when executing command HSET");
         }
 

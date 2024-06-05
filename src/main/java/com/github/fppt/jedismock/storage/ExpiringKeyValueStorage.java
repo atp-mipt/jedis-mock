@@ -50,7 +50,7 @@ public class ExpiringKeyValueStorage {
         if (!verifyKey(key1)) {
             return;
         }
-        RMHash sortedSetByKey = getRMSortedSet(key1);
+        RMHash sortedSetByKey = getRMHash(key1);
         Map<Slice, Slice> storedData = sortedSetByKey.getStoredData();
 
         if (!storedData.containsKey(key2)) {
@@ -152,13 +152,13 @@ public class ExpiringKeyValueStorage {
             mapByKey = new RMHash();
             values.put(key1, mapByKey);
         } else {
-            mapByKey = getRMSortedSet(key1);
+            mapByKey = getRMHash(key1);
         }
         mapByKey.put(key2, value);
         configureTTL(key1, ttl);
     }
 
-    private RMHash getRMSortedSet(Slice key) {
+    private RMHash getRMHash(Slice key) {
         RMDataStructure valueByKey = values.get(key);
         if (!isSortedSetValue(valueByKey)) {
             valueByKey.raiseTypeCastException();

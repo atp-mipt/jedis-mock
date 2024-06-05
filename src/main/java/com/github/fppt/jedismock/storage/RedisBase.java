@@ -131,8 +131,13 @@ public class RedisBase {
         return value.getAsSlice();
     }
 
-    public Slice getSlice(Slice key1, Slice key2) {
-        RMHash value = getHash(key1);
+    /**
+     * Returns field value that is stored by RMHash's key
+     * @param key RMHash's key
+     * @param field field whose value is being searched
+     */
+    public Slice getRMHashValue(Slice key, Slice field) {
+        RMHash value = getHash(key);
 
         if (value == null) {
             return null;
@@ -143,7 +148,7 @@ public class RedisBase {
             return null;
         }
 
-        return innerMap.get(key2);
+        return innerMap.get(field);
     }
 
     public Map<Slice, Slice> getFieldsAndValues(Slice hash) {
@@ -180,7 +185,8 @@ public class RedisBase {
     }
 
     public void putValueWithoutClearingTtl(Slice key, RMDataStructure value) {
-        putValue(key, value, null);
+        Long ttl = getTTL(key);
+        putValue(key, value, ttl);
     }
 
     public void putValue(Slice key, RMDataStructure value, Long ttl) {
