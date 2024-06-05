@@ -169,11 +169,7 @@ public class ExpiringKeyValueStorage {
 
     private void configureTTL(Slice key, Long ttl) {
         if (ttl == null) {
-            // If a TTL hasn't been provided, we don't want to override the TTL. However, if no TTL is set for this key,
-            // we should still set it to -1L
-            if (getTTL(key) == null) {
-                setDeadline(key, -1L);
-            }
+                setDeadline(key, -1L); // Override TTL in any case
         } else {
             if (ttl != -1) {
                 setTTL(key, ttl);
