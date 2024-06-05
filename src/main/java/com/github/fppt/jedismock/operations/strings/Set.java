@@ -24,9 +24,11 @@ class Set extends AbstractRedisOperation {
         Slice key = params().get(0);
         Slice value = params().get(1);
         Long ttl = ttl();
+
         if (ttl != null && ttl < 0){
             return Response.error("ERR invalid expire time in 'set' command");
         }
+
         if (nx()) {
             Slice old = base().getSlice(key);
             if (old == null) {

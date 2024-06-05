@@ -13,7 +13,7 @@ public class Select implements RedisOperation {
     private final OperationExecutorState state;
     private final List<Slice> params;
 
-    public Select(OperationExecutorState state, List<Slice> params){
+    public Select(OperationExecutorState state, List<Slice> params) {
         this.params = params;
         this.state = state;
     }
