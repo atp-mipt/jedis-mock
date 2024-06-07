@@ -7,10 +7,10 @@ import com.github.fppt.jedismock.datastructures.RMHash;
 import com.github.fppt.jedismock.datastructures.RMHyperLogLog;
 import com.github.fppt.jedismock.datastructures.RMList;
 import com.github.fppt.jedismock.datastructures.RMSet;
-import com.github.fppt.jedismock.datastructures.streams.RMStream;
 import com.github.fppt.jedismock.datastructures.RMString;
 import com.github.fppt.jedismock.datastructures.RMZSet;
 import com.github.fppt.jedismock.datastructures.Slice;
+import com.github.fppt.jedismock.datastructures.streams.RMStream;
 import com.github.fppt.jedismock.server.RedisClient;
 
 import java.time.Clock;
@@ -201,8 +201,8 @@ public class RedisBase {
         keyValueStorage.delete(key);
     }
 
-    public void deleteValue(Slice key1, Slice key2) {
-        keyValueStorage.delete(key1, key2);
+    public void deleteHashValue(Slice key, Slice field) {
+        keyValueStorage.deleteHashField(key, field);
     }
 
     public void addSubscriber(Slice channel, RedisClient client) {
@@ -346,5 +346,9 @@ public class RedisBase {
 
     public String addCachedLuaScript(String sha1, String script) {
         return cachedLuaScripts.put(sha1, script);
+    }
+
+    public int size() {
+        return keyValueStorage.size();
     }
 }

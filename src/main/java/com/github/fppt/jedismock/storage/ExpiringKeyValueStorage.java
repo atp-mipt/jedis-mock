@@ -15,7 +15,7 @@ public class ExpiringKeyValueStorage {
     private final Map<Slice, Long> ttls = new HashMap<>();
     private final Consumer<Slice> keyChangeNotifier;
 
-    private Clock timer;
+    private Clock timer = Clock.systemDefaultZone();
 
     public ExpiringKeyValueStorage(Consumer<Slice> keyChangeNotifier) {
         this.keyChangeNotifier = keyChangeNotifier;
@@ -43,28 +43,28 @@ public class ExpiringKeyValueStorage {
         values().remove(key);
     }
 
-    public void delete(Slice key1, Slice key2) {
-        keyChangeNotifier.accept(key1);
-        Objects.requireNonNull(key2);
+    public void deleteHashField(Slice key, Slice field) {
+        keyChangeNotifier.accept(key);
+        Objects.requireNonNull(field);
 
-        if (!verifyKey(key1)) {
+        if (!verifyKey(key)) {
             return;
         }
-        RMHash sortedSetByKey = getRMHash(key1);
-        Map<Slice, Slice> storedData = sortedSetByKey.getStoredData();
+        RMHash hash = getRMHash(key);
+        Map<Slice, Slice> storedData = hash.getStoredData();
 
-        if (!storedData.containsKey(key2)) {
+        if (!storedData.containsKey(field)) {
             return;
         }
 
-        storedData.remove(key2);
+        storedData.remove(field);
 
         if (storedData.isEmpty()) {
-            values.remove(key1);
+            values.remove(key);
         }
 
-        if (!values().containsKey(key1)) {
-            ttls().remove(key1);
+        if (!values().containsKey(key)) {
+            ttls().remove(key);
         }
     }
 
@@ -169,7 +169,7 @@ public class ExpiringKeyValueStorage {
 
     private void configureTTL(Slice key, Long ttl) {
         if (ttl == null) {
-                setDeadline(key, -1L); // Override TTL in any case
+            setDeadline(key, -1L); // Override TTL in any case
         } else {
             if (ttl != -1) {
                 setTTL(key, ttl);
@@ -207,5 +207,9 @@ public class ExpiringKeyValueStorage {
             return Slice.create("none");
         }
         return Slice.create(valueByKey.getTypeName());
+    }
+
+    public int size() {
+        return values().size();
     }
 }

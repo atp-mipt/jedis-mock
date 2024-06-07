@@ -26,7 +26,7 @@ class HDel extends AbstractRedisOperation {
         for (int i = 1; i < params().size(); ++i) {
             Slice currKey = params().get(i);
             Slice oldValue = base().getRMHashValue(key, currKey);
-            base().deleteValue(key, currKey);
+            base().deleteHashValue(key, currKey);
 
             if (oldValue != null) {
                 ++count;

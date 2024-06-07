@@ -413,56 +413,56 @@ start_server {tags {"keyspace"}} {
 #        r flushdb
 #    }
 
-# TODO unsupported operation: MOVE
-#    test {MOVE basic usage} {
-#        r set mykey foobar
-#        r move mykey 10
-#        set res {}
-#        lappend res [r exists mykey]
-#        lappend res [r dbsize]
-#        r select 10
-#        lappend res [r get mykey]
-#        lappend res [r dbsize]
-#        r select 9
-#        format $res
-#    } [list 0 0 foobar 1] {singledb:skip}
-#
-#    test {MOVE against key existing in the target DB} {
-#        r set mykey hello
-#        r move mykey 10
-#    } {0} {singledb:skip}
-#
-#    test {MOVE against non-integer DB (#1428)} {
-#        r set mykey hello
-#        catch {r move mykey notanumber} e
-#        set e
-#    } {ERR value is not an integer or out of range} {singledb:skip}
-#
-#    test {MOVE can move key expire metadata as well} {
-#        r select 10
-#        r flushdb
-#        r select 9
-#        r set mykey foo ex 100
-#        r move mykey 10
-#        assert {[r ttl mykey] == -2}
-#        r select 10
-#        assert {[r ttl mykey] > 0 && [r ttl mykey] <= 100}
-#        assert {[r get mykey] eq "foo"}
-#        r select 9
-#    } {OK} {singledb:skip}
-#
-#    test {MOVE does not create an expire if it does not exist} {
-#        r select 10
-#        r flushdb
-#        r select 9
-#        r set mykey foo
-#        r move mykey 10
-#        assert {[r ttl mykey] == -2}
-#        r select 10
-#        assert {[r ttl mykey] == -1}
-#        assert {[r get mykey] eq "foo"}
-#        r select 9
-#    } {OK} {singledb:skip}
+    test {MOVE basic usage} {
+        r flushdb # last line from previous test
+        r set mykey foobar
+        r move mykey 10
+        set res {}
+        lappend res [r exists mykey]
+        lappend res [r dbsize]
+        r select 10
+        lappend res [r get mykey]
+        lappend res [r dbsize]
+        r select 9
+        format $res
+    } [list 0 0 foobar 1] {singledb:skip}
+
+    test {MOVE against key existing in the target DB} {
+        r set mykey hello
+        r move mykey 10
+    } {0} {singledb:skip}
+
+    test {MOVE against non-integer DB (#1428)} {
+        r set mykey hello
+        catch {r move mykey notanumber} e
+        set e
+    } {ERR value is not an integer or out of range} {singledb:skip}
+
+    test {MOVE can move key expire metadata as well} {
+        r select 10
+        r flushdb
+        r select 9
+        r set mykey foo ex 100
+        r move mykey 10
+        assert {[r ttl mykey] == -2}
+        r select 10
+        assert {[r ttl mykey] > 0 && [r ttl mykey] <= 100}
+        assert {[r get mykey] eq "foo"}
+        r select 9
+    } {OK} {singledb:skip}
+
+    test {MOVE does not create an expire if it does not exist} {
+        r select 10
+        r flushdb
+        r select 9
+        r set mykey foo
+        r move mykey 10
+        assert {[r ttl mykey] == -2}
+        r select 10
+        assert {[r ttl mykey] == -1}
+        assert {[r get mykey] eq "foo"}
+        r select 9
+    } {OK} {singledb:skip}
 
     test {SET/GET keys in different DBs} {
         r set a hello
@@ -481,36 +481,35 @@ start_server {tags {"keyspace"}} {
         format $res
     } {hello world foo bared} {singledb:skip}
 
-# TODO unsupported operation: RANDOMKEY
-#    test {RANDOMKEY} {
-#        r flushdb
-#        r set foo x
-#        r set bar y
-#        set foo_seen 0
-#        set bar_seen 0
-#        for {set i 0} {$i < 100} {incr i} {
-#            set rkey [r randomkey]
-#            if {$rkey eq {foo}} {
-#                set foo_seen 1
-#            }
-#            if {$rkey eq {bar}} {
-#                set bar_seen 1
-#            }
-#        }
-#        list $foo_seen $bar_seen
-#    } {1 1}
-#
-#    test {RANDOMKEY against empty DB} {
-#        r flushdb
-#        r randomkey
-#    } {}
-#
-#    test {RANDOMKEY regression 1} {
-#        r flushdb
-#        r set x 10
-#        r del x
-#        r randomkey
-#    } {}
+    test {RANDOMKEY} {
+        r flushdb
+        r set foo x
+        r set bar y
+        set foo_seen 0
+        set bar_seen 0
+        for {set i 0} {$i < 100} {incr i} {
+            set rkey [r randomkey]
+            if {$rkey eq {foo}} {
+                set foo_seen 1
+            }
+            if {$rkey eq {bar}} {
+                set bar_seen 1
+            }
+        }
+        list $foo_seen $bar_seen
+    } {1 1}
+
+    test {RANDOMKEY against empty DB} {
+        r flushdb
+        r randomkey
+    } {}
+
+    test {RANDOMKEY regression 1} {
+        r flushdb
+        r set x 10
+        r del x
+        r randomkey
+    } {}
 
     test {KEYS * two times with long key, Github issue #1208} {
         r flushdb
@@ -519,7 +518,6 @@ start_server {tags {"keyspace"}} {
         r keys *
     } {dlskeriewrioeuwqoirueioqwrueoqwrueqw}
 
-# FIXME infinite loop
 #    test {Regression for pattern matching long nested loops} {
 #        r flushdb
 #        r SET aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 1
