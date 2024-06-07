@@ -22,7 +22,6 @@ import static org.assertj.core.api.Assertions.within;
 
 @ExtendWith(ComparisonBase.class)
 public class HashOperationsTest {
-
     private final String HASH = "hash";
     private final String FIELD_1 = "field1";
     private final String VALUE_1 = "value1";

@@ -30,7 +30,7 @@ public class Script extends AbstractRedisOperation {
             base().flushCachedLuaScrips();
             return Response.OK;
         }
-        return Response.error(String.format("Unsupported operation: script %s", operation));
+        return Response.error(String.format("ERR Unsupported operation: script %s", operation));
     }
 
     private Slice exists() {

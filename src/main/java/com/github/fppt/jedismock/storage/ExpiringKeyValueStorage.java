@@ -4,6 +4,7 @@ import com.github.fppt.jedismock.datastructures.RMDataStructure;
 import com.github.fppt.jedismock.datastructures.RMHash;
 import com.github.fppt.jedismock.datastructures.Slice;
 
+import java.time.Clock;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -14,8 +15,18 @@ public class ExpiringKeyValueStorage {
     private final Map<Slice, Long> ttls = new HashMap<>();
     private final Consumer<Slice> keyChangeNotifier;
 
+    private Clock timer = Clock.systemDefaultZone();
+
     public ExpiringKeyValueStorage(Consumer<Slice> keyChangeNotifier) {
         this.keyChangeNotifier = keyChangeNotifier;
+    }
+
+    public void setTimer(Clock timer) {
+        this.timer = timer;
+    }
+
+    private long currentTimeMillis() {
+        return timer.millis();
     }
 
     public Map<Slice, RMDataStructure> values() {
@@ -32,28 +43,28 @@ public class ExpiringKeyValueStorage {
         values().remove(key);
     }
 
-    public void delete(Slice key1, Slice key2) {
-        keyChangeNotifier.accept(key1);
-        Objects.requireNonNull(key2);
+    public void deleteHashField(Slice key, Slice field) {
+        keyChangeNotifier.accept(key);
+        Objects.requireNonNull(field);
 
-        if (!verifyKey(key1)) {
+        if (!verifyKey(key)) {
             return;
         }
-        RMHash sortedSetByKey = getRMSortedSet(key1);
-        Map<Slice, Slice> storedData = sortedSetByKey.getStoredData();
+        RMHash hash = getRMHash(key);
+        Map<Slice, Slice> storedData = hash.getStoredData();
 
-        if (!storedData.containsKey(key2)) {
+        if (!storedData.containsKey(field)) {
             return;
         }
 
-        storedData.remove(key2);
+        storedData.remove(field);
 
         if (storedData.isEmpty()) {
-            values.remove(key1);
+            values.remove(key);
         }
 
-        if (!values().containsKey(key1)) {
-            ttls().remove(key1);
+        if (!values().containsKey(key)) {
+            ttls().remove(key);
         }
     }
 
@@ -89,7 +100,7 @@ public class ExpiringKeyValueStorage {
 
     boolean isKeyOutdated(Slice key) {
         Long deadline = ttls().get(key);
-        return deadline != null && deadline != -1 && deadline <= System.currentTimeMillis();
+        return deadline != null && deadline != -1 && deadline <= currentTimeMillis();
     }
 
     public Long getTTL(Slice key) {
@@ -101,7 +112,7 @@ public class ExpiringKeyValueStorage {
         if (deadline == -1) {
             return deadline;
         }
-        long now = System.currentTimeMillis();
+        long now = currentTimeMillis();
         if (now < deadline) {
             return deadline - now;
         }
@@ -111,7 +122,7 @@ public class ExpiringKeyValueStorage {
 
     public long setTTL(Slice key, long ttl) {
         keyChangeNotifier.accept(key);
-        return setDeadline(key, ttl + System.currentTimeMillis());
+        return setDeadline(key, ttl + currentTimeMillis());
     }
 
     public void put(Slice key, RMDataStructure value, Long ttl) {
@@ -141,13 +152,13 @@ public class ExpiringKeyValueStorage {
             mapByKey = new RMHash();
             values.put(key1, mapByKey);
         } else {
-            mapByKey = getRMSortedSet(key1);
+            mapByKey = getRMHash(key1);
         }
         mapByKey.put(key2, value);
         configureTTL(key1, ttl);
     }
 
-    private RMHash getRMSortedSet(Slice key) {
+    private RMHash getRMHash(Slice key) {
         RMDataStructure valueByKey = values.get(key);
         if (!isSortedSetValue(valueByKey)) {
             valueByKey.raiseTypeCastException();
@@ -158,11 +169,7 @@ public class ExpiringKeyValueStorage {
 
     private void configureTTL(Slice key, Long ttl) {
         if (ttl == null) {
-            // If a TTL hasn't been provided, we don't want to override the TTL. However, if no TTL is set for this key,
-            // we should still set it to -1L
-            if (getTTL(key) == null) {
-                setDeadline(key, -1L);
-            }
+            setDeadline(key, -1L); // Override TTL in any case
         } else {
             if (ttl != -1) {
                 setTTL(key, ttl);
@@ -200,5 +207,9 @@ public class ExpiringKeyValueStorage {
             return Slice.create("none");
         }
         return Slice.create(valueByKey.getTypeName());
+    }
+
+    public int size() {
+        return values().size();
     }
 }

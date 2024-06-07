@@ -9,7 +9,6 @@ import com.github.fppt.jedismock.storage.RedisBase;
 import java.util.List;
 
 abstract class BZPop extends AbstractBPop {
-
     BZPop(OperationExecutorState state, List<Slice> params) {
         super(state, params);
     }

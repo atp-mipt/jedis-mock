@@ -7,7 +7,7 @@ import com.github.fppt.jedismock.storage.OperationExecutorState;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.github.fppt.jedismock.Utils.toNanoTimeout;
+import static com.github.fppt.jedismock.Utils.toMillisTimeout;
 
 @RedisCommand("bzmpop")
 public class BZMPop extends BZPop {
@@ -24,7 +24,7 @@ public class BZMPop extends BZPop {
 
     @Override
     protected void doOptionalWork(){
-        timeoutNanos = toNanoTimeout(params().get(0).toString());
+        timeoutMillis = toMillisTimeout(params().get(0).toString());
         params().remove(0);
         ZMPop zmPop = new ZMPop(base(), new ArrayList<>(params()));
         numKeys = params().remove(0);
@@ -39,5 +39,4 @@ public class BZMPop extends BZPop {
         ZMPop zmPop = new ZMPop(base(), newParams);
         return zmPop.response();
     }
-
 }

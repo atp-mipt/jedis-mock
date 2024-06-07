@@ -10,13 +10,13 @@ import com.github.fppt.jedismock.storage.RedisBase;
 import java.util.Collections;
 import java.util.List;
 
-import static com.github.fppt.jedismock.Utils.toNanoTimeout;
+import static com.github.fppt.jedismock.Utils.toMillisTimeout;
 
 public abstract class AbstractBPop extends AbstractRedisOperation {
 
     private final Object lock;
     private final boolean isInTransaction;
-    protected long timeoutNanos;
+    protected long timeoutMillis;
     protected List<Slice> keys;
 
     protected AbstractBPop(OperationExecutorState state, List<Slice> params) {
@@ -32,7 +32,7 @@ public abstract class AbstractBPop extends AbstractRedisOperation {
 
     @Override
     protected void doOptionalWork() {
-        timeoutNanos = toNanoTimeout(params().get(params().size() - 1).toString());
+        timeoutMillis = toMillisTimeout(params().get(params().size() - 1).toString());
         keys = params().subList(0, params().size() - 1);
     }
 
@@ -41,21 +41,20 @@ public abstract class AbstractBPop extends AbstractRedisOperation {
     protected abstract AbstractRedisOperation getSize(RedisBase base, List<Slice> params);
 
     protected Slice response() {
-        if (timeoutNanos < 0) {
+        if (timeoutMillis < 0) {
             throw new IllegalArgumentException("ERR timeout is negative");
         }
 
         Slice source = getKey(keys, true);
 
-        long waitEnd = System.nanoTime() + timeoutNanos;
-        long waitTimeNanos;
+        long waitEnd = base().currentTime() + timeoutMillis;
+        long waitTimeMillis;
+
         try {
             while (source == null &&
-                    !isInTransaction &&
-                    (waitTimeNanos = timeoutNanos == 0 ? 0 : waitEnd - System.nanoTime()) >= 0) {
-                long waitMillis = waitTimeNanos / 1_000_000 > 1000 ? 1000 : waitTimeNanos / 1_000_000;
-                int waitNano = (int) (waitTimeNanos % 1_000_000);
-                lock.wait(waitMillis, waitNano);
+                   !isInTransaction &&
+                   (waitTimeMillis = timeoutMillis == 0 ? 0 : waitEnd - base().currentTime()) >= 0) {
+                lock.wait(waitTimeMillis, 1); // prevent 0 & 0 not to get stuck
                 source = getKey(keys, false);
             }
         } catch (InterruptedException e) {
@@ -63,6 +62,7 @@ public abstract class AbstractBPop extends AbstractRedisOperation {
             Thread.currentThread().interrupt();
             return Response.NULL;
         }
+
         if (source == null) {
             return Response.NULL_ARRAY;
         } else {

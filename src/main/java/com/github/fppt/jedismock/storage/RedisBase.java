@@ -7,12 +7,13 @@ import com.github.fppt.jedismock.datastructures.RMHash;
 import com.github.fppt.jedismock.datastructures.RMHyperLogLog;
 import com.github.fppt.jedismock.datastructures.RMList;
 import com.github.fppt.jedismock.datastructures.RMSet;
-import com.github.fppt.jedismock.datastructures.streams.RMStream;
 import com.github.fppt.jedismock.datastructures.RMString;
 import com.github.fppt.jedismock.datastructures.RMZSet;
 import com.github.fppt.jedismock.datastructures.Slice;
+import com.github.fppt.jedismock.datastructures.streams.RMStream;
 import com.github.fppt.jedismock.server.RedisClient;
 
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -34,6 +35,20 @@ public class RedisBase {
                     .getOrDefault(key, Collections.emptySet())
                     .forEach(OperationExecutorState::watchedKeyIsAffected));
     private final Map<String, String> cachedLuaScripts = new HashMap<>();
+    private final Clock timer;
+
+    public RedisBase() {
+        this(Clock.systemDefaultZone());
+    }
+
+    public RedisBase(Clock timer) {
+        this.timer = timer;
+        keyValueStorage.setTimer(timer);
+    }
+
+    public long currentTime() {
+        return timer.millis();
+    }
 
     public Set<Slice> keys() {
         Iterator<Slice> slices = keyValueStorage.values().keySet().iterator();
@@ -116,8 +131,13 @@ public class RedisBase {
         return value.getAsSlice();
     }
 
-    public Slice getSlice(Slice key1, Slice key2) {
-        RMHash value = getHash(key1);
+    /**
+     * Returns field value that is stored by RMHash's key
+     * @param key RMHash's key
+     * @param field field whose value is being searched
+     */
+    public Slice getRMHashValue(Slice key, Slice field) {
+        RMHash value = getHash(key);
 
         if (value == null) {
             return null;
@@ -128,7 +148,7 @@ public class RedisBase {
             return null;
         }
 
-        return innerMap.get(key2);
+        return innerMap.get(field);
     }
 
     public Map<Slice, Slice> getFieldsAndValues(Slice hash) {
@@ -165,7 +185,8 @@ public class RedisBase {
     }
 
     public void putValueWithoutClearingTtl(Slice key, RMDataStructure value) {
-        putValue(key, value, null);
+        Long ttl = getTTL(key);
+        putValue(key, value, ttl);
     }
 
     public void putValue(Slice key, RMDataStructure value, Long ttl) {
@@ -180,8 +201,8 @@ public class RedisBase {
         keyValueStorage.delete(key);
     }
 
-    public void deleteValue(Slice key1, Slice key2) {
-        keyValueStorage.delete(key1, key2);
+    public void deleteHashValue(Slice key, Slice field) {
+        keyValueStorage.deleteHashField(key, field);
     }
 
     public void addSubscriber(Slice channel, RedisClient client) {
@@ -325,5 +346,9 @@ public class RedisBase {
 
     public String addCachedLuaScript(String sha1, String script) {
         return cachedLuaScripts.put(sha1, script);
+    }
+
+    public int size() {
+        return keyValueStorage.size();
     }
 }

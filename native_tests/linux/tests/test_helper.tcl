@@ -22,6 +22,7 @@ set ::all_tests {
     unit/type/hash
     unit/type/stream
     unit/type/stream-cgroups
+    unit/keyspace
 }
 # Index to the next test to run in the ::all_tests list.
 set ::next_test 0

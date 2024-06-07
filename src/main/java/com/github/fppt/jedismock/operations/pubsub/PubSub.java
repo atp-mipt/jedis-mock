@@ -29,7 +29,7 @@ public class PubSub extends AbstractRedisOperation {
         } else if ("numpat".equalsIgnoreCase(subcommand.toString())) {
             return Response.integer(base().getNumpat());
         } else {
-            return Response.error(String.format("Unsupported operation: pubsub %s", subcommand));
+            return Response.error(String.format("ERR Unsupported operation: pubsub %s", subcommand));
         }
     }
 }

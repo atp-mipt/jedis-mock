@@ -42,7 +42,7 @@ public class MockExecutor {
                     }
                 } else {
                     state.errorTransaction();
-                    return Response.error(String.format("Unsupported operation: %s", name));
+                    return Response.error(String.format("ERR Unsupported operation: %s", name));
                 }
             } catch (Exception e) {
                 LOG.error("Malformed request", e);

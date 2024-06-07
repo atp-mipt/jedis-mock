@@ -18,7 +18,7 @@ public class Time extends AbstractRedisOperation {
     protected Slice response() {
         //Java8 has wallclock with microseconds precision,
         //so this mock returns results truncated up to a millisecond
-        long time = System.currentTimeMillis();
+        long time = base().currentTime();
         long seconds = time / 1000L;
         long microseconds = (time % 1000L) * 1000L;
         return Response.array(

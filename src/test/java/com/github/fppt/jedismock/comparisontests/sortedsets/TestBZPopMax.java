@@ -13,7 +13,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @ExtendWith(ComparisonBase.class)
 public class TestBZPopMax {
-
     private static final String ZSET_KEY_1 = "myzset";
     private static final String ZSET_KEY_2 = "ztmp";
 

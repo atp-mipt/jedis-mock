@@ -13,7 +13,7 @@ class Incr extends IncrBy {
     }
 
     @Override
-    long incrementOrDecrementValue(List<Slice> params){
+    long incrementOrDecrementValue(List<Slice> params) {
         return 1L;
     }
 }

@@ -43,7 +43,7 @@ public class XRead extends AbstractRedisOperation {
     protected Slice response() {
         int streamInd = 0;
         int count;
-        long blockTimeNanosec = 0;
+        long blockTimeMillisec = 0;
         boolean isBlocking = false;
 
         if ("count".equalsIgnoreCase(params().get(streamInd).toString())) {
@@ -54,10 +54,10 @@ public class XRead extends AbstractRedisOperation {
         }
 
         if ("block".equalsIgnoreCase(params().get(streamInd).toString())) {
-            blockTimeNanosec = Long.parseLong(params().get(++streamInd).toString()) * 1_000_000;
+            blockTimeMillisec = Long.parseLong(params().get(++streamInd).toString());
             isBlocking = true;
 
-            if (blockTimeNanosec < 0) {
+            if (blockTimeMillisec < 0) {
                 return Response.error(NEGATIVE_TIMEOUT_ERROR);
             }
 
@@ -107,14 +107,14 @@ public class XRead extends AbstractRedisOperation {
         List<Slice> output = new ArrayList<>();
 
         /* Blocking */
-        long waitEnd = System.nanoTime() + blockTimeNanosec;
-        long waitTimeNanos;
+        long waitEnd = base().currentTime() + blockTimeMillisec;
+        long waitTimeMillis;
 
         if (isBlocking) {
             boolean updated = false; // should be unblocked after XADD was invoked
-            if (blockTimeNanosec > 0) {
+            if (blockTimeMillisec > 0) {
                 try {
-                    while (!isInTransaction && !updated && ((waitTimeNanos = waitEnd - System.nanoTime()) >= 0)) {
+                    while (!isInTransaction && !updated && ((waitTimeMillis = waitEnd - base().currentTime()) >= 0)) {
                         for (Map.Entry<Slice, StreamId> entry : mapKeyToBeginEntryId) {
                             if (base().exists(entry.getKey())
                                     && entry.getValue()
@@ -126,8 +126,8 @@ public class XRead extends AbstractRedisOperation {
                             }
                         }
 
-                        if (waitTimeNanos / 1_000_000 < 500) {
-                            lock.wait(waitTimeNanos / 1_000_000, (int) waitTimeNanos % 1_000_000);
+                        if (waitTimeMillis < 500) {
+                            lock.wait(waitTimeMillis, 1); // prevent 0 & 0 case not to get stuck
                         } else {
                             lock.wait(500, 0);
                         }

@@ -4,6 +4,7 @@ import com.github.fppt.jedismock.datastructures.Slice;
 import com.github.fppt.jedismock.operations.RedisOperation;
 import com.github.fppt.jedismock.server.RedisClient;
 
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -21,14 +22,16 @@ public class OperationExecutorState {
     private boolean watchedKeysAffected = false;
     private int selectedRedisBase = 0;
     private String clientName;
+    private final Clock timer;
 
-    public OperationExecutorState(RedisClient owner, Map<Integer, RedisBase> redisBases) {
+    public OperationExecutorState(RedisClient owner, Map<Integer, RedisBase> redisBases, Clock timer) {
         this.owner = owner;
         this.redisBases = redisBases;
+        this.timer = timer;
     }
 
     public RedisBase base() {
-        return redisBases.computeIfAbsent(selectedRedisBase, key -> new RedisBase());
+        return redisBases.computeIfAbsent(selectedRedisBase, key -> new RedisBase(timer));
     }
 
     public RedisClient owner() {
