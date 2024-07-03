@@ -69,7 +69,7 @@ abstract class AbstractZRange extends AbstractByScoreOperation {
                     list = entries.stream()
                             .skip(offset)
                             .flatMap(e -> Stream.of(e.getValue(),
-                                    Slice.create(String.format("%.0f", e.getScore()))))
+                                    Slice.create(String.valueOf(e.getScore()))))
                             .map(Response::bulkString)
                             .collect(Collectors.toList());
                 } else {
@@ -85,7 +85,7 @@ abstract class AbstractZRange extends AbstractByScoreOperation {
                             .skip(offset)
                             .limit(count)
                             .flatMap(e -> Stream.of(e.getValue(),
-                                    Slice.create(String.format("%.0f", e.getScore()))))
+                                    Slice.create(String.valueOf(e.getScore()))))
                             .map(Response::bulkString)
                             .collect(Collectors.toList());
                 } else {
@@ -102,7 +102,7 @@ abstract class AbstractZRange extends AbstractByScoreOperation {
             if (options.contains(WITHSCORES)) {
                 list = entries.stream()
                         .flatMap(e -> Stream.of(e.getValue(),
-                                Slice.create(String.format("%.0f", e.getScore()))))
+                                Slice.create(String.valueOf(e.getScore()))))
                         .map(Response::bulkString)
                         .collect(Collectors.toList());
             } else {
