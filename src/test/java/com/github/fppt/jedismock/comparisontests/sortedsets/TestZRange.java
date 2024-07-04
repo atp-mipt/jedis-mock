@@ -93,9 +93,12 @@ public class TestZRange {
         jedis.zadd(ZSET_KEY, 2, "two");
         jedis.zadd(ZSET_KEY, 1.23456789, "many");
         final List<Tuple> result = jedis.zrangeWithScores(ZSET_KEY, 0, -1);
-        assertThat(result.get(0)).isEqualTo(new Tuple("many", 1.23456789));
-        assertThat(result.get(1)).isEqualTo(new Tuple("two", 2.0));
-        assertThat(result.get(2)).isEqualTo(new Tuple("pi", 3.14));
+        assertThat(result.get(0).getElement()).isEqualTo("many");
+        assertThat(result.get(0).getScore()).isEqualTo(1.23456789);
+        assertThat(result.get(1).getElement()).isEqualTo("two");
+        assertThat(result.get(1).getScore()).isEqualTo(2.0);
+        assertThat(result.get(2).getElement()).isEqualTo("pi");
+        assertThat(result.get(2).getScore()).isEqualTo(3.14);
     }
 
     @TestTemplate
