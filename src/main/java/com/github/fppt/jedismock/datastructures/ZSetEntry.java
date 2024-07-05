@@ -19,7 +19,7 @@ public final class ZSetEntry implements Comparable<ZSetEntry> {
         this.value = value;
     }
 
-    public Double getScore() {
+    public double getScore() {
         return score;
     }
 

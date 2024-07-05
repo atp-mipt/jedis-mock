@@ -115,8 +115,7 @@ abstract class AbstractZRange extends AbstractByScoreOperation {
     }
 
     protected static Stream<Slice> getSliceStream(ZSetEntry e) {
-        int value = e.getScore().intValue();
-        if (abs(value - e.getScore()) < 1e-6) {
+        if (e.getScore() % 1 == 0) {
             return Stream.of(
                     e.getValue(),
                     Slice.create(String.format("%.0f", e.getScore())));
