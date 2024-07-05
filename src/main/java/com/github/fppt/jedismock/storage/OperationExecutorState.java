@@ -6,10 +6,10 @@ import com.github.fppt.jedismock.server.RedisClient;
 
 import java.time.Clock;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.HashSet;
 
 public class OperationExecutorState {
     public enum TransactionState {NORMAL, MULTI, ERRORED}
@@ -22,16 +22,20 @@ public class OperationExecutorState {
     private boolean watchedKeysAffected = false;
     private int selectedRedisBase = 0;
     private String clientName;
-    private final Clock timer;
+    private final Clock internalClock;
 
-    public OperationExecutorState(RedisClient owner, Map<Integer, RedisBase> redisBases, Clock timer) {
+    public OperationExecutorState(RedisClient owner, Map<Integer, RedisBase> redisBases, Clock internalClock) {
         this.owner = owner;
         this.redisBases = redisBases;
-        this.timer = timer;
+        this.internalClock = internalClock;
     }
 
     public RedisBase base() {
-        return redisBases.computeIfAbsent(selectedRedisBase, key -> new RedisBase(timer));
+        return redisBases.computeIfAbsent(selectedRedisBase, key -> new RedisBase(internalClock));
+    }
+
+    public Map<Integer, RedisBase> getAllBases() {
+        return redisBases;
     }
 
     public RedisClient owner() {

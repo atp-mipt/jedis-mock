@@ -24,30 +24,31 @@ public final class RedisService implements Callable<Void> {
     private final ServiceOptions options;
     private final ExecutorService threadPool = Executors.newCachedThreadPool();
     private final List<RedisClient> clients = new CopyOnWriteArrayList<>();
-    private final Clock timer;
+    private final Clock internalClock;
 
     public RedisService(int bindPort,
                         InetAddress address,
                         Map<Integer, RedisBase> redisBases,
                         ServiceOptions options,
-                        Clock timer) throws IOException {
+                        Clock internalClock) throws IOException {
         Objects.requireNonNull(redisBases);
         Objects.requireNonNull(options);
-        Objects.requireNonNull(timer);
+        Objects.requireNonNull(internalClock);
 
         this.server = new ServerSocket(bindPort, 0, address);
         this.redisBases = redisBases;
         this.options = options;
-        this.timer = timer;
+        this.internalClock = internalClock;
     }
 
     public Void call() throws IOException {
         while (!server.isClosed()) {
             Socket socket = server.accept();
-            RedisClient rc = new RedisClient(redisBases, socket, options, clients::remove, timer);
+            RedisClient rc = new RedisClient(redisBases, socket, options, clients::remove, internalClock);
             clients.add(rc);
             threadPool.submit(rc);
         }
+
         return null;
     }
 

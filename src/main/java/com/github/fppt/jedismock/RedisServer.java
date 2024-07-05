@@ -20,7 +20,7 @@ import java.util.concurrent.Future;
  * Created by Xiaolu on 2015/4/18.
  */
 public class RedisServer {
-    private Clock timer;
+    private Clock internalClock;
     private int bindPort;
     private InetAddress bindAddress;
     private final Map<Integer, RedisBase> redisBases;
@@ -41,13 +41,13 @@ public class RedisServer {
         this(port, address, Clock.systemDefaultZone());
     }
 
-    public RedisServer(int port, InetAddress address, Clock timer) {
+    public RedisServer(int port, InetAddress address, Clock internalClock) {
         this.bindPort = port;
         this.bindAddress = address;
         this.redisBases = new HashMap<>();
         this.threadPool = Executors.newSingleThreadExecutor();
         CommandFactory.initialize();
-        this.timer = timer;
+        this.internalClock = internalClock;
     }
 
     public static RedisServer newRedisServer() {
@@ -79,9 +79,9 @@ public class RedisServer {
         return this;
     }
 
-    public RedisServer setTimer(Clock timer) {
-        Objects.requireNonNull(timer);
-        this.timer = timer;
+    public RedisServer setInternalClock(Clock internalClock) {
+        Objects.requireNonNull(internalClock);
+        this.internalClock = internalClock;
         return this;
     }
 
@@ -95,8 +95,8 @@ public class RedisServer {
         return service.getServer().getLocalPort();
     }
 
-    public Clock getTimer() {
-        return timer;
+    public Clock getInternalClock() {
+        return internalClock;
     }
 
     public RedisServer start() throws IOException {
@@ -104,7 +104,7 @@ public class RedisServer {
             throw new IllegalStateException();
         }
 
-        this.service = new RedisService(bindPort, bindAddress, redisBases, options, timer);
+        this.service = new RedisService(bindPort, bindAddress, redisBases, options, internalClock);
         serviceFinalization = threadPool.submit(service);
         return this;
     }

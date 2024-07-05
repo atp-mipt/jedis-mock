@@ -39,14 +39,14 @@ public final class RedisClient implements Runnable {
                 Socket socket,
                 ServiceOptions options,
                 Consumer<RedisClient> onClose,
-                Clock timer) throws IOException {
+                Clock internalClock) throws IOException {
         Objects.requireNonNull(redisBases);
         Objects.requireNonNull(socket);
         Objects.requireNonNull(options);
         Objects.requireNonNull(onClose);
-        Objects.requireNonNull(timer);
+        Objects.requireNonNull(internalClock);
 
-        OperationExecutorState state = new OperationExecutorState(this, redisBases, timer);
+        OperationExecutorState state = new OperationExecutorState(this, redisBases, internalClock);
         this.executor = new RedisOperationExecutor(state);
         this.socket = socket;
         this.options = options;

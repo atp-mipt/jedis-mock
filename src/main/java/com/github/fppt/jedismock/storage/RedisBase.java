@@ -35,19 +35,19 @@ public class RedisBase {
                     .getOrDefault(key, Collections.emptySet())
                     .forEach(OperationExecutorState::watchedKeyIsAffected));
     private final Map<String, String> cachedLuaScripts = new HashMap<>();
-    private final Clock timer;
+    private final Clock internalClock;
 
     public RedisBase() {
         this(Clock.systemDefaultZone());
     }
 
-    public RedisBase(Clock timer) {
-        this.timer = timer;
-        keyValueStorage.setTimer(timer);
+    public RedisBase(Clock internalClock) {
+        this.internalClock = internalClock;
+        keyValueStorage.setInternalClock(internalClock);
     }
 
     public long currentTime() {
-        return timer.millis();
+        return internalClock.millis();
     }
 
     public Set<Slice> keys() {
@@ -342,7 +342,6 @@ public class RedisBase {
     public void flushCachedLuaScrips() {
         cachedLuaScripts.clear();
     }
-
 
     public String addCachedLuaScript(String sha1, String script) {
         return cachedLuaScripts.put(sha1, script);

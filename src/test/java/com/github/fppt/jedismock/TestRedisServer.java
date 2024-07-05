@@ -124,17 +124,17 @@ public class TestRedisServer {
 
     @Test
     public void whenSetCustomTimer_ensureMockTimerIsSetCorrectly() throws IOException {
-        Clock timer = Clock.system(ZoneId.of("Europe/Vienna"));
+        Clock internalClock = Clock.system(ZoneId.of("Europe/Vienna"));
 
         RedisServer server = RedisServer
                 .newRedisServer()
-                .setTimer(timer);
+                .setInternalClock(internalClock);
 
         server.start();
 
         try (Jedis jedis = new Jedis(server.getHost(), server.getBindPort())) {
             List<String> time = jedis.time();
-            long currentTimeMillis = timer.millis();
+            long currentTimeMillis = internalClock.millis();
 
             long seconds = Long.parseLong(time.get(0));
             long microseconds = Long.parseLong(time.get(1));

@@ -15,18 +15,18 @@ public class ExpiringKeyValueStorage {
     private final Map<Slice, Long> ttls = new HashMap<>();
     private final Consumer<Slice> keyChangeNotifier;
 
-    private Clock timer = Clock.systemDefaultZone();
+    private Clock internalClock = Clock.systemDefaultZone();
 
     public ExpiringKeyValueStorage(Consumer<Slice> keyChangeNotifier) {
         this.keyChangeNotifier = keyChangeNotifier;
     }
 
-    public void setTimer(Clock timer) {
-        this.timer = timer;
+    public void setInternalClock(Clock internalClock) {
+        this.internalClock = internalClock;
     }
 
     private long currentTimeMillis() {
-        return timer.millis();
+        return internalClock.millis();
     }
 
     public Map<Slice, RMDataStructure> values() {
