@@ -20,7 +20,6 @@ import static com.github.fppt.jedismock.operations.sortedsets.AbstractZRange.Opt
 import static com.github.fppt.jedismock.operations.sortedsets.AbstractZRange.Options.REV;
 import static com.github.fppt.jedismock.operations.sortedsets.AbstractZRange.Options.WITHSCORES;
 import static com.github.fppt.jedismock.operations.sortedsets.AbstractZRange.Options.values;
-import static java.lang.Math.abs;
 import static java.util.Collections.emptyNavigableSet;
 
 abstract class AbstractZRange extends AbstractByScoreOperation {
