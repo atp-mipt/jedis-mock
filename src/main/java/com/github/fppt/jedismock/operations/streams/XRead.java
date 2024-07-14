@@ -115,6 +115,7 @@ public class XRead extends AbstractRedisOperation {
             if (blockTimeMillisec > 0) {
                 try {
                     while (!isInTransaction && !updated && ((waitTimeMillis = waitEnd - base().currentTime()) >= 0)) {
+
                         for (Map.Entry<Slice, StreamId> entry : mapKeyToBeginEntryId) {
                             if (base().exists(entry.getKey())
                                     && entry.getValue()
@@ -128,6 +129,7 @@ public class XRead extends AbstractRedisOperation {
 
                         if (waitTimeMillis < 500) {
                             lock.wait(waitTimeMillis, 1); // prevent 0 & 0 case not to get stuck
+
                         } else {
                             lock.wait(500, 0);
                         }

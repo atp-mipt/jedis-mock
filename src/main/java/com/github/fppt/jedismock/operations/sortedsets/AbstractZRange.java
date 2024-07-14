@@ -28,11 +28,10 @@ abstract class AbstractZRange extends AbstractByScoreOperation {
         WITHSCORES, REV, BYSCORE, BYLEX, LIMIT
     }
 
-    protected final EnumSet<Options> options = EnumSet.noneOf(Options.class);
-    
     protected static final String EXCLUSIVE_PREFIX = "(";
     protected static final String LOWEST_POSSIBLE_SCORE = "-inf";
     protected static final String HIGHEST_POSSIBLE_SCORE = "+inf";
+    protected final EnumSet<Options> options = EnumSet.noneOf(Options.class);
     protected int startIndex;
     protected int endIndex;
     protected long offset = 0;
@@ -45,8 +44,8 @@ abstract class AbstractZRange extends AbstractByScoreOperation {
         parseArgs();
     }
 
-    abstract protected ZSetEntryBound getStartBound(Slice start);
-    abstract protected ZSetEntryBound getEndBound(Slice end);
+    protected abstract ZSetEntryBound getStartBound(Slice start);
+    protected abstract ZSetEntryBound getEndBound(Slice end);
 
     protected NavigableSet<ZSetEntry> getRange(ZSetEntryBound start, ZSetEntryBound end) {
         if (mapDBObj.isEmpty()) {
@@ -69,8 +68,7 @@ abstract class AbstractZRange extends AbstractByScoreOperation {
                 if (options.contains(WITHSCORES)) {
                     list = entries.stream()
                             .skip(offset)
-                            .flatMap(e -> Stream.of(e.getValue(),
-                                    Slice.create(String.format("%.0f", e.getScore()))))
+                            .flatMap(AbstractZRange::getSliceStream)
                             .map(Response::bulkString)
                             .collect(Collectors.toList());
                 } else {
@@ -85,8 +83,7 @@ abstract class AbstractZRange extends AbstractByScoreOperation {
                     list = entries.stream()
                             .skip(offset)
                             .limit(count)
-                            .flatMap(e -> Stream.of(e.getValue(),
-                                    Slice.create(String.format("%.0f", e.getScore()))))
+                            .flatMap(AbstractZRange::getSliceStream)
                             .map(Response::bulkString)
                             .collect(Collectors.toList());
                 } else {
@@ -102,8 +99,7 @@ abstract class AbstractZRange extends AbstractByScoreOperation {
         } else {
             if (options.contains(WITHSCORES)) {
                 list = entries.stream()
-                        .flatMap(e -> Stream.of(e.getValue(),
-                                Slice.create(String.format("%.0f", e.getScore()))))
+                        .flatMap(AbstractZRange::getSliceStream)
                         .map(Response::bulkString)
                         .collect(Collectors.toList());
             } else {
@@ -115,6 +111,17 @@ abstract class AbstractZRange extends AbstractByScoreOperation {
         }
 
         return Response.array(list);
+    }
+
+    protected static Stream<Slice> getSliceStream(ZSetEntry e) {
+        if (e.getScore() % 1 == 0) {
+            return Stream.of(
+                    e.getValue(),
+                    Slice.create(String.format("%.0f", e.getScore())));
+        }
+        return Stream.of(
+                e.getValue(),
+                Slice.create(String.valueOf(e.getScore())));
     }
 
     protected final void parseArgs() {

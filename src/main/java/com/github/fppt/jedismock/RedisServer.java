@@ -20,14 +20,16 @@ import java.util.concurrent.Future;
  * Created by Xiaolu on 2015/4/18.
  */
 public class RedisServer {
+
+    private static final String NOT_RUNNING = "JedisMock is not running";
     private Clock internalClock;
     private int bindPort;
     private InetAddress bindAddress;
     private final Map<Integer, RedisBase> redisBases;
-    private final ExecutorService threadPool;
-    private RedisService service;
-    private ServiceOptions options = ServiceOptions.defaultOptions();
-    private Future<Void> serviceFinalization;
+    private volatile ExecutorService threadPool;
+    private volatile RedisService service;
+    private volatile ServiceOptions options = ServiceOptions.defaultOptions();
+    private volatile Future<Void> serviceFinalization;
 
     public RedisServer() {
         this(0);
@@ -45,7 +47,6 @@ public class RedisServer {
         this.bindPort = port;
         this.bindAddress = address;
         this.redisBases = new HashMap<>();
-        this.threadPool = Executors.newSingleThreadExecutor();
         CommandFactory.initialize();
         this.internalClock = internalClock;
     }
@@ -103,14 +104,15 @@ public class RedisServer {
         if (service != null) {
             throw new IllegalStateException();
         }
-
         this.service = new RedisService(bindPort, bindAddress, redisBases, options, internalClock);
+        threadPool = Executors.newSingleThreadExecutor();
+
         serviceFinalization = threadPool.submit(service);
         return this;
     }
 
     public void stop() throws IOException {
-        Objects.requireNonNull(service);
+        Objects.requireNonNull(service, NOT_RUNNING);
         service.stop();
         service = null;
         try {
@@ -120,7 +122,21 @@ public class RedisServer {
         } catch (InterruptedException e) {
             System.err.println("Jedis-mock interrupted while stopping");
             Thread.currentThread().interrupt();
+        } finally {
+            threadPool.shutdownNow();
         }
     }
+    public boolean isRunning() {
+        return service != null;
+    }
 
+    public String getHost() {
+        Objects.requireNonNull(service, NOT_RUNNING);
+        return service.getServer().getInetAddress().getHostAddress();
+    }
+
+    public int getBindPort() {
+        Objects.requireNonNull(service, NOT_RUNNING);
+        return service.getServer().getLocalPort();
+    }
 }
