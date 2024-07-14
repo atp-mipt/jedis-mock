@@ -13,12 +13,9 @@ import java.util.List;
 import static com.github.fppt.jedismock.Utils.toMillisTimeout;
 
 public abstract class AbstractBPop extends AbstractRedisOperation {
-
-    private final Object lock;
-    private final boolean isInTransaction;
     protected long timeoutMillis;
-
     protected List<Slice> keys;
+
     private final Object lock;
     private final boolean isInTransaction;
 

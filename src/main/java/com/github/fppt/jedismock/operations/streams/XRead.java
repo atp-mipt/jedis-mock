@@ -114,7 +114,7 @@ public class XRead extends AbstractRedisOperation {
             boolean updated = false; // should be unblocked after XADD was invoked
             if (blockTimeMillisec > 0) {
                 try {
-                    while (!isInTransaction && !updated && ((waitTimeMillis = waitEnd - base().currentTime()) >= 0)) {
+                    while (!isInTransaction && !updated && (waitTimeMillis = waitEnd - base().currentTime()) >= 0) {
 
                         for (Map.Entry<Slice, StreamId> entry : mapKeyToBeginEntryId) {
                             if (base().exists(entry.getKey())

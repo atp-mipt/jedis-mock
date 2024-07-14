@@ -86,16 +86,6 @@ public class RedisServer {
         return this;
     }
 
-    public String getHost() {
-        Objects.requireNonNull(service);
-        return service.getServer().getInetAddress().getHostAddress();
-    }
-
-    public int getBindPort() {
-        Objects.requireNonNull(service);
-        return service.getServer().getLocalPort();
-    }
-
     public Clock getInternalClock() {
         return internalClock;
     }
